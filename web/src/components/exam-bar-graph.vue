@@ -15,12 +15,17 @@ export default {
   props: {
     exams: { required: true },
     stacked: { default: false },
+    percentMode: { default: false },
+    unit: { default: "" },
   },
   mounted() {
     this.render();
   },
   watch: {
     exams() {
+      this.render();
+    },
+    stacked() {
       this.render();
     },
   },
@@ -64,6 +69,23 @@ export default {
         maintainAspectRatio: false,
         tooltips: {
           mode: "label",
+          callbacks: {
+            /*
+            label: (tooltipItem, data) => {
+              var label = data.datasets[tooltipItem.datasetIndex].label || "";
+              label += ": ";
+              if (this.is_mobile) {
+                label += tooltipItem.xLabel;
+              } else {
+                label += tooltipItem.yLabel;
+              }
+              if (label) {
+                label += this.unit;
+              }
+              return label;
+              
+            },*/
+          },
         },
         scales: {
           xAxes: [
@@ -74,6 +96,10 @@ export default {
           yAxes: [
             {
               stacked: this.stacked,
+              ticks: {
+                min: 0,
+                max: this.percentMode ? 100 : undefined,
+              },
             },
           ],
         },

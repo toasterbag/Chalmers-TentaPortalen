@@ -9,7 +9,7 @@ window.env = {
   API_URL:
     process.env.NODE_ENV == "production"
       ? "https://tenta.davebay.net/api"
-      : "http://localhost:8855/api",
+      : "http://192.168.2.154:8855/api",
 };
 
 Vue.config.productionTip = false;

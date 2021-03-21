@@ -1,10 +1,12 @@
 class Http {
-  static async fetch(method, path, query = {}, body = null) {
+  static async fetch(method, path, opts) {
+    const { query, body, headers } = Object.assign({ query: {}, body: {}, headers: {} }, opts);
+
     let queryString = Object.entries(query)
       .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
       .join("&");
 
-    const config = { method, headers: new Headers() };
+    const config = { method, headers: new Headers(headers) };
     if (body !== undefined && (method == "POST" || method == "PUT")) {
       config.body = JSON.stringify(body);
       config.headers.append("Content-Type", "application/json");
@@ -17,28 +19,28 @@ class Http {
     return res;
   }
 
-  static async get(path, query) {
-    let res = await Http.fetch("GET", path, query);
+  static async get(path, opts) {
+    let res = await Http.fetch("GET", path, opts);
     if (res.ok) {
       return res.json();
     }
     return null;
   }
 
-  static async post(path, query, body) {
-    return Http.fetch("POST", path, query, body);
+  static async post(path, opts) {
+    return Http.fetch("POST", path, opts);
   }
 
-  static async put(path, query, body) {
-    return Http.fetch("PUT", path, query, body);
+  static async put(path, opts) {
+    return Http.fetch("PUT", path, opts);
   }
 
-  static async delete(path, query) {
-    return Http.fetch("DELETE", path, query);
+  static async delete(path, opts) {
+    return Http.fetch("DELETE", path, opts);
   }
 
-  static async patch(path, query) {
-    return Http.fetch("PATCH", path, query);
+  static async patch(path, opts) {
+    return Http.fetch("PATCH", path, opts);
   }
 
   static async log(ev, data) {

@@ -125,11 +125,7 @@ const success = (text: string) => chalk.green(`✔ ${text}`);
 
 export default async (context: Context) => {
   Log.info("Started import..");
-  const url = context.config.DATA_SOURCE_URL;
   const temp = "/tmp/tentastatistik.xlsx";
-
-  Log.info("Fetching data..");
-  await fetchDatasheet(url, temp);
 
   Log.info("Parsing data..");
   let courses = parseDatasheet(temp);

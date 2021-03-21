@@ -1,6 +1,6 @@
 import http from "http";
 import express from "express";
-import { Application } from "express";
+import { Application, RequestHandler } from "express";
 
 import chalk from "chalk";
 import { Method, Response, Endpoint, EndpointHandler, Ok } from "./types";
@@ -9,6 +9,7 @@ import {
   Response as ExpressResponse,
 } from "express";
 import { RequestError } from "./error";
+import cors from "cors";
 
 import { makeLogger } from "@app/logger";
 const Log = makeLogger({ label: "Server" });
@@ -30,6 +31,7 @@ class Server<S> {
     this.state = state;
     this.app = express();
     this.app.use(express.json());
+    this.app.use(cors())
   }
 
   wrap_endpoint(endpoint: Endpoint<S>) {
@@ -59,18 +61,20 @@ class Server<S> {
       const method = endpoint.method;
       const path = endpoint.path;
       const handler = this.wrap_endpoint(endpoint);
+      const callbacks: Array<RequestHandler> = endpoint.middleware ?? [];
+      callbacks.push(handler);
 
       switch (method) {
         case Method.GET:
-          this.app.get(path, handler);
+          this.app.get(path, ...callbacks);
         case Method.POST:
-          this.app.post(path, handler);
+          this.app.post(path, ...callbacks);
         case Method.DELETE:
-          this.app.delete(path, handler);
+          this.app.delete(path, ...callbacks);
         case Method.PUT:
-          this.app.put(path, handler);
+          this.app.put(path, ...callbacks);
         case Method.PATCH:
-          this.app.patch(path, handler);
+          this.app.patch(path, ...callbacks);
       }
 
       const colored_path = path.replace(

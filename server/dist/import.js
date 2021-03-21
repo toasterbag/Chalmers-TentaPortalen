@@ -161,17 +161,12 @@ var parseDatasheet = function (src) {
 };
 var success = function (text) { return chalk_1["default"].green("\u2714 " + text); };
 exports["default"] = (function (context) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, temp, courses, course_rows, exams;
+    var temp, courses, course_rows, exams;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 Log.info("Started import..");
-                url = context.config.DATA_SOURCE_URL;
                 temp = "/tmp/tentastatistik.xlsx";
-                Log.info("Fetching data..");
-                return [4 /*yield*/, fetchDatasheet(url, temp)];
-            case 1:
-                _a.sent();
                 Log.info("Parsing data..");
                 courses = parseDatasheet(temp);
                 courses = Object.values(courses);
@@ -185,7 +180,7 @@ exports["default"] = (function (context) { return __awaiter(void 0, void 0, void
                         data: course_rows,
                         skipDuplicates: true
                     })];
-            case 2:
+            case 1:
                 _a.sent();
                 Log.info("Inserting exams..");
                 exams = courses.flatMap(function (course) {
@@ -202,7 +197,7 @@ exports["default"] = (function (context) { return __awaiter(void 0, void 0, void
                     });
                 });
                 return [4 /*yield*/, context.prisma.exam.createMany({ data: exams, skipDuplicates: true })];
-            case 3:
+            case 2:
                 _a.sent();
                 Log.info(success("Successfully imported all data!"));
                 return [2 /*return*/];

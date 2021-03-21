@@ -41,11 +41,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var server_1 = __importDefault(require("./server"));
 var context_1 = __importDefault(require("./context"));
-var import_1 = __importDefault(require("./import"));
 var logger_1 = require("./logger");
 var Logger = logger_1.makeLogger({ label: "Tenta" });
 var courses_1 = __importDefault(require("./routes/courses"));
 var analytics_1 = __importDefault(require("./routes/analytics"));
+var admin_1 = __importDefault(require("./routes/admin"));
 var main = function () { return __awaiter(void 0, void 0, void 0, function () {
     var state, server, routes, _i, routes_1, route;
     return __generator(this, function (_a) {
@@ -54,8 +54,7 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
             case 1:
                 state = _a.sent();
                 server = new server_1["default"](state);
-                import_1["default"](state);
-                routes = [courses_1["default"], analytics_1["default"]].flatMap(function (e) { return e; });
+                routes = [courses_1["default"], analytics_1["default"], admin_1["default"]].flatMap(function (e) { return e; });
                 for (_i = 0, routes_1 = routes; _i < routes_1.length; _i++) {
                     route = routes_1[_i];
                     server.route(new route());

@@ -27,8 +27,10 @@ export class Log implements Endpoint<Context> {
       },
     });
 
-    return Ok("");
+    return Ok({});
   }
 }
+
+
 
 export default [Log];

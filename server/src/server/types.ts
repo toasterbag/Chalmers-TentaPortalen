@@ -1,7 +1,9 @@
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
+  RequestHandler,
 } from "express";
+import multer, { Multer } from "multer";
 
 enum Method {
   GET = "GET",
@@ -45,6 +47,7 @@ interface Endpoint<S> {
   method: Method;
   path: string;
   query?: any;
+  middleware?: Array<RequestHandler>;
   handler: EndpointHandler<S>;
 }
 

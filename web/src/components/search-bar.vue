@@ -54,7 +54,9 @@ export default {
   },
   watch: {
     async search() {
-      this.$router.push({ name: "home" });
+      if (this.$route.name !== "home") {
+        this.$router.push({ name: "home" });
+      }
       this.$emit("search");
       const term = this.search.toLowerCase();
 

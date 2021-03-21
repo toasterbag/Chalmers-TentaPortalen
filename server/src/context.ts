@@ -1,12 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 
 class Config {
-  DATA_SOURCE_URL: string;
+  ADMIN_PASSWORD: string;
+  DATASHEET_TEMP_PATH: string;
   constructor() {
-    if (process.env.DATA_SOURCE_URL === undefined) {
-      throw new Error(`Missing env variable 'DATA_SOURCE_URL'`);
+    if (process.env.ADMIN_PASSWORD === undefined) {
+      throw new Error(`Missing env variable 'ADMIN_PASSWORD'`);
     }
-    this.DATA_SOURCE_URL = process.env.DATA_SOURCE_URL;
+    this.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+    if (process.env.DATASHEET_TEMP_PATH === undefined) {
+      throw new Error(`Missing env variable 'DATASHEET_TEMP_PATH'`);
+    }
+    this.DATASHEET_TEMP_PATH = process.env.DATASHEET_TEMP_PATH;
   }
 }
 

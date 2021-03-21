@@ -25,6 +25,16 @@ export default new Router({
       component: () => import("./views/exams.vue"),
     },
     {
+      path: "/login",
+      name: "login",
+      component: () => import("./views/login.vue"),
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: () => import("./views/admin.vue"),
+    },
+    {
       path: "*",
       redirect: { name: "home" },
     },

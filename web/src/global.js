@@ -16,6 +16,10 @@ Number.prototype.round = function () {
   return Math.round(this.valueOf());
 };
 
+Number.prototype.floor = function () {
+  return Math.floor(this.valueOf());
+};
+
 Number.prototype.add = function (other) {
   return this.valueOf() + other;
 };
@@ -91,23 +95,64 @@ Array.prototype.isEmpty = function () {
   return false;
 };
 
-Array.prototype.group_by = function (key) {
+Array.prototype.inspect = function (fn) {
+  return this.map(e => {
+    fn(e)
+    return e;
+  });
+};
+
+Array.prototype.groupBy = function (fn) {
+  return this.reduce((map, obj) => {
+    let group_key = fn(obj);
+    if (!(group_key in map)) {
+      map[group_key] = [];
+    }
+    map[group_key].push(obj);
+    return map;
+  }, {});
+};
+
+Array.prototype.groupByKey = function (key) {
   return this.reduce((map, obj) => {
     let group_key = obj[key];
-    if (!map.has(group_key)) {
-      map.set(group_key, []);
+    if (!(group_key in map)) {
+      map[group_key] = [];
     }
-    map.get(group_key).push(obj);
+    map[group_key].push(obj);
     return map;
-  }, new Map());
+  }, {});
+};
+
+Array.prototype.groupByKey = function (key) {
+  return this.reduce((map, obj) => {
+    let group_key = obj[key];
+    if (!(group_key in map)) {
+      map[group_key] = [];
+    }
+    map[group_key].push(obj);
+    return map;
+  }, {});
 };
 
 // Map
 
-Map.prototype.map = function (fn) {
-  let new_map = new Map();
-  this.forEach((value, key) => {
-    new_map.set(key, fn(value));
-  });
-  return new_map;
+Map.prototype.map = function (key) {
+  return this.reduce((map, obj) => {
+    let group_key = obj[key];
+    if (!(group_key in map)) {
+      map[group_key] = [];
+    }
+    map[group_key].push(obj);
+    return map;
+  }, {});
 };
+
+// Math
+
+Math.roundToTarget = function (numbers, target) {
+  var err = target - numbers.reduce((acc, x) => acc + x.floor(), 0);
+  return numbers
+    .sort((a, b) => a.sub(a.floor()) > b.round(b.floor()))
+    .map((x, i) => x.floor() + ((err > i) ? 1 : 0));
+}

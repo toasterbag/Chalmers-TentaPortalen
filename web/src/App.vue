@@ -1,20 +1,31 @@
 <template lang="pug">
-.container
-  search-bar
-  transition(name="fade", mode="out-in")
-    router-view
-  .row.justify-content-center.p-4
-    .col-auto.text-center
-      .text A project by DNS (Datateknologsektionens nämnd för studier)
-      .text Contact us at {{ 'dns' }}@dtek.se
-  .row.justify-content-center.p-4
-    .col-auto.text-center
-      a.m-5(
-        href="https://github.com/toasterbag/course-statistics",
-        target="_blank"
-      ) Code on Github
-    .col-auto.text-center
-      a.m-5(href="https://github.com/dtekcth/plugg", target="_blank") Course repository
+.wrapper
+  .container
+    .navbar.navbar-expand-lg.navbar-light
+      .container-fluid
+        .collapse.navbar-collapse
+          .navbar-nav
+            .nav-item
+              router-link.nav-link(:to="{ name: 'home' }") Home
+            .nav-item.feature--exam
+              router-link.nav-link(:to="{ name: 'exams' }") Upload Exam
+    search-bar
+
+    transition(name="fade", mode="out-in")
+      router-view.view
+  footer
+    .row
+      .col-12.col-md-8
+        .text A project by DNS (Datateknologsektionens nämnd för studier)
+        .text Contact us at {{ 'dns' }}@dtek.se
+      .col-12.col-md-4.text-end
+        .pa-2
+          a(
+            href="https://github.com/toasterbag/course-portal",
+            target="_blank"
+          ) Code on Github
+        .pa-2
+          a(href="https://github.com/dtekcth/plugg", target="_blank") Course repository
 </template>
 
 <script>
@@ -43,13 +54,48 @@ export default {
 @import url("assets/mdi.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
 
-body {
+html {
+  height: 100vh;
+  box-sizing: border-box;
+
   --link-color: #b3d368;
   background-color: #f0efee;
 }
 
+body,
+.wrapper {
+  position: relative;
+  min-height: 100vh;
+  background-color: #f0efee;
+}
+
+.wrapper {
+  padding-bottom: 80px;
+}
+
+footer {
+  position: absolute;
+  width: 100%;
+  height: 80px;
+  bottom: 0px;
+  background-color: #e7e7e7;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.feature--exam {
+  display: none !important;
+}
 .text {
   color: #4e5358;
+}
+
+.text-white {
+  color: white;
+}
+
+.bg-link {
+  background-color: var(--link-color);
 }
 
 a,

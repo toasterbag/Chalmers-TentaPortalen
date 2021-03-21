@@ -35,6 +35,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -47,6 +52,7 @@ var types_1 = require("./types");
 exports.Method = types_1.Method;
 exports.Response = types_1.Response;
 exports.Ok = types_1.Ok;
+var cors_1 = __importDefault(require("cors"));
 var logger_1 = require("../logger");
 var Log = logger_1.makeLogger({ label: "Server" });
 var method_colors = {
@@ -62,6 +68,7 @@ var Server = /** @class */ (function () {
         this.state = state;
         this.app = express_1["default"]();
         this.app.use(express_1["default"].json());
+        this.app.use(cors_1["default"]());
     }
     Server.prototype.wrap_endpoint = function (endpoint) {
         var _this = this;
@@ -97,23 +104,27 @@ var Server = /** @class */ (function () {
         this.endpoints.push(endpoint);
     };
     Server.prototype.serve = function (port) {
+        var _a, _b, _c, _d, _e;
+        var _f;
         Log.info(chalk_1["default"].yellow("Registering endpoints"));
-        for (var _i = 0, _a = this.endpoints; _i < _a.length; _i++) {
-            var endpoint = _a[_i];
+        for (var _i = 0, _g = this.endpoints; _i < _g.length; _i++) {
+            var endpoint = _g[_i];
             var method = endpoint.method;
             var path = endpoint.path;
             var handler = this.wrap_endpoint(endpoint);
+            var callbacks = (_f = endpoint.middleware) !== null && _f !== void 0 ? _f : [];
+            callbacks.push(handler);
             switch (method) {
                 case types_1.Method.GET:
-                    this.app.get(path, handler);
+                    (_a = this.app).get.apply(_a, __spreadArray([path], callbacks));
                 case types_1.Method.POST:
-                    this.app.post(path, handler);
+                    (_b = this.app).post.apply(_b, __spreadArray([path], callbacks));
                 case types_1.Method.DELETE:
-                    this.app["delete"](path, handler);
+                    (_c = this.app)["delete"].apply(_c, __spreadArray([path], callbacks));
                 case types_1.Method.PUT:
-                    this.app.put(path, handler);
+                    (_d = this.app).put.apply(_d, __spreadArray([path], callbacks));
                 case types_1.Method.PATCH:
-                    this.app.patch(path, handler);
+                    (_e = this.app).patch.apply(_e, __spreadArray([path], callbacks));
             }
             var colored_path = path.replace(/:([a-zA-Z]*)/g, function (e) { return ":" + chalk_1["default"].yellow(e.slice(1)); });
             var colored_method = Log.info("" + method_colors[method](method.padEnd(7)) + colored_path);
