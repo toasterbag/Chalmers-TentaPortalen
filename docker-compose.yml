@@ -5,16 +5,17 @@ services:
     restart: unless-stopped
     user: "node"
     build: .
-    env_file: .env
+    env_file:
+      - .env
     ports:
       - "10006:8855"
     volumes:
       - ./uploads:/uploads
 
-  db:
-    image: "postgres:13"
-    container_name: "tenta.dtek.se-postgres"
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: 98l11nmrayussrtn
-      POSTGRES_USER: admin
+  # db:
+  #   image: "postgres:13"
+  #   container_name: "tenta.dtek.se-postgres"
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_PASSWORD: 98l11nmrayussrtn
+  #     POSTGRES_USER: admin

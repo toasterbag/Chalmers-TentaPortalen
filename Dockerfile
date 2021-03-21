@@ -11,8 +11,8 @@ COPY ./server/package.json ./
 COPY ./server/yarn.lock ./
 RUN npm install
 COPY ./server .
+ADD ./.env ./.env
 RUN npx prisma generate
-RUN npx prisma migrate deploy
 RUN npm run build
 
 CMD [ "node", "." ]
