@@ -1,0 +1,41 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["createMany"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  code  String @id
+  name  String
+  owner String
+  exams Exam[]
+
+  @@map("courses")
+}
+
+model Exam {
+  date     DateTime
+  code     String
+  failed   Int
+  three    Int
+  four     Int
+  five     Int
+  examiner String?
+  course   Course   @relation(references: [code], fields: [code])
+
+  @@id([code, date])
+  @@map("exams")
+}
+
+model log {
+  timestamp DateTime @id @default(now()) @db.Timestamptz(6)
+  page      String
+  event     String
+  data      String
+  cookie    String
+  ip        String
+}

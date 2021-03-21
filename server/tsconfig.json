@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": "./",
+    "strict": true,
+    "lib": ["esnext"],
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "paths": {
+      "@app/*": ["./src/*"],
+      "@integrations/*": ["./src/integrations/*"]
+    }
+  }
+}

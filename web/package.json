@@ -1,0 +1,47 @@
+{
+  "name": "dave-tenta",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build --modern",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "bootstrap": "^5.0.0-beta2",
+    "chart.js": "^2.9.4",
+    "date-fns": "^2.19.0",
+    "vue": "^2.6.11",
+    "vue-chartjs": "^3.5.1",
+    "vue-router": "^3.4.7"
+  },
+  "devDependencies": {
+    "@prettier/plugin-pug": "^1.10.1",
+    "@vue/cli-plugin-babel": "^4.5.0",
+    "@vue/cli-plugin-eslint": "^4.5.0",
+    "@vue/cli-service": "^4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.18.0",
+    "eslint-plugin-vue": "^7.2.0",
+    "prettier": "^2.1.2",
+    "pug": "^3.0.0",
+    "pug-plain-loader": "^1.0.0",
+    "sass": "^1.27.0",
+    "sass-loader": "^10.0.4",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  }
+}

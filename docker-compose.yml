@@ -1,0 +1,21 @@
+version: "3"
+services:
+  tenta:
+    image: "node:14"
+    container_name: "tenta.dtek.se:app"
+    restart: unless-stopped
+    user: "node"
+    working_dir: /dist
+    command: "/bin/sh -c 'npm install && npm run build && npm run start'"
+    environment:
+      PORT: 3000
+      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@192.168.1.125/hibi"
+    ports:
+      - "10005:3000"
+    volumes:
+      - ./dist:/dist
+
+  postgres:
+    image: "postgres:13"
+    container_name: "tenta.dtek.se:postgres"
+    restart: unless-stopped
