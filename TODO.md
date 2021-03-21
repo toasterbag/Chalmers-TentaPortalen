@@ -4,3 +4,8 @@
   * Remember xlabel and ylabel 
 * Colorblind mode
   * Texture the bars
+* Add bar graph of visitors
+  * Visitors today ticker
+* 404???
+* Add examiner
+* Upload exam 

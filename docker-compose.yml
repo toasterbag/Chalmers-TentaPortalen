@@ -9,7 +9,7 @@ services:
     command: "/bin/sh -c 'npm install && npm run build && npm run start'"
     environment:
       PORT: 3000
-      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@192.168.1.125/hibi"
+      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@postgres/tenta"
     ports:
       - "10005:3000"
     volumes:
@@ -19,3 +19,6 @@ services:
     image: "postgres:13"
     container_name: "tenta.dtek.se:postgres"
     restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: 98l11nmrayussrtn
+      POSTGRES_USER: admin

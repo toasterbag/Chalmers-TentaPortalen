@@ -2,7 +2,15 @@
 .row.justify-content-center
   .row
     .col-5
-      .fs-3 Update the database
+      p För att få tag i senaste statistiken, mejla ladok@chalmers.se med text i stil med:
+      pre
+        code
+          br
+          | Halloj!
+          br
+          | Skulle man kunna få ut den senaste tentastatistiken?
+          br
+          | Tack på förhand!
       form.upload(@submit.prevent="submit")
         .uploads(v-if="datasheet.filename")
           .fs-4.align-center
