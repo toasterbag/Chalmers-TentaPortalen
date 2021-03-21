@@ -31,7 +31,7 @@ class Server<S> {
     this.state = state;
     this.app = express();
     this.app.use(express.json());
-    this.app.use(cors())
+    this.app.use(cors());
   }
 
   wrap_endpoint(endpoint: Endpoint<S>) {

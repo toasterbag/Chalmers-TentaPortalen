@@ -6,7 +6,7 @@
       input#password.form-control(type="password", v-model="password")
       .form-text.text-red(v-if="error") {{ error }}
 
-    button.btn.text.bg-link(type="submit") Submit
+    button.btn.text.bg-link(@click="submit") Submit
 </template>
 
 <script>
@@ -35,5 +35,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

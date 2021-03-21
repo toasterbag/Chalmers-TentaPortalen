@@ -82,7 +82,6 @@ var UploadDataSheet = /** @class */ (function () {
                     case 0:
                         pass = headers.authorization;
                         if (!(pass == context.config.ADMIN_PASSWORD)) return [3 /*break*/, 2];
-                        console.log(file);
                         return [4 /*yield*/, fs_1.promises.copyFile(file.path, context.config.DATASHEET_TEMP_PATH)];
                     case 1:
                         _b.sent();

@@ -19,7 +19,7 @@ export default {
     this.render();
   },
   watch: {
-    exams() {
+    visitors() {
       this.render();
     },
   },
@@ -28,12 +28,12 @@ export default {
       this.$refs.canvas.parentNode.style.height = "50vh";
       this.$refs.canvas.parentNode.style.position = "relative";
       const chart_data = {
-        labels: this.exams.map((e) => e.date),
+        labels: this.visitors.map((e) => e.date),
         datasets: [
           {
             label: "Visitors",
-            backgroundColor: "rgba(240,49,24,0.8)",
-            data: this.visitors.map((e) => e.value),
+            backgroundColor: "rgba(138,176,41,0.8)",
+            data: this.visitors.map((e) => e.count),
           },
         ],
       };
@@ -48,7 +48,6 @@ export default {
 
       if (is_mobile) {
         this.$refs.canvas.parentNode.style.height = "100vh";
-        //chart_data.datasets.
       }
 
       this.renderChart(chart_data, options);

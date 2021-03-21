@@ -39,3 +39,10 @@ model log {
   cookie    String
   ip        String
 }
+
+model feedback {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  email     String
+  message   String
+}

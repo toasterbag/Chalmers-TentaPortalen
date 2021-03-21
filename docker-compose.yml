@@ -1,23 +1,24 @@
 version: "3"
 services:
-  tenta:
-    image: "node:14"
-    container_name: "tenta.dtek.se:app"
+  app:
+    container_name: "tenta.dtek.se-app"
     restart: unless-stopped
     user: "node"
-    working_dir: /dist
-    command: "/bin/sh -c 'npm install && npm run build && npm run start'"
+    build: .
     environment:
-      PORT: 3000
-      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@postgres/tenta"
+      UPLOAD_PATH: "/uploads"
+      EXAMS_PATH: "./exams"
+      ADMIN_PASSWORD: "grandkid fraction feed enlisted maverick"
+      DATASHEET_TEMP_PATH: "/tmp/tentastatistik.xlsx"
+      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@db/tenta"
     ports:
-      - "10005:3000"
+      - "10006:8855"
     volumes:
-      - ./dist:/dist
+      - ./uploads:/uploads
 
-  postgres:
+  db:
     image: "postgres:13"
-    container_name: "tenta.dtek.se:postgres"
+    container_name: "tenta.dtek.se-postgres"
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: 98l11nmrayussrtn

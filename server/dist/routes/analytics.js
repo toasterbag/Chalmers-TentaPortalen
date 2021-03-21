@@ -1,4 +1,8 @@
 "use strict";
+var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.Log = void 0;
+exports.UniqueVisitorsLastMonth = exports.AddSuggestion = exports.Log = void 0;
 var server_1 = require("../server");
 var Log = /** @class */ (function () {
     function Log() {
@@ -69,7 +73,7 @@ var Log = /** @class */ (function () {
                             })];
                     case 1:
                         _g.sent();
-                        return [2 /*return*/, server_1.Ok("")];
+                        return [2 /*return*/, server_1.Ok({})];
                 }
             });
         });
@@ -77,5 +81,59 @@ var Log = /** @class */ (function () {
     return Log;
 }());
 exports.Log = Log;
-exports["default"] = [Log];
+var AddSuggestion = /** @class */ (function () {
+    function AddSuggestion() {
+        this.method = server_1.Method.POST;
+        this.path = "/api/feedback";
+    }
+    AddSuggestion.prototype.handler = function (_a, _b) {
+        var _c;
+        var body = _a.body;
+        var prisma = _b.prisma;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0: return [4 /*yield*/, prisma.feedback.create({
+                            data: {
+                                id: undefined,
+                                timestamp: undefined,
+                                email: (_c = body.email) !== null && _c !== void 0 ? _c : "anonymous",
+                                message: body.message
+                            }
+                        })];
+                    case 1:
+                        _d.sent();
+                        return [2 /*return*/, server_1.Ok({})];
+                }
+            });
+        });
+    };
+    return AddSuggestion;
+}());
+exports.AddSuggestion = AddSuggestion;
+var UniqueVisitorsLastMonth = /** @class */ (function () {
+    function UniqueVisitorsLastMonth() {
+        this.method = server_1.Method.GET;
+        this.path = "/api/metrics/visitors";
+    }
+    UniqueVisitorsLastMonth.prototype.handler = function (_a, _b) {
+        var params = _a.params;
+        var prisma = _b.prisma;
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n    SELECT timestamp::date AS date, COUNT(DISTINCT cookie) as count\n    FROM log\n    WHERE \n      timestamp BETWEEN \n      now() - interval '30 days' AND now()\n    GROUP BY date\n    ORDER BY date ASC;"], ["\n    SELECT timestamp::date AS date, COUNT(DISTINCT cookie) as count\n    FROM log\n    WHERE \n      timestamp BETWEEN \n      now() - interval '30 days' AND now()\n    GROUP BY date\n    ORDER BY date ASC;"])))];
+                    case 1:
+                        data = _c.sent();
+                        return [2 /*return*/, server_1.Ok(data)];
+                }
+            });
+        });
+    };
+    return UniqueVisitorsLastMonth;
+}());
+exports.UniqueVisitorsLastMonth = UniqueVisitorsLastMonth;
+exports["default"] = [Log, AddSuggestion, UniqueVisitorsLastMonth];
+var templateObject_1;
 //# sourceMappingURL=analytics.js.map

@@ -7,9 +7,7 @@ import components from "./plugins/components";
 
 window.env = {
   API_URL:
-    process.env.NODE_ENV == "production"
-      ? "https://tenta.davebay.net/api"
-      : "http://192.168.2.154:8855/api",
+    process.env.NODE_ENV == "production" ? "/api" : "http://localhost:8855/api",
 };
 
 Vue.config.productionTip = false;

@@ -7,8 +7,12 @@
           .navbar-nav
             .nav-item
               router-link.nav-link(:to="{ name: 'home' }") Home
+            .nav-item.feature--analytics
+              router-link.nav-link(:to="{ name: 'analytics' }") Analytics
             .nav-item.feature--exam
               router-link.nav-link(:to="{ name: 'exams' }") Upload Exam
+        .nav-item
+          router-link(:to="{ name: 'feedback' }") Leave feedback
     search-bar
 
     transition(name="fade", mode="out-in")
@@ -86,6 +90,11 @@ footer {
 .feature--exam {
   display: none !important;
 }
+
+.feature--analytics {
+  display: none !important;
+}
+
 .text {
   color: #4e5358;
 }

@@ -35,6 +35,16 @@ export default new Router({
       component: () => import("./views/admin.vue"),
     },
     {
+      path: "/feedback",
+      name: "feedback",
+      component: () => import("./views/feedback.vue"),
+    },
+    {
+      path: "/analytics",
+      name: "analytics",
+      component: () => import("./views/analytics.vue"),
+    },
+    {
       path: "*",
       redirect: { name: "home" },
     },
