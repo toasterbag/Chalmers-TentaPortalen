@@ -5,12 +5,7 @@ services:
     restart: unless-stopped
     user: "node"
     build: .
-    environment:
-      UPLOAD_PATH: "/uploads"
-      EXAMS_PATH: "./exams"
-      ADMIN_PASSWORD: "grandkid fraction feed enlisted maverick"
-      DATASHEET_TEMP_PATH: "/tmp/tentastatistik.xlsx"
-      DATABASE_URL: "postgresql://admin:98l11nmrayussrtn@db/tenta"
+    env_file: .env
     ports:
       - "10006:8855"
     volumes:
