@@ -17,6 +17,7 @@ export class Log implements Endpoint<Context> {
       body.token = "anonymous";
       ip = "anonymous";
     }
+
     await prisma.log.create({
       data: {
         timestamp: undefined,
@@ -66,4 +67,15 @@ export class UniqueVisitorsLastMonth implements Endpoint<Context> {
   }
 }
 
-export default [Log, AddSuggestion, UniqueVisitorsLastMonth];
+export class ExamsLastUpdated implements Endpoint<Context> {
+  method = Method.GET;
+  path = "/api/metrics/exams/updated";
+
+  async handler({ params }: Request, { prisma }: Context): Promise<Response> {
+    const data = await prisma.$queryRaw`
+      SELECT date FROM exams ORDER BY date DESC LIMIT 1;`;
+    return Ok(data[0]);
+  }
+}
+
+export default [Log, AddSuggestion, UniqueVisitorsLastMonth, ExamsLastUpdated];
