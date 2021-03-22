@@ -13,8 +13,8 @@ export class Log implements Endpoint<Context> {
     { prisma }: Context
   ): Promise<Response> {
     let ip: any = headers["x-forwarded-for"] ?? "anonymous";
-    if (!body.cookie) {
-      body.cookie = "anonymous";
+    if (!body.token) {
+      body.token = "anonymous";
       ip = "anonymous";
     }
     await prisma.log.create({
@@ -23,7 +23,7 @@ export class Log implements Endpoint<Context> {
         page: body.page ?? "unknown",
         event: body.event ?? "unknown",
         data: body.data ?? "None",
-        cookie: body.cookie,
+        cookie: body.token,
         ip,
       },
     });
