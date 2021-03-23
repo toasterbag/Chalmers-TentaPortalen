@@ -7,8 +7,13 @@ import components from "./plugins/components";
 
 window.env = {
   API_URL:
-    process.env.NODE_ENV == "production" ? "/api" : "http://localhost:8855/api",
+    process.env.NODE_ENV == "production"
+      ? "https://tenta.davebay.net/api"
+      : "http://localhost:8855/api",
 };
+
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
 
 Vue.config.productionTip = false;
 Vue.use(components);
