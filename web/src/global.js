@@ -12,6 +12,10 @@ Number.prototype.trunc = function () {
   return Math.trunc(this.valueOf());
 };
 
+Number.prototype.frac = function () {
+  return this.valueOf() % 1;
+};
+
 Number.prototype.round = function () {
   return Math.round(this.valueOf());
 };
@@ -96,8 +100,8 @@ Array.prototype.isEmpty = function () {
 };
 
 Array.prototype.inspect = function (fn) {
-  return this.map(e => {
-    fn(e)
+  return this.map((e) => {
+    fn(e);
     return e;
   });
 };
@@ -151,8 +155,11 @@ Map.prototype.map = function (key) {
 // Math
 
 Math.roundToTarget = function (numbers, target) {
-  var err = target - numbers.reduce((acc, x) => acc + x.floor(), 0);
+  var err = target - numbers.map((x) => x.floor()).sum();
   return numbers
-    .sort((a, b) => a.sub(a.floor()) > b.round(b.floor()))
-    .map((x, i) => x.floor() + ((err > i) ? 1 : 0));
-}
+    .map((e, i) => [e, i])
+    .sort(([a], [b]) => a.frac() < b.frac())
+    .map(([x, _i], i) => [x.floor() + (err > i ? 1 : 0), _i])
+    .sort(([, a], [, b]) => a > b)
+    .map(([x]) => x);
+};
