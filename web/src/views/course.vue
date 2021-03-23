@@ -8,14 +8,14 @@
       .col-md-2
         //- div Examinator: {{ examiner }}
         div
-          a(
+          a.feature--exam(
             :href="`https://github.com/dtekcth/plugg/tree/master/${code}`",
             target="_blank"
           ) 
             | Exams
             span.text-pink &nbsp BETA
         div
-          a(
+          a.feature--exam(
             :href="`https://github.com/dtekcth/plugg/tree/master/${code}/surveys`",
             target="_blank"
           ) 
@@ -41,7 +41,7 @@
           input#bars-percent.form-check-input(
             type="checkbox",
             :disabled="!stack_bars",
-            v-model="bar_percent"
+            v-model="display_percent"
           )
           label.form-check-label(for="bars-percent")
             | Values as percent
@@ -51,8 +51,8 @@
         exam-bar-graph(
           :exams="exams",
           :stacked="stack_bars",
-          :percent-mode="bar_percent",
-          :unit="bar_percent ? '%' : ''"
+          :percent-mode="display_percent",
+          :unit="display_percent ? '%' : ''"
         )
     .row.justify-content-center.tenta-table.p-md-5
       .col-12
@@ -66,10 +66,10 @@
 
         .row.align-middle(v-for="exam in exams", :key="exam.date")
           .col-2 {{ exam.date }}
-          .col-2(:class="{ 'text-danger': exam.failedPercent > 50 }") {{ exam.percent.failed }}%
-          .col-2 {{ exam.percent.three }}%
-          .col-2 {{ exam.percent.four }}%
-          .col-2 {{ exam.percent.five }}%
+          .col-2(:class="{ 'text-danger': exam.failedPercent > 50 }") {{ exam.failed }}{{ display_percent ? '%' : '' }}
+          .col-2 {{ exam.three }}{{ display_percent ? '%' : '' }}
+          .col-2 {{ exam.four }}{{ display_percent ? '%' : '' }}
+          .col-2 {{ exam.five }}{{ display_percent ? '%' : '' }}
           .col-2.text-end {{ exam.total }}
 </template>
 
@@ -83,7 +83,7 @@ export default {
     ready: false,
     hide_reexams: true,
     stack_bars: true,
-    bar_percent: true,
+    display_percent: true,
 
     name: undefined,
     code: undefined,
@@ -110,12 +110,10 @@ export default {
           exam.four,
           exam.five,
         ].map((e) => e.div(exam.total).mul(100));
-        console.log("before", percentages);
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
           100
         );
-        console.log("after", [failed, three, four, five]);
 
         exam.percent.failed = failed;
         exam.percent.three = three;
@@ -145,7 +143,7 @@ export default {
 
     exams() {
       let exams = this.filtered_exams;
-      if (this.bar_percent) {
+      if (this.display_percent) {
         exams = this.filtered_exams.map((e) => Object.assign({}, e, e.percent));
       }
       return exams;
@@ -157,7 +155,7 @@ export default {
     },
     stack_bars(val) {
       if (!val) {
-        this.bar_percent = false;
+        this.display_percent = false;
       }
     },
   },

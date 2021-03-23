@@ -45,6 +45,15 @@
             v-for="item in suggestions",
             @click="select_code(item)"
           ) {{ item }}
+      .mb-3.relative
+        label.form-label(for="code") Course code
+        input#code.form-control(
+          v-model="code",
+          @input="autocomplete",
+          @focus="autocomplete",
+          @blur="clear_suggestions"
+        )
+        .form-text )
       form.upload(@submit.prevent="submit")
         div Upload
         .uploads
