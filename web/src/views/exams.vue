@@ -1,6 +1,5 @@
 <template lang="pug">
 .row.justify-content-center
-  search-bar
   .col-12.col-md-8.fs-4
     div We would appreciate any exams and solutions you may by able to provide. You can either upload them on the course pages or just drop a bunch of them in the box below. If you choose to mass upload please follow the naming conventions below to make our work a little bit easier 😊. It does not have to be a pdf file. If there are attachments you can name them whatever you think is reasonable.
 

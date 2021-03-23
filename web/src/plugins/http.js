@@ -1,6 +1,9 @@
 class Http {
   static async fetch(method, path, opts) {
-    const { query, body, headers } = Object.assign({ query: {}, body: {}, headers: {} }, opts);
+    const { query, body, headers } = Object.assign(
+      { query: {}, body: {}, headers: {} },
+      opts
+    );
 
     let queryString = Object.entries(query)
       .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
@@ -44,16 +47,14 @@ class Http {
   }
 
   static async log(ev, data) {
-    Http.post(
-      "doit",
-      {},
-      {
+    Http.post("doit", {
+      body: {
         page: window.location.pathname,
         token: localStorage.getItem("token"),
         event: ev,
         data: data ?? "none",
-      }
-    );
+      },
+    });
   }
 }
 export default Http;

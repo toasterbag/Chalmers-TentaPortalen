@@ -8,14 +8,14 @@
       .col-md-2
         //- div Examinator: {{ examiner }}
         div
-          a.feature--exam(
+          a(
             :href="`https://github.com/dtekcth/plugg/tree/master/${code}`",
             target="_blank"
           ) 
             | Exams
             span.text-pink &nbsp BETA
         div
-          a.feature--exam(
+          a(
             :href="`https://github.com/dtekcth/plugg/tree/master/${code}/surveys`",
             target="_blank"
           ) 
@@ -104,12 +104,18 @@ export default {
         exam.total = exam.failed + exam.three + exam.four + exam.five;
         exam.percent = {};
 
+        const percentages = [
+          exam.failed,
+          exam.three,
+          exam.four,
+          exam.five,
+        ].map((e) => e.div(exam.total).mul(100));
+        console.log("before", percentages);
         const [failed, three, four, five] = Math.roundToTarget(
-          [exam.failed, exam.three, exam.four, exam.five]
-            .map((e) => e.div(exam.total).mul(100))
-            .inspect(console.log),
+          percentages,
           100
         );
+        console.log("after", [failed, three, four, five]);
 
         exam.percent.failed = failed;
         exam.percent.three = three;

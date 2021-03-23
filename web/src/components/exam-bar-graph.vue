@@ -1,17 +1,12 @@
+<template lang="pug">
+.canvas-container
+  canvas(ref="canvas")
+</template>
+
 <script>
-import { Bar, HorizontalBar } from "vue-chartjs";
-const is_mobile = window.innerHeight > window.innerWidth;
-
-let base_chart;
-if (is_mobile) {
-  base_chart = HorizontalBar;
-} else {
-  base_chart = Bar;
-}
-
+import { Chart } from "chart.js";
 export default {
   name: "exam-bar-graph",
-  extends: base_chart,
   props: {
     exams: { required: true },
     stacked: { default: false },
@@ -20,6 +15,50 @@ export default {
   },
   mounted() {
     this.render();
+  },
+  data: () => ({ chart: undefined }),
+  computed: {
+    chart_opts() {
+      return {
+        scales: {
+          x: {
+            stacked: this.stacked,
+          },
+          y: {
+            stacked: this.stacked,
+            min: 0,
+            max: this.percentMode ? 100 : undefined,
+          },
+        },
+      };
+    },
+    chart_data() {
+      return {
+        labels: this.exams.map((e) => e.date),
+        datasets: [
+          {
+            label: "U",
+            backgroundColor: "rgba(240,49,24,0.8)",
+            data: this.exams.map((e) => e.failed),
+          },
+          {
+            label: "3",
+            backgroundColor: "rgba(169,214,63,0.8)",
+            data: this.exams.map((e) => e.three),
+          },
+          {
+            label: "4",
+            backgroundColor: "rgba(138,176,41,0.8)",
+            data: this.exams.map((e) => e.four),
+          },
+          {
+            label: "5",
+            backgroundColor: "rgba(92,126,14,0.8)",
+            data: this.exams.map((e) => e.five),
+          },
+        ],
+      };
+    },
   },
   watch: {
     exams() {
@@ -31,92 +70,31 @@ export default {
   },
   methods: {
     render() {
-      this.$refs.canvas.parentNode.style.height = "50vh";
-      this.$refs.canvas.parentNode.style.position = "relative";
-      const chart_data = {
-        labels: this.exams.map((e) => e.date),
-        series: ["U", "3", "4", "5"],
-        datasets: [
-          {
-            label: "U",
-            //stack: "Grades",
-            backgroundColor: "rgba(240,49,24,0.8)",
-            data: this.exams.map((e) => e.failed),
-          },
-          {
-            label: "3",
-            //stack: "Grades",
-            backgroundColor: "rgba(169,214,63,0.8)",
-            data: this.exams.map((e) => e.three),
-          },
-          {
-            label: "4",
-            //stack: "Grades",
-            backgroundColor: "rgba(138,176,41,0.8)",
-            data: this.exams.map((e) => e.four),
-          },
-          {
-            label: "5",
-            //stack: "Grades",
-            backgroundColor: "rgba(92,126,14,0.8)",
-            data: this.exams.map((e) => e.five),
-          },
-        ],
-      };
+      if (this.chart) {
+        this.chart.destroy();
+      }
+      const is_mobile = "ontouchstart" in document.documentElement;
 
-      const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        tooltips: {
-          mode: "label",
-          callbacks: {
-            /*
-            label: (tooltipItem, data) => {
-              var label = data.datasets[tooltipItem.datasetIndex].label || "";
-              label += ": ";
-              if (this.is_mobile) {
-                label += tooltipItem.xLabel;
-              } else {
-                label += tooltipItem.yLabel;
-              }
-              if (label) {
-                label += this.unit;
-              }
-              return label;
-              
-            },*/
-          },
-        },
-        scales: {
-          xAxes: [
-            {
-              stacked: this.stacked,
-            },
-          ],
-          yAxes: [
-            {
-              stacked: this.stacked,
-              ticks: {
-                min: 0,
-                max: this.percentMode ? 100 : undefined,
-              },
-            },
-          ],
-        },
-      };
+      this.$refs.canvas.parentNode.style.height = "50vh";
 
       if (is_mobile) {
         this.$refs.canvas.parentNode.style.height = "100vh";
-        //chart_data.datasets.
       }
 
-      this.renderChart(chart_data, options);
+      this.chart = new Chart(this.$refs.canvas.getContext("2d"), {
+        type: "bar",
+        data: this.chart_data,
+        options: this.chart_opts,
+      });
     },
   },
 };
 </script>
 
 <style lang="scss">
+.canvas-containe {
+  position: relative;
+}
 .chartjs-tooltip {
   opacity: 1;
   position: absolute;
