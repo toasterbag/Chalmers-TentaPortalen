@@ -1,0 +1,56 @@
+@mixin spread-map($map: ()) {
+  @each $key, $value in $map {
+    #{$key}: $value;
+  }
+}
+
+@function theme-var($key, $fallback: null, $map: $theme-map-light) {
+  @if not map-has-key($map, $key) {
+    @error "key: '#{$key}', is not a key in map: #{$map}";
+  }
+  @if ($fallback) {
+    @return var($key, $fallback);
+  } @else {
+    @return var($key);
+  }
+}
+
+// Default theme
+$theme-map-light: (
+  --sp-green: #8cb369,
+  --sp-blue: #5b8e7d,
+  --sp-yellow: #f4e285,
+  --sp-orange: #f4a259,
+  --sp-red: #bc4b51,
+  --sp-primary: var(--sp-blue),
+  --sp-accent: var(--sp-red),
+  --sp-error: var(--sp-red),
+  --sp-warning: var(--sp-yellow),
+  --sp-background: #f0efee,
+  --sp-paper: #e7e7e7,
+  --sp-text: #4e5358,
+  --bg-card: #f0efee,
+  --bg-card-raised: #f8f8f8,
+  --footer-height: 200px,
+  --input-disabled-solid-color: #949494,
+);
+
+// Override the default light theme
+$theme-map-dark: (
+  --sp-green: #8cb369,
+  --sp-blue: #5b8e7d,
+  --sp-yellow: #f4e285,
+  --sp-orange: #f4a259,
+  --sp-red: #bc4b51,
+  --sp-primary: var(--sp-blue),
+  --sp-accent: var(--sp-red),
+  --sp-error: var(--sp-red),
+  --sp-warning: var(--sp-yellow),
+  --sp-background: #f0efee,
+  --sp-paper: #e7e7e7,
+  --sp-text: #4e5358,
+  --bg-card: #f0efee,
+  --bg-card-raised: #f8f8f8,
+  --footer-height: 200px,
+  --input-disabled-solid-color: #949494,
+);
