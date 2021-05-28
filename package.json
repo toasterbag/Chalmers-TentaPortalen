@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "add": "^2.0.6",
     "bootstrap": "^5.0.0-beta2",
     "chart.js": "^3.0.0-rc.2",
     "date-fns": "^2.19.0",
