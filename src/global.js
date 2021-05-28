@@ -158,14 +158,18 @@ Array.prototype.groupByKey = function (key) {
 };
 
 Array.prototype.sortBy = function (extractKey) {
-  return this.sort((a, b) => {
+  return this.map((e) => e).sort((a, b) => {
     const a_key = extractKey(a);
     const b_key = extractKey(b);
     if (a_key instanceof String && b_key instanceof String) {
       return a_key.localeCompare(b_key);
     }
-    return a_key > b_key;
+    return a_key - b_key;
   });
+};
+
+Array.prototype.order = function (asc = true) {
+  return asc ? this : this.map((e) => e).reverse();
 };
 
 // Map

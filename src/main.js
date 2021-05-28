@@ -26,10 +26,10 @@ Chart.register(...registerables);
 Vue.directive("tooltip", {
   // When the bound element is inserted into the DOM...
   inserted: function (el, { value }) {
-    new window.bootstrap.Tooltip(el, value);
+    el.tooltip = new window.bootstrap.Tooltip(el, value);
   },
   update: function (el, { value }) {
-    new window.bootstrap.Tooltip(el, value);
+    el.tooltip = new window.bootstrap.Tooltip(el, value);
   },
 });
 
@@ -37,22 +37,22 @@ Vue.directive("validate", {
   inserted: function (el, fns) {
     el.addEventListener("input", (e) => {
       const val = e.target.value;
-      if (!fns.every(f => f(val))) {
-        el.classList.remove("invalid")
+      if (!fns.every((f) => f(val))) {
+        el.classList.remove("invalid");
       } else {
-        el.classList.add("invalid")
+        el.classList.add("invalid");
       }
-    })
+    });
   },
   update: function (el, fns) {
     el.addEventListener("input", (e) => {
       const val = e.target.value;
-      if (!fns.every(f => f(val))) {
-        el.classList.remove("invalid")
+      if (!fns.every((f) => f(val))) {
+        el.classList.remove("invalid");
       } else {
-        el.classList.add("invalid")
+        el.classList.add("invalid");
       }
-    })
+    });
   },
 });
 

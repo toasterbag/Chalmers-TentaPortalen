@@ -30,15 +30,15 @@
   .row
     .col-md-2
       label.form-label Minimum responses
-      input(v-model="minResponses", @input="updateQuery", type="number")
+      input(v-model="min_responses", @input="updateQuery", type="number")
     .col-md-2.mx-1
       label.form-label Maximum responses
-      input(v-model="maxResponses", @input="updateQuery", type="number")
+      input(v-model="max_responses", @input="updateQuery", type="number")
   .row.justify-content-center.tenta-table
     .text-end.mb-2 {{ list.length }} results
     .col-12
       .row.header.align-items-center
-        .col-3.clickable(@click="sort_by('course_code')") Code
+        .col-2.clickable(@click="sort_by('course_code')") Code
           span(v-if="sort_key == 'course_code'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
@@ -46,34 +46,31 @@
           span.ps-2(v-if="sort_key == 'total_impression_mean'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
-        .col-2.text-end.clickable(
-          @click="sort_by('respondents')",
-          v-tooltip="{title: 'The total number of students'}"
-        ) Respondents
+        .col-2.text-end.clickable(@click="sort_by('respondents')") Respondents
           span.ps-2(v-if="sort_key == 'respondents'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
-        .col-2.text-end.clickable(
-          @click="sort_by('responses')",
-          v-tooltip="{title: 'Number of survey answers'}"
-        ) Responses
+        .col-2.text-end.clickable(@click="sort_by('responses')") Responses
           span.ps-2(v-if="sort_key == 'responses'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
-        .col-2.text-end.clickable(@click="sort_by('answer_frequency')") Answer frequency
+        .col-3.text-end.clickable(@click="sort_by('answer_frequency')") Answer frequency
           span.ps-2(v-if="sort_key == 'answer_frequency'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
 
-      .row(v-for="(course, index) in sorted_courses", :key="index")
-        .col-3.text-primary
+      .row(
+        v-for="(course, index) in sorted_courses",
+        :key="course.course_code + course.start_period + course.end_period"
+      )
+        .col-2.text-primary
           router-link(
             :to="{ name: 'course/exam-statistics', params: { code: course.course_code } }"
           ) {{ course.course_code }}
         .col-3.text-end {{ course.total_impression_mean.roundTo(2) }}
         .col-2.text-end {{ course.respondents }}
         .col-2.text-end {{ course.responses }}
-        .col-2.text-end {{ course.answer_frequency.roundTo(2) }}%
+        .col-3.text-end {{ course.answer_frequency.roundTo(2) }}%
 </template>
 
 <script>
@@ -91,10 +88,10 @@ export default {
     ready: false,
     programme: "",
     programme_suggestions: [],
-    department: [],
+    department: "",
     department_suggestions: [],
-    minResponses: "",
-    maxResponses: "",
+    min_responses: "",
+    max_responses: "",
     list: [],
     sort_key: "total_impression_mean",
     order_desc: false,
@@ -117,6 +114,9 @@ export default {
     this.academic_year =
       this.$route.query.academic_year ?? date_to_academic_year(new Date());
     this.programme = this.$route.query.programme ?? "";
+    this.department = this.$route.query.department ?? "";
+    this.min_responses = this.$route.query.min_responses ?? "";
+    this.max_responses = this.$route.query.max_responses ?? "";
     this.loadData();
   },
   methods: {
@@ -130,11 +130,11 @@ export default {
         query.department = this.department[0].id;
       }
 
-      if (this.minResponses) {
-        query.min_responses = this.minResponses;
+      if (this.min_responses) {
+        query.min_responses = this.min_responses;
       }
-      if (this.maxResponses) {
-        query.max_responses = this.maxResponses;
+      if (this.max_responses) {
+        query.max_responses = this.max_responses;
       }
 
       this.$router
@@ -177,10 +177,8 @@ export default {
       }
       this.sort_key = key;
 
-      let courses = this.list.sortBy((x) => x[this.sort_key]);
-      courses = this.order_desc ? courses.reverse() : courses;
+      let courses = this.list.sortBy((x) => x[key]).order(!this.order_desc);
       this.sorted_courses = courses;
-      this.$forceUpdate();
     },
     async update_programme_suggestions(term) {
       if (term.length == 0) {

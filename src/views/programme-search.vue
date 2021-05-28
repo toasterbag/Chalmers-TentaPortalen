@@ -48,7 +48,7 @@ const date_to_academic_year = (date) =>
     : `${getYear(date) - 1}/${getYear(date)}`;
 
 export default {
-  name: "worst-courses",
+  name: "programme-search",
   data: () => ({
     ready: false,
     list: [],
