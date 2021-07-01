@@ -30,10 +30,18 @@
   .row
     .col-md-2
       label.form-label Minimum responses
-      input(v-model="min_responses", @input="updateQuery", type="number")
+      input.form-control(
+        v-model="min_responses",
+        @input="updateQuery",
+        type="number"
+      )
     .col-md-2.mx-1
       label.form-label Maximum responses
-      input(v-model="max_responses", @input="updateQuery", type="number")
+      input.form-control(
+        v-model="max_responses",
+        @input="updateQuery",
+        type="number"
+      )
   .row.justify-content-center.tenta-table
     .text-end.mb-2 {{ list.length }} results
     .col-12

@@ -92,6 +92,11 @@ const router = new Router({
           name: "admin/feedback",
           component: () => import("./views/admin/feedback.vue"),
         },
+        {
+          path: "periods",
+          name: "admin/periods",
+          component: () => import("./views/admin/periods.vue"),
+        },
       ],
     },
 
@@ -114,6 +119,11 @@ const router = new Router({
       path: "/analytics",
       name: "analytics",
       component: () => import("./views/analytics.vue"),
+    },
+    {
+      path: "/passrate-by-period",
+      name: "passrate-by-period",
+      component: () => import("./views/passrate-by-period.vue"),
     },
     {
       path: "/faq",
