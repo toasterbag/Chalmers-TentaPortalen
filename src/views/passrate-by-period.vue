@@ -1,6 +1,6 @@
 <template lang="pug">
 div(v-if="this.ready")
-  .row.justify-content-between.py-md-0.py-3
+  .row.justify-content-end.py-md-0.py-3
     .col-md-2
       .form-check
         input#stack-bars.form-check-input(
@@ -29,7 +29,7 @@ div(v-if="this.ready")
         )
     .tenta-table.p-md-5.py-3
       .row.header
-        .col-3.col-md-2 Date
+        .col-3.col-md-2 Period
         .col-2.text-end U
         .col-2.text-end 3
         .col-2.text-end 4
@@ -111,7 +111,16 @@ export default {
         stats.percent.three = three;
         stats.percent.four = four;
         stats.percent.five = five;
-        stats.date = period;
+        stats.date = period
+          .replace("sp_1_exams", "Study period 1 exams")
+          .replace("sp_2_exams", "Study period 2 exams")
+          .replace("sp_3_exams", "Study period 3 exams")
+          .replace("sp_4_exams", "Study period 4 exams")
+          .replace("august_re_exams", "August re-exams")
+          .replace("october_re_exams", "October re-exams")
+          .replace("january_re_exams", "January re-exams")
+          .replace("easter_re_exams", "Easter re-exams")
+          .replace("june_re_exams", "June re-exams");
         return stats;
       });
 
