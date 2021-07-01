@@ -13,12 +13,9 @@ export default {
     { prisma }: Context,
   ): Promise<Response> => {
     const code = params.code;
-    const data = prisma.survey.findMany({
+    const data = await prisma.survey.findMany({
       where: { course_code: code.toUpperCase() },
-      orderBy: {
-        academic_year: "desc",
-        start_period: "asc",
-      },
+      orderBy: [{ academic_year: "asc" }, { start_period: "asc" }],
     });
 
     return Ok(data);
