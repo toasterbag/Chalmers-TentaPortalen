@@ -24,12 +24,8 @@ export default {
           title: "Import",
           route: "admin/import",
         },
-        // {
-        //   title: "Alerts",
-        //   route: "admin/alerts",
-        // },
         {
-          title: " Verify exam",
+          title: "Verify exam",
           route: "admin/verify-exams",
           badge: this.pending_exams,
         },
@@ -41,7 +37,7 @@ export default {
     this.timer = setInterval(async () => {
       //this.refresh();
     }, 15 * 1000);
-    const { count } = await Http.get("exams/pending/count");
+    const { count } = await Http.get("exams/pending");
     this.pending_exams = count;
   },
   destroyed() {

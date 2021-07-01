@@ -79,6 +79,11 @@ export default {
         : this.suggestions;
     },
   },
+  watch: {
+    value(new_val) {
+      this.search = new_val;
+    },
+  },
   mounted() {
     if (!this.multi) {
       if (Array.isArray(this.value)) {

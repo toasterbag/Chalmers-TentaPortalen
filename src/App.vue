@@ -13,6 +13,8 @@
               router-link.nav-link(:to="{ name: 'faq' }") FAQ
             .nav-item
               router-link.nav-link(:to="{ name: 'course-search' }") Search courses
+            .nav-item
+              router-link.nav-link(:to="{ name: 'passrate-by-period' }") Passrate by exam period
             .nav-item.feature--analytics
               router-link.nav-link(:to="{ name: 'analytics' }") Analytics
         //- This is the items on the right
