@@ -18,7 +18,7 @@ window.env = {
   HOST_URL: process.env.NODE_ENV == "production" ? "" : "http://localhost:8855",
   API_URL:
     process.env.NODE_ENV == "production"
-      ? "/api"
+      ? "/api/v1"
       : "http://localhost:8855/api/v1",
 };
 
