@@ -30,7 +30,13 @@ const get_programme_list = async (academic_year, lang) => {
     .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
     .join("&");
 
-  return fetch(`${base_url}?${queryString}`);
+  const res = await fetch(`${base_url}?${queryString}`);
+  if (!res.ok) {
+    throw new Error(
+      `Error fetching programme list: ${res.status}, ${await res.text()}`,
+    );
+  }
+  return res;
 };
 
 const scrape_all_programmes = async (

@@ -15,6 +15,7 @@ import { Context } from "@app/context";
 import { Logger } from "@app/logger";
 import { print_table } from "./table";
 import { find } from "@app/utils";
+import { Body } from "node-fetch";
 const Log = new Logger({ label: "API" });
 
 const color_method = (method: any) => {
@@ -86,9 +87,11 @@ class Server {
   wrap_endpoint(endpoint: Endpoint) {
     return async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
       if (endpoint.auth?.includes("admin")) {
-        const pass = req.headers.authorization;
-        if (pass != this.state.config.admin_password) {
-          res.status(400).send();
+        if (
+          req.headers.authorization != this.state.config.admin_password &&
+          req.body.password != this.state.config.admin_password
+        ) {
+          res.status(401).send();
           return;
         }
       }

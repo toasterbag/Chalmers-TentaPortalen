@@ -5,6 +5,7 @@ import { Config } from "@app/config";
 import * as LastUpdatedCache from "@app/context/cache/last_updated";
 import * as ProgrammesByYearCache from "@app/context/cache/programmes_by_year";
 import * as CourseCodesCache from "@app/context/cache/course_codes";
+import * as PassrateByPeriodCache from "@app/context/cache/passrate_by_period";
 
 class Progress {
   updated: Date | undefined;
@@ -27,6 +28,7 @@ export class Context {
     last_updated: LastUpdatedCache.CacheType;
     programmes_by_year: ProgrammesByYearCache.CacheType;
     course_codes: CourseCodesCache.CacheType;
+    passrate_by_period: PassrateByPeriodCache.CacheType;
   };
 
   private constructor(config: Config) {
@@ -36,6 +38,7 @@ export class Context {
       last_updated: LastUpdatedCache.gen_cache(this),
       programmes_by_year: ProgrammesByYearCache.gen_cache(this),
       course_codes: CourseCodesCache.gen_cache(this),
+      passrate_by_period: PassrateByPeriodCache.gen_cache(this),
     };
     // this.status = status;
   }

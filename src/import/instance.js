@@ -39,12 +39,15 @@ const scrape_instances_for_id = async (course_code, study_portal_id) => {
   if (study_portal_id === ImportError.COURSE_INSTANCE_NOT_FOUND) {
     return ImportError.COURSE_INSTANCE_NOT_FOUND;
   }
-  const url = `https://www.student.chalmers.se/sp/print_course?course_id=${study_portal_id}`;
-  //const url = `https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${study_portal_id}&parsergrp=3`
+  //const url = `https://www.student.chalmers.se/sp/print_course?course_id=${study_portal_id}`;
 
   const [res_sv, res_en] = await Promise.all([
-    fetch(url),
-    fetch(url, { headers: { Cookie: "lang='en'" } }),
+    fetch(
+      `https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${study_portal_id}&parsergrp=3`,
+    ),
+    fetch(
+      `https://student.portal.chalmers.se/en/chalmersstudies/courseinformation/Pages/SearchCourse.aspx?course_id=${study_portal_id}&parsergrp=3`,
+    ),
   ]);
   const [html_sv, html_en] = await Promise.all([res_sv.text(), res_en.text()]);
 
@@ -53,15 +56,53 @@ const scrape_instances_for_id = async (course_code, study_portal_id) => {
 
   const instances = [];
 
-  $("table").each((i, e) => {
+  const academic_year = $("select[name='course_id'] option[selected]")
+    .text()
+    .trim();
+  const owner_code = $(".H5").text().replace(/.*:/, "").trim();
+  const name_sv = $(".H3").text().replace(/.*?-/, "").trim();
+  const name_en = $en(".H3").text().replace(/.*?-/, "").trim();
+  let department_id;
+  let department_sv;
+  let department_en;
+
+  $("table table tr tr")
+    .toArray()
+    .forEach((e) => {
+      if ($(e).text().includes("Institution")) {
+        const x = $(e)
+          .text()
+          .trim()
+          .replace(/.*:/, "")
+          .split(" - ")
+          .map((s) => s.trim());
+        department_id = Number(x[0]);
+        department_sv = x[1];
+      }
+    });
+
+  $en("table table tr tr")
+    .toArray()
+    .forEach((e) => {
+      if ($en(e).text().includes("Department:")) {
+        const x = $en(e)
+          .text()
+          .trim()
+          .replace(/.*:/, "")
+          .split(" - ", 2)
+          .map((s) => s.trim());
+        department_en = x[1];
+      }
+    });
+
+  $("table table").each((i, e) => {
     const is_study_period_table = $(e).find(
-      "td > img[src='images/ico_info.gif']",
+      "td > img[src='https://www.student.chalmers.se/sp/images/ico_info.gif']",
     );
     if (is_study_period_table.length) {
       const instance = new Instance({
         course_code,
         study_portal_id,
-        academic_year,
       });
       const is_sp1 =
         $(e).find("tr:nth-child(n+3) td:nth-child(6)").html().trim().length > 0;
@@ -83,17 +124,28 @@ const scrape_instances_for_id = async (course_code, study_portal_id) => {
     }
   });
 
-  const academic_year = $("select[name='course_id'] option[selected]").text();
-  const owner_code = $(".H5").text().replace(/.*:/, "").trim();
-  const name_sv = $(".H3").text().replace(/.*-/, "").trim();
-
-  const name_en = $en(".H3").text().replace(/.*-/, "").trim();
-
   instances.forEach((i) => Object.assign(i, { academic_year }));
 
+  if (department_id === undefined) {
+    throw new Error(`Course '${study_portal_id}' missing departmend_id`);
+  }
+
+  if (department_sv === undefined) {
+    throw new Error(`Course '${study_portal_id}' missing departmend_sv`);
+  }
+
+  if (department_en === undefined) {
+    throw new Error(`Course '${study_portal_id}' missing department_en`);
+  }
+
   return {
+    department: {
+      id: department_id,
+      name_sv: department_sv,
+      name_en: department_en,
+    },
     instances: instances,
-    course: { course_code, owner_code, name_sv, name_en },
+    course: { course_code, owner_code, name_sv, name_en, department_id },
   };
 };
 

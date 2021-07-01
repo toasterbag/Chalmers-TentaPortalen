@@ -6,6 +6,8 @@ import {
   scrape_all_programmes,
   get_active_programmes,
 } from "@app/import/programmes";
+import { scrape_periods } from "@app/import/periods";
+
 import { scrape_instances_for_id } from "@app/import/instance";
 import { scrape_survey } from "@app/import/survey";
 import { date_to_academic_year, Queue } from "@app/utils";
@@ -13,6 +15,7 @@ import { Logger } from "@app/logger";
 
 const Log = new Logger({ label: "Studieportalen" });
 const CONCURRENCY = 32;
+// We COULD go further back but there won't be any exams or surveys at that point
 const START_YEAR = 2010;
 
 // WARNING ACHTUNG
@@ -23,8 +26,6 @@ const START_YEAR = 2010;
 // WARNING ACHTUNG
 
 const get_all_course_ids = async () => {
-  // We COULD go further back but there won't be any exams or surveys at that point
-
   const CURRENT_YEAR = getYear(new Date());
 
   const years = Array(CURRENT_YEAR + 1 - START_YEAR)
@@ -106,12 +107,19 @@ const import_instances = async (context) => {
   Log.info(
     `Got ${all_instance_ids.length} course instances, filtered down to ${missing_instances.length}`,
   );
-
-  const queue = new Queue(missing_instances);
+  // TODO change back to missing_instances
+  const queue = new Queue(all_instance_ids);
   await queue.start(async ({ code, id }) => {
-    let { instances, course } = await scrape_instances_for_id(code, id);
-
-    // Skip all non-chalmers courses, GU programmes owns a couple and we can't match against those
+    let { instances, course, department } = await scrape_instances_for_id(
+      code,
+      id,
+    );
+    if (instances.isEmpty()) {
+      Log.warn(`No instances found for ${course.course_code}`);
+      return;
+    }
+    // Skip all non-chalmers courses, GU programmes owns a couple
+    // and we can't match against those as they aren't included in our ladok reports
     // Example: KBT050 2009/2010 is owned by FARGU
     if (!programme_codes.includes(course.owner_code)) {
       Log.warn(
@@ -119,10 +127,16 @@ const import_instances = async (context) => {
       );
       return;
     }
+    await context.prisma.department.upsert({
+      where: { id: department.id },
+      create: department,
+      update: department,
+    });
 
-    await context.prisma.course.createMany({
-      data: [course],
-      skipDuplicates: true,
+    await context.prisma.course.upsert({
+      where: { course_code: course.course_code },
+      create: course,
+      update: course,
     });
 
     await context.prisma.courseInstance.createMany({
@@ -170,7 +184,23 @@ const import_surveys = async (context) => {
 // No but really running this the first time takes forever.
 // I haven't been rate limited yet but I can just feel it coming, run it behind a VPN or something
 const scrape_everything = async (context) => {
-  context.status.study_portal.running = true;
+  Log.info("Started scraping");
+  // context.status.study_portal.running = true;
+
+  const periods = await scrape_periods();
+  const collisions = {};
+  for (const p of periods) {
+    if (collisions[p.academic_year + p.study_period + p.type]) {
+      console.log(collisions[p.academic_year + p.study_period + p.type], p);
+    } else {
+      collisions[p.academic_year + p.study_period + p.type] = p;
+    }
+  }
+  await context.prisma.period.createMany({
+    data: periods,
+    //skipDuplicates: true,
+  });
+  Log.info("Finished fetching exam periods");
 
   await import_programmes(context);
   await context.prisma.programme.updateMany({ data: { active: false } });
@@ -184,8 +214,8 @@ const scrape_everything = async (context) => {
   await import_instances(context);
   await import_surveys(context);
 
-  context.status.study_portal.running = false;
-  context.status.study_portal.updated = new Date();
+  // context.status.study_portal.running = false;
+  // context.status.study_portal.updated = new Date();
   await context.prisma.scan.create({
     data: {
       title: "study_portal",

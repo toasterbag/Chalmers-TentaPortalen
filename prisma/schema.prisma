@@ -16,10 +16,12 @@ model Course {
   replaced_by Course[] @relation("Replacements", references: [course_code])
   replaces    Course[] @relation("Replacements", references: [course_code])
 
-  exams     Exam[]
-  owner     Programme        @relation(fields: [owner_code], references: [code])
-  instances CourseInstance[]
-  surveys   Survey[]
+  exams         Exam[]
+  owner         Programme        @relation(fields: [owner_code], references: [code])
+  department_id Int?
+  department    Department?      @relation(fields: [department_id], references: [id])
+  instances     CourseInstance[]
+  surveys       Survey[]
   @@map("courses")
 }
 
@@ -60,12 +62,10 @@ model Exam {
   four          Int
   five          Int
 
-  thesis_id Int?
-  thesis    ExamThesis? @relation(fields: [thesis_id], references: [id])
-
+  thesis_id   Int?
+  thesis      ExamThesis?      @relation(fields: [thesis_id], references: [id])
   solution_id Int?
-  solution    ExamSolution? @relation(fields: [solution_id], references: [id])
-
+  solution    ExamSolution?    @relation(fields: [solution_id], references: [id])
   attachments ExamAttachment[]
 
   course Course @relation(fields: [course_code], references: [course_code])
@@ -106,6 +106,17 @@ model ExamAttachment {
   exam_course_code String
   exam_date        String
   @@map("exam_attachments")
+}
+
+model Period {
+  type          String
+  academic_year String
+  study_period  Int
+  start         DateTime @db.Timestamptz(6)
+  end           DateTime @db.Timestamptz(6)
+
+  @@id([type, academic_year, study_period])
+  @@map("periods")
 }
 
 model Survey {
@@ -154,6 +165,7 @@ model Department {
   name_sv String
   name_en String
 
+  Course Course[]
   @@map("departments")
 }
 
