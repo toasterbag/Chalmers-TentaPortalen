@@ -3,8 +3,9 @@
   "version": "1.1.0",
   "main": "dist/index.js",
   "scripts": {
+    "prebuild": "npx prisma generate",
     "build": "tsc && tscpaths -p tsconfig.json -s ./src -o ./dist",
-    "prestart": "npx prisma generate && npm run build",
+    "prestart": "npm run build",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint '*/**/*.{js,ts}' --quiet --fix"
