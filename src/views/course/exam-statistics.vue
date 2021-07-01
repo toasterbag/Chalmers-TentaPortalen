@@ -44,7 +44,7 @@ div(v-if="this.ready")
     .row.justify-content-center.pt-2
       .col-12
         exam-bar-graph(
-          :exams="exams",
+          :exams="exams.map((e) => e).reverse()",
           :stacked="stack_bars",
           :percent-mode="display_percent",
           :unit="display_percent ? '%' : ''"
@@ -129,9 +129,15 @@ export default {
         // Filter out reexams
         const exams_by_year = exams.groupBy((e) => e.date.substring(0, 4));
 
-        exams = Object.values(exams_by_year).map((exams) =>
-          exams.reduce((a, b) => (a.total > b.total ? a : b), { total: 0 }, [])
-        );
+        exams = Object.values(exams_by_year)
+          .map((exams) =>
+            exams.reduce(
+              (a, b) => (a.total > b.total ? a : b),
+              { total: 0 },
+              []
+            )
+          )
+          .reverse();
 
         // If the main exam has not been held this year the algorithm will include
         // the reexam this year with the most participants
