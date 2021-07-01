@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  course_code String @id
+  owner_code  String
+  name_sv     String
+  name_en     String
+
+  replaced_by Course[] @relation("Replacements", references: [course_code])
+  replaces    Course[] @relation("Replacements", references: [course_code])
+
+  exams     Exam[]
+  owner     Programme        @relation(fields: [owner_code], references: [code])
+  instances CourseInstance[]
+  surveys   Survey[]
+  @@map("courses")
+}
+
+model CourseInstance {
+  course_code     String
+  course          Course @relation(fields: [course_code], references: [course_code])
+  study_portal_id String
+
+  academic_year String
+  // Study period 0 is during the summer
+  start_period  Int
+  end_period    Int
+
+  // examiner      String
+  // course_page String
+  // primary_exam
+  // second_exam
+  // third_exam
+
+  survey Survey?
+  @@id([course_code, academic_year, start_period, end_period])
+  @@map("course_instances")
+}
+
+model Examiner {
+  cid  String @id
+  name String
+
+  @@map("examiners")
+}
+
+model Exam {
+  course_code   String
+  date          String
+  academic_year String
+  failed        Int
+  three         Int
+  four          Int
+  five          Int
+
+  thesis_id Int?
+  thesis    ExamThesis? @relation(fields: [thesis_id], references: [id])
+
+  solution_id Int?
+  solution    ExamSolution? @relation(fields: [solution_id], references: [id])
+
+  attachments ExamAttachment[]
+
+  course Course @relation(fields: [course_code], references: [course_code])
+
+  @@id([course_code, date])
+  @@map("exams")
+}
+
+model ExamThesis {
+  id                Int     @id @default(autoincrement())
+  filetype          String
+  verified          Boolean @default(false)
+  includes_solution Boolean @default(false)
+  exams             Exam[]
+  uploader          String?
+
+  @@map("exam_theses")
+}
+
+model ExamSolution {
+  id       Int     @id @default(autoincrement())
+  filetype String
+  verified Boolean @default(false)
+  exams    Exam[]
+  uploader String?
+
+  @@map("exam_solutions")
+}
+
+model ExamAttachment {
+  id       Int     @id @default(autoincrement())
+  name     String
+  filetype String
+  verified Boolean @default(false)
+  uploader String?
+
+  exams            Exam   @relation(fields: [exam_course_code, exam_date], references: [course_code, date])
+  exam_course_code String
+  exam_date        String
+  @@map("exam_attachments")
+}
+
+model Survey {
+  course_code   String
+  academic_year String
+  start_period  Int
+  end_period    Int
+
+  respondents      Int
+  responses        Int
+  answer_frequency Float
+
+  prerequisite_mean          Float
+  prerequisite_median        Float
+  goals_mean                 Float
+  goals_median               Float
+  course_structure_mean      Float
+  course_structure_median    Float
+  course_teaching_mean       Float
+  course_teaching_median     Float
+  course_litterature_mean    Float
+  course_litterature_median  Float
+  examination_mean           Float
+  examination_median         Float
+  administration_mean        Float
+  administration_median      Float
+  workload_mean              Float
+  workload_median            Float
+  working_environment_mean   Float?
+  working_environment_median Float?
+  total_impression_mean      Float
+  total_impression_median    Float
+
+  has_minutes Boolean @default(false)
+
+  course   Course         @relation(fields: [course_code], references: [course_code])
+  instance CourseInstance @relation(references: [course_code, academic_year, start_period, end_period], fields: [course_code, academic_year, start_period, end_period])
+
+  @@id([course_code, academic_year, start_period, end_period])
+  @@map("surveys")
+}
+
+model Department {
+  // Official course portal id
+  id      Int    @id
+  name_sv String
+  name_en String
+
+  @@map("departments")
+}
+
+model Programme {
+  // Official course portal id
+  code    String   @id
+  name_sv String
+  name_en String
+  active  Boolean  @default(false)
+  courses Course[]
+
+  @@map("programmes")
+}
+
+model log {
+  timestamp DateTime @id @default(now()) @db.Timestamptz(6)
+  page      String
+  event     String
+  data      String
+  cookie    String
+  ip        String
+}
+
+model feedback {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  email     String
+  message   String
+}
+
+model Scan {
+  title     String
+  completed DateTime @default(now())
+
+  @@id([title, completed])
+  @@map("scans")
+}
+
+model Alerts {
+  id      Int      @id @default(autoincrement())
+  start   DateTime
+  end     DateTime
+  message String
+  color   String
+
+  @@map("alerts")
+}

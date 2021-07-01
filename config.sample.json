@@ -1,0 +1,12 @@
+{
+  "paths": {
+    "data": "./data",
+    "uploads": "./uploads"
+  },
+  "postgres": {
+    "url": "postgresql://admin:password@localhost/course-portal"
+  },
+  "host": "localhost",
+  "port": 8855,
+  "admin_password": "a bad password"
+}
