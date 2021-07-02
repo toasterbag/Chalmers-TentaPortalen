@@ -7,7 +7,7 @@ import * as z from "zod";
 import importData from "@app/import/exams_stats";
 
 export default {
-  method: Method.POST,
+  method: Method.PUT,
   path: "/datasheet",
   uploads: {
     datasheet: "single",
@@ -18,6 +18,7 @@ export default {
     { headers, file }: Request,
     ctx: Context,
   ): Promise<Response> => {
+    console.log(file);
     await copyFile(file.path, ctx.config.paths.exam_sheet_temp);
     importData(ctx);
     return Ok({});

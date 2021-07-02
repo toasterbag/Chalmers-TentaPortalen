@@ -146,7 +146,6 @@ class Server {
       const path = join(this.mount_path, endpoint.path);
       const handler = this.wrap_endpoint(endpoint);
       const callbacks: Array<RequestHandler> = endpoint.middleware ?? [];
-      callbacks.push(handler);
 
       // Add file upload middleware
       if (endpoint.uploads) {
@@ -161,6 +160,8 @@ class Server {
           }
         }
       }
+
+      callbacks.push(handler);
 
       switch (method) {
         case Method.GET:
