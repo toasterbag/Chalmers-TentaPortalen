@@ -23,7 +23,3 @@ yarn serve
 ```
 yarn build
 ```
-
-## Roadmap
-
-- List courses in programme plan and calculate average grades and scores based on that.
