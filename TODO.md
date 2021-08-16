@@ -8,4 +8,3 @@
   - Visitors today ticker
 - Add examiner
 - Make mobile friendly
-- Swedish course names does not have åäö (scrape studentportalen instead)
