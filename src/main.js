@@ -58,10 +58,10 @@ Vue.directive("validate", {
   },
 });
 
-import { formatDistanceToNow } from "date-fns";
-Vue.filter("distanceToNow", (val) =>
-  val ? formatDistanceToNow(new Date(val), { addSuffix: true }) : "never"
-);
+// import { formatDistanceToNow } from "date-fns";
+// Vue.filter("distanceToNow", (val) =>
+//   val ? formatDistanceToNow(new Date(val), { addSuffix: true }) : "never"
+// );
 
 Vue.config.productionTip = false;
 Vue.use(components);
