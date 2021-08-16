@@ -1,5 +1,7 @@
 <template lang="pug">
 .row.justify-content-center
+  .pb-3
+    search-bar
   .col-12.col-lg-10(v-if="this.ready")
     .row.justify-content-between.mb-2.py-md-0.py-3
       tabs(:entries="nav_items")

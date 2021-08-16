@@ -126,6 +126,16 @@ const router = new Router({
       component: () => import("./views/passrate-by-period.vue"),
     },
     {
+      path: "/passrate-by-period/:start/:end",
+      name: "passrate-by-period-and-year",
+      component: () => import("./views/passrate-by-period-and-year.vue"),
+    },
+    {
+      path: "/facts",
+      name: "quick-facts",
+      component: () => import("./views/quick-facts.vue"),
+    },
+    {
       path: "/faq",
       name: "faq",
       component: () => import("./views/faq.vue"),

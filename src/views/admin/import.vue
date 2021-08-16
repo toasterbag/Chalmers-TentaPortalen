@@ -23,15 +23,7 @@
           span Click or drop the ladok datasheet here
           input(ref="upload", type="file", @input="submit")
         .error(v-if="datasheet.error") {{ datasheet.error }}
-    //- .col-6
-    //-   .fs-4 Course material (exams, solutions, etc.)
-    //-   .text.muted Updated {{ status.course_material.updated | distanceToNow }}
-    //-   .pt-4(v-if="!status.course_material.running")
-    //-     button.btn.bg-accent.btn-lg.text-white.ml-1(
-    //-       @click="trigger_material_scan"
-    //-     ) Manually trigger scan
-    //-   .pt4(v-else)
-    //-     div A scan is currently running..
+
     .col-6
       .fs-4 Studieportalen
       .text-muted Updated {{ status.study_portal.updated | distanceToNow }}
@@ -72,30 +64,14 @@ export default {
   },
   methods: {
     async refresh() {
-      this.status = await Http.get("admin/status", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
+      this.status = await Http.get("admin/status");
       if (this.status) {
         this.ready = true;
       }
     },
-    async trigger_material_scan() {
-      this.status.course_material.running = true;
-      await Http.post("admin/material/scan", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
-    },
     async trigger_survey_scan() {
       //this.status.study_portal.running = true;
-      await Http.post("admin/study_portal/scan", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
+      await Http.post("admin/study_portal/scan");
     },
     async submit() {
       var formData = new FormData();

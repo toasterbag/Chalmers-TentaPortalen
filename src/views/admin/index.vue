@@ -44,16 +44,7 @@ export default {
     clearInterval(this.timer);
   },
   methods: {
-    async refresh() {
-      this.status = await Http.get("admin/status", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
-      if (this.status) {
-        this.ready = true;
-      }
-    },
+    async refresh() {},
     async trigger_material_scan() {
       this.status.course_material.running = true;
       await Http.post("admin/material/scan", {
