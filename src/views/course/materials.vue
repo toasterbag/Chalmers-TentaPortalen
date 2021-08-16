@@ -24,6 +24,7 @@ div(v-if="this.ready")
           .col-3
           .col-2.text-end
             .btn.bg-primary.text-white(
+              v-if="exam.thesis && (exam.solution || exam.thesis.includes_solution)",
               @click="$dialog.open('upload-exam', { exam })"
             ) Upload
 
