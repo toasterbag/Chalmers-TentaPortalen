@@ -4,7 +4,7 @@
     .fs-4 Why can't I find my exam?
     div
       | There are a lot of reasons. The short answer is that LADOK does not know about the exam or that it is not recorded as an exam (tentamen).
-      | It is very difficult to import the LADOK data so there may be special cases which we may have missed. If you think that your exam shouldn't be missing
+      | It is very difficult to import the LADOK data so there may be special cases which we may have missed. If you think that your exam might be missing
       router-link.ps-1.text-accent(:to="{ name: 'feedback' }") please contact us.
     br
 
