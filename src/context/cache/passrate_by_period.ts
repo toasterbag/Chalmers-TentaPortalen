@@ -83,12 +83,11 @@ const updater = async (ctx: Context): Promise<ExamCollection> => {
   };
 };
 
-const wasOverOneDayAgo = (t: Date) => differenceInHours(t, new Date()) >= 24;
+const DAILY = 1000 * 60 * 60 * 24;
 
 export const gen_cache = (ctx: Context): CacheType =>
   new Cache({
     title: "Passrate by exam period",
-    // I know this is horrible
     initial: {
       sp_1_exams: {
         failed: 0,
@@ -146,7 +145,6 @@ export const gen_cache = (ctx: Context): CacheType =>
         five: 0,
       },
     },
-    updater,
-    shouldUpdate: wasOverOneDayAgo,
-    ctx,
+    updateInterval: DAILY,
+    updater: () => updater(ctx),
   });

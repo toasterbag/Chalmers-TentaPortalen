@@ -52,13 +52,12 @@ const updater = async (ctx: Context) => {
   return data;
 };
 
-const wasOverOneDayAgo = (t: Date) => differenceInHours(t, new Date()) >= 24;
+const DAILY = 1000 * 60 * 60 * 24;
 
 export const gen_cache = (ctx: Context): CacheType =>
   new Cache({
-    title: "programmes by year",
-    initial: {},
-    updater,
-    shouldUpdate: wasOverOneDayAgo,
-    ctx,
+    title: "Programmes by year",
+    initial: new Map(),
+    updateInterval: DAILY,
+    updater: () => updater(ctx),
   });

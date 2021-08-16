@@ -96,14 +96,12 @@ const updater = async (ctx: Context): Promise<Map<string, ExamCollection>> => {
   return new Map(pairs as Array<[string, ExamCollection]>);
 };
 
-const wasOverOneDayAgo = (t: Date) => differenceInHours(t, new Date()) >= 24;
+const DAILY = 1000 * 60 * 60 * 24;
 
 export const gen_cache = (ctx: Context): CacheType =>
   new Cache({
     title: "Passrate by exam period and year",
-    // I know this is horrible
     initial: new Map(),
-    updater,
-    shouldUpdate: wasOverOneDayAgo,
-    ctx,
+    updateInterval: DAILY,
+    updater: () => updater(ctx),
   });
