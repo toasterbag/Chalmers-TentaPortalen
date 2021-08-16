@@ -63,7 +63,7 @@ export default {
           }
           return exam;
         })
-        .sort((a, b) => a.date > b.date);
+        .sort((a, b) => a.date < b.date);
 
       this.ready = true;
     },
