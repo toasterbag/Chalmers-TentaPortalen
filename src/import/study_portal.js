@@ -14,7 +14,7 @@ import { date_to_academic_year, Queue } from "@app/utils";
 import { Logger } from "@app/logger";
 
 const Log = new Logger({ label: "Studieportalen" });
-const CONCURRENCY = 32;
+const CONCURRENCY = 16;
 // We COULD go further back but there won't be any exams or surveys at that point
 const START_YEAR = 2010;
 
@@ -23,7 +23,6 @@ const START_YEAR = 2010;
 // Parsing the student portal is difficult because everything is just html tables
 // and you can't expect it to conform to anything really.
 // I will try my best to comment the code below. Please don't judge me too harshly
-// WARNING ACHTUNG
 
 const get_all_course_ids = async () => {
   const CURRENT_YEAR = getYear(new Date());
@@ -107,8 +106,7 @@ const import_instances = async (context) => {
   Log.info(
     `Got ${all_instance_ids.length} course instances, filtered down to ${missing_instances.length}`,
   );
-  // TODO change back to missing_instances
-  const queue = new Queue(all_instance_ids);
+  const queue = new Queue(missing_instances);
   await queue.start(async ({ code, id }) => {
     let { instances, course, department } = await scrape_instances_for_id(
       code,
@@ -153,28 +151,31 @@ const import_instances = async (context) => {
 const import_surveys = async (context) => {
   // Filter out instances that we already have surveys for
   let instances = await context.prisma.courseInstance.findMany();
-  // const surveys_in_database = await context.prisma.survey.findMany({});
-  // instances = instances.filter(
-  //   (i) =>
-  //     !surveys_in_database.some(
-  //       (s) =>
-  //         s.course_code == i.course_code &&
-  //         s.academic_year == i.academic_year &&
-  //         s.start_period == i.start_period,
-  //     ),
-  // );
+  const surveys_in_database = await context.prisma.survey.findMany({});
+  instances = instances
+    .filter(
+      (i) =>
+        !surveys_in_database.some(
+          (s) =>
+            s.course_code == i.course_code &&
+            s.academic_year == i.academic_year &&
+            s.start_period == i.start_period,
+        ),
+    )
+    .filter((i) => Number(i.academic_year.split("/")[0]) >= 2012);
+
   const queue = new Queue(instances);
-  let surveys = await queue.start(async (instance) => {
+  await queue.start(async (instance) => {
     const survey = await scrape_survey(context, instance);
     if (survey && survey.minutes_url) {
       delete survey.minutes_url;
+      await context.prisma.survey.createMany({
+        data: [survey],
+        skipDuplicates: true,
+      });
     }
     return survey;
   }, CONCURRENCY);
-  await context.prisma.survey.createMany({
-    data: surveys.filter((e) => e),
-    skipDuplicates: true,
-  });
   Log.success("Finished importing surveys");
 };
 
@@ -182,36 +183,39 @@ const import_surveys = async (context) => {
 // This guy scraped ALL courses in JUST seven MINUTES
 // with this ONE WIERD TRICK
 // No but really running this the first time takes forever.
+// Chalmers servers are really slow (chalmers.se is running Windows Server 2008)
+// As long as the terminal is printing everything is fine, expect this to take up to 24 hours
 // I haven't been rate limited yet but I can just feel it coming, run it behind a VPN or something
 const scrape_everything = async (context) => {
   Log.info("Started scraping");
   // context.status.study_portal.running = true;
 
-  const periods = await scrape_periods();
-  const collisions = {};
-  for (const p of periods) {
-    if (collisions[p.academic_year + p.study_period + p.type]) {
-      console.log(collisions[p.academic_year + p.study_period + p.type], p);
-    } else {
-      collisions[p.academic_year + p.study_period + p.type] = p;
-    }
-  }
-  await context.prisma.period.createMany({
-    data: periods,
-    //skipDuplicates: true,
-  });
-  Log.info("Finished fetching exam periods");
+  // const periods = await scrape_periods();
+  // const collisions = {};
+  // for (const p of periods) {
+  //   if (collisions[p.academic_year + p.study_period + p.type]) {
+  //     console.log(collisions[p.academic_year + p.study_period + p.type], p);
+  //   } else {
+  //     collisions[p.academic_year + p.study_period + p.type] = p;
+  //   }
+  // }
 
-  await import_programmes(context);
-  await context.prisma.programme.updateMany({ data: { active: false } });
-  for (const code of await get_active_programmes()) {
-    await context.prisma.programme.update({
-      data: { active: true },
-      where: { code },
-    });
-  }
+  // await context.prisma.period.createMany({
+  //   data: periods,
+  //   skipDuplicates: true,
+  // });
+  // Log.info("Finished fetching exam periods");
 
-  await import_instances(context);
+  // await import_programmes(context);
+  // await context.prisma.programme.updateMany({ data: { active: false } });
+  // for (const code of await get_active_programmes()) {
+  //   await context.prisma.programme.update({
+  //     data: { active: true },
+  //     where: { code },
+  //   });
+  // }
+
+  // await import_instances(context);
   await import_surveys(context);
 
   // context.status.study_portal.running = false;

@@ -7,6 +7,5 @@
 - Add bar graph of visitors
   - Visitors today ticker
 - Add examiner
-- Upload exam
 - Make mobile friendly
 - Swedish course names does not have åäö (scrape studentportalen instead)

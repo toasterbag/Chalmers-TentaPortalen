@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const server_1 = require("../../server");
+exports.default = {
+    method: server_1.Method.GET,
+    path: "/periods/passrate",
+    handler: async (req, { cache }) => {
+        return server_1.Ok(await cache.passrate_by_period.get());
+    },
+};
+//# sourceMappingURL=passrate.js.map

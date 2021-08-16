@@ -4,6 +4,7 @@ import { Context } from "@app/context";
 import { Logger } from "@app/logger";
 import { date_to_academic_year } from "@app/utils";
 import { format } from "date-fns";
+import type { WorkSheet } from "xlsx";
 const Log = new Logger({ label: "Import" });
 
 import XLSX from "xlsx";
@@ -64,16 +65,19 @@ function _parseRow(sheet: any, row: any) {
 
 const parseDatasheet = (src: string) => {
   const workbook = XLSX.readFile(src);
-  const collection = workbook["Sheets"];
+  const collection = workbook.Sheets;
 
   const courses: any = {};
-  Object.entries(collection).forEach(([name, sheet]: any) => {
-    const isCourseSheet = /20\d\d_20\d\d$/;
-    // Itterate over sheets in excel doc
-    if (isCourseSheet.test(name)) {
-      //range: [first column, last column]
+  // Itterate over sheets in excel doc
+
+  Object.entries(collection).forEach(([name, sheet]: [string, WorkSheet]) => {
+    if (sheet["A1"]?.v.toLowerCase() == "kurs") {
+      if (sheet["!ref"] == undefined) {
+        //range: [first column, last column]
+        throw new Error(`Malformed xlsx sheet '${name}'`);
+      }
       const range = sheet["!ref"].split(":");
-      const numberOfRows = range[1].substr(1);
+      const numberOfRows = Number(range[1].substr(1));
 
       for (let row = 1; row < numberOfRows + 1; row++) {
         const rowData = _parseRow(sheet, row);
@@ -150,7 +154,7 @@ export default async (context: Context) => {
   const temp = context.config.paths.exam_sheet_temp;
 
   Log.info("Parsing data..");
-  let data = parseDatasheet2(temp);
+  let data = parseDatasheet(temp);
 
   data = Object.values(data);
 

@@ -41,15 +41,30 @@ const scrape_instances_for_id = async (course_code, study_portal_id) => {
   }
   //const url = `https://www.student.chalmers.se/sp/print_course?course_id=${study_portal_id}`;
 
-  const [res_sv, res_en] = await Promise.all([
-    fetch(
-      `https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${study_portal_id}&parsergrp=3`,
-    ),
-    fetch(
-      `https://student.portal.chalmers.se/en/chalmersstudies/courseinformation/Pages/SearchCourse.aspx?course_id=${study_portal_id}&parsergrp=3`,
-    ),
-  ]);
-  const [html_sv, html_en] = await Promise.all([res_sv.text(), res_en.text()]);
+  let result = [];
+  try {
+    const [res_sv, res_en] = await Promise.all([
+      fetch(
+        `https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${study_portal_id}&parsergrp=3`,
+        { timeout: 30_000 + Math.random() * 5000 },
+      ),
+      fetch(
+        `https://student.portal.chalmers.se/en/chalmersstudies/courseinformation/Pages/SearchCourse.aspx?course_id=${study_portal_id}&parsergrp=3`,
+        {
+          timeout: 30_000 + Math.random() * 5000,
+        },
+      ),
+    ]);
+    result = await Promise.all([res_sv.text(), res_en.text()]);
+  } catch (e) {
+    if (e.type == "request-timeout") {
+      Log.warn(
+        `Timeout requesting the page for '${course_code}' instance ${study_portal_id}. Retrying...`,
+      );
+      return scrape_instances_for_id(course_code, study_portal_id);
+    }
+  }
+  const [html_sv, html_en] = result;
 
   const $ = cheerio.load(html_sv);
   const $en = cheerio.load(html_en);

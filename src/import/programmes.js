@@ -30,13 +30,23 @@ const get_programme_list = async (academic_year, lang) => {
     .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
     .join("&");
 
-  const res = await fetch(`${base_url}?${queryString}`);
-  if (!res.ok) {
-    throw new Error(
-      `Error fetching programme list: ${res.status}, ${await res.text()}`,
-    );
+  try {
+    const res = await fetch(`${base_url}?${queryString}`, { timeout: 30_000 });
+
+    if (!res.ok) {
+      throw new Error(
+        `Error fetching programme list: ${res.status}, ${await res.text()}`,
+      );
+    }
+    return res;
+  } catch (e) {
+    if (e.type == "request-timeout") {
+      Log.warn(
+        `Timeout requesting the page for programmes in '${academic_year}'. Retrying...`,
+      );
+      return get_programme_list(academic_year, lang);
+    }
   }
-  return res;
 };
 
 const scrape_all_programmes = async (
@@ -63,6 +73,8 @@ const scrape_all_programmes = async (
 
   const programmes = {};
   for (let [year, job] of programme_jobs_sv) {
+    // Dont start all requests at the same time
+    await wait(Math.random() * 1000);
     const res = await job;
     const html = await res.text();
     Log.info(`Fetched swedish programme list for ${year}`);

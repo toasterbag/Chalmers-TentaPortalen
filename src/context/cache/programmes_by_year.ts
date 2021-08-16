@@ -14,6 +14,9 @@ const updater = async (ctx: Context) => {
     const res = await ctx.prisma.$queryRaw`
     SELECT
       s.academic_year,
+      SUM(s.respondents) as respondents,
+      SUM(s.responses) as responses,
+      AVG(s.answer_frequency) as answer_frequency,
       AVG(s.prerequisite_mean) as prerequisite_mean,
       AVG(s.goals_mean) as goals_mean,
       AVG(s.course_structure_mean) as course_structure_mean,
@@ -28,7 +31,7 @@ const updater = async (ctx: Context) => {
       SUM(e.three) as threes,
       SUM(e.four) as fours,
       SUM(e.five) as fives,
-      SUM(e.failed + e.three + e.four + e.five) as total,
+      SUM(e.failed + e.three + e.four + e.five) as total_grades,
       COUNT(DISTINCT c.course_code) as courses
     FROM courses c, surveys s, exams e
     WHERE
@@ -49,13 +52,13 @@ const updater = async (ctx: Context) => {
   return data;
 };
 
-const wasOverSixHoursAgo = (t: Date) => differenceInHours(t, new Date()) >= 6;
+const wasOverOneDayAgo = (t: Date) => differenceInHours(t, new Date()) >= 24;
 
 export const gen_cache = (ctx: Context): CacheType =>
   new Cache({
     title: "programmes by year",
     initial: {},
     updater,
-    shouldUpdate: wasOverSixHoursAgo,
+    shouldUpdate: wasOverOneDayAgo,
     ctx,
   });

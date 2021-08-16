@@ -123,6 +123,9 @@ const scrape_course_survey = async (course_iteration) => {
     }
   });
 
+  // Instead of theses ids we should parse the question header
+  // For example the group containing <number>. Total impression should be total_impression
+  // We currently miss quite a few surveys just because they are missing one or two questions
   const stat_map = [
     // 1. Förkunskaper
     // Jag hade tillräckliga förkunskaper för att kunna följa kursen

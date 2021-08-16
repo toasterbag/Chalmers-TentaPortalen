@@ -22,6 +22,7 @@ model Course {
   department    Department?      @relation(fields: [department_id], references: [id])
   instances     CourseInstance[]
   surveys       Survey[]
+  LabExam       LabExam[]
   @@map("courses")
 }
 
@@ -106,6 +107,20 @@ model ExamAttachment {
   exam_course_code String
   exam_date        String
   @@map("exam_attachments")
+}
+
+model LabExam {
+  course_code   String
+  exam_code     String
+  date          String
+  academic_year String
+  failed        Int
+  passed        Int
+
+  course Course @relation(fields: [course_code], references: [course_code])
+
+  @@id([course_code, exam_code, date])
+  @@map("lab_exams")
 }
 
 model Period {

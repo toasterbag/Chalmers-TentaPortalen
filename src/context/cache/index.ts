@@ -51,7 +51,6 @@ export class Cache<T> {
   /// Force the cache to update.
   async update(): Promise<void> {
     const start = process.hrtime();
-    CacheLogger.info(`Updating '${this.title}'`);
     this._value = await this.updateHandler(this.ctx);
     this.timestamp = new Date();
     const diff = process.hrtime(start);
