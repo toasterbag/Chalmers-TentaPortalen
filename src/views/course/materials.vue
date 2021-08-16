@@ -18,7 +18,7 @@ div(v-if="this.ready")
             span(v-else) Missing
             //sp-upload(@input="uploadExam(exam, $event)")
           .col-2
-            a(v-if="exam.solution", :href="exam.solution.url") Download
+            a.text-primary(v-if="exam.solution", :href="exam.solution.url") Download
             span(v-else-if="exam.thesis && exam.thesis.includes_solution") Included in thesis
             span(v-else) Missing
           .col-3
