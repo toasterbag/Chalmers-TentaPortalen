@@ -220,12 +220,6 @@ const scrape_everything = async (context) => {
 
   // context.status.study_portal.running = false;
   // context.status.study_portal.updated = new Date();
-  await context.prisma.scan.create({
-    data: {
-      title: "study_portal",
-      completed: context.status.study_portal.updated,
-    },
-  });
   Log.success("Finished scraping the study portal");
 };
 export { scrape_everything };

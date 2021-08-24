@@ -196,9 +196,5 @@ export default async (context: Context) => {
   const completed = new Date();
   context.status.exam_statistics.updated = completed;
 
-  await context.prisma.scan.create({
-    data: { title: "exam_statistics_datasheet", completed },
-  });
-
   Log.info(success("Successfully imported all data!"));
 };
