@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Config } from "@app/config";
+import { pathExists } from "fs-extra";
 
 // Caches
 import * as LastUpdatedCache from "@app/context/cache/last_updated";
@@ -58,6 +59,23 @@ export class Context {
 
     const study_portal_last_imported = await ctx.prisma.$queryRaw`
     SELECT completed FROM scans WHERE title='study_portal' ORDER BY completed DESC LIMIT 1;`;
+
+    const all_uploaded_exams = await ctx.prisma.exam.findMany({
+      where: { thesis_id: { not: null } },
+      include: { thesis: true },
+    });
+    for (const exam of all_uploaded_exams) {
+      if (!exam.thesis) continue;
+      const path = `${config.paths.data}/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
+      if (!(await pathExists(path))) {
+        console.log(`Removing thesis for ${exam.course_code} ${exam.date}`);
+        // await ctx.prisma.examThesis.delete({
+        //   where: {
+        //     id: exam.thesis.id,
+        //   },
+        // });
+      }
+    }
 
     ctx.status = {
       exam_statistics: new Progress(
