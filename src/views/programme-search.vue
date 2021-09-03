@@ -1,21 +1,21 @@
 <template lang="pug">
 .mx-5(v-if="this.ready")
   .row
-    .col-md-2
-      label.form-label Minimum responses
-      input.form-control(
-        v-model="min_responses",
-        @input="updateQuery",
-        type="number"
-      )
-    .col-md-2
-      label.form-label Maximum responses
-      input.form-control(
-        v-model="max_responses",
-        @input="updateQuery",
-        type="number"
-      )
-    .col-md-6
+    //- .col-md-2
+    //-   label.form-label Minimum responses
+    //-   input.form-control(
+    //-     v-model="min_responses",
+    //-     @input="updateQuery",
+    //-     type="number"
+    //-   )
+    //- .col-md-2
+    //-   label.form-label Maximum responses
+    //-   input.form-control(
+    //-     v-model="max_responses",
+    //-     @input="updateQuery",
+    //-     type="number"
+    //-   )
+    .col-md-10
     .col-md-2
       sp-select(
         v-model="academic_year",
