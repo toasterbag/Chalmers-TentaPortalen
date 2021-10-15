@@ -107,12 +107,9 @@ export default {
         exam.total = exam.failed + exam.three + exam.four + exam.five;
         exam.percent = {};
 
-        const percentages = [
-          exam.failed,
-          exam.three,
-          exam.four,
-          exam.five,
-        ].map((e) => e.div(exam.total).mul(100));
+        const percentages = [exam.failed, exam.three, exam.four, exam.five].map(
+          (e) => e.div(exam.total).mul(100)
+        );
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
           100
@@ -142,8 +139,8 @@ export default {
         // If the main exam has not been held this year the algorithm will include
         // the reexam this year with the most participants
         // So if the last exam has an unreasonably low attendance we remove it
-        if (exams.last().total < exams[exams.length - 2].total * 0.6) {
-          exams.splice(exams.length - 1, 1);
+        if (exams.first().total < exams[exams.length - 2].total * 0.6) {
+          exams.splice(0, 1);
         }
       }
 
