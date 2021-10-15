@@ -24,6 +24,9 @@
         //- This is the items on the right
         .nav-item 
 
+    .pb-3(v-if="route_with_searchbar")
+      search-bar
+
     transition(name="fade", mode="out-in")
       router-view.view
   sp-footer
@@ -49,6 +52,16 @@ export default {
       localStorage.setItem("time", new Date().getDay());
     }
     Http.log("arrive");
+  },
+  computed: {
+    route_with_searchbar() {
+      return [
+        "home",
+        "course/exam-statistics",
+        "course/materials",
+        "course/survey",
+      ].includes(this.$route.name);
+    },
   },
 };
 </script>
