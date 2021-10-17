@@ -1,6 +1,8 @@
 <template lang="pug">
 .sp-footer
-  router-link.font-brand.brand.align-self-center.flex-fill(:to="{ name: 'name' }")
+  router-link.font-brand.brand.align-self-center.flex-fill(
+    :to="{ name: 'name' }"
+  )
     .fs-2 CoursePortal
     div Tentō, ergo sum
   .section
@@ -8,9 +10,9 @@
     div
       i.fab.fa-github.pe-1
       a(href="https://github.com/toasterbag/course-portal", target="_blank") Code on Github
-    div
-      i.fab.fa-github.pe-1
-      a(href="https://github.com/dtekcth/plugg", target="_blank") Exam repository
+    //- div
+    //-   i.fab.fa-github.pe-1
+    //-   a(href="https://github.com/dtekcth/plugg", target="_blank") Exam repository
     div
       i.fab.fa-github.pe-1
       a(href="https://github.com/toasterbag") David "pDave" Hedgren
@@ -21,7 +23,8 @@
 
   .section
     .text.fs-4 About
-    div Maintained by DNS ({{ 'dns' }}@dtek.se)
+    // div Maintained by DNS ({{ 'dns' }}@dtek.se)
+    div Maintained by David Hedgren ({{ 'ordf' }}@dtek.se)
     div(v-if="last_updated") Last updated {{ last_updated }}
     router-link(:to="{ name: 'feedback' }") Leave feedback
 </template>
