@@ -90,8 +90,8 @@ import { getYear, getMonth } from "date-fns";
 
 const date_to_academic_year = (date) =>
   getMonth(date) > 7
-    ? `${getYear(date) - 1}/${getYear(date) + 1}`
-    : `${getYear(date) - 2}/${getYear(date)}`;
+    ? `${getYear(date)}/${getYear(date) + 1}`
+    : `${getYear(date) - 1}/${getYear(date)}`;
 
 export default {
   name: "search-courses",
@@ -122,8 +122,7 @@ export default {
     },
   },
   created() {
-    this.academic_year =
-      this.$route.query.academic_year ?? date_to_academic_year(new Date());
+    this.academic_year = this.$route.query.academic_year ?? this.year_span[1];
     this.programme = this.$route.query.programme ?? "";
     this.department = this.$route.query.department ?? "";
     this.min_responses = this.$route.query.min_responses ?? "";
