@@ -4,7 +4,7 @@
     .col-6
       .fs-4 Tentastatistik
       .text.muted Updated {{ status.exam_statistics.updated | distanceToNow }}
-      p För att få tag i senaste statistiken, mejla ladok@chalmers.se med text i stil med:
+      p För att få tag i senaste statistiken, mejla systemstod@chalmers.se med text i stil med:
       code.text
         br
         | Halloj!
