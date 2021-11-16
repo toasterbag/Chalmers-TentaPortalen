@@ -67,6 +67,9 @@
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
 
+      .row.text-center(v-if="sorted_courses.isEmpty()")
+        div No results
+
       .row(
         v-for="(course, index) in sorted_courses",
         :key="course.course_code + course.start_period + course.end_period"
@@ -109,7 +112,7 @@ export default {
       .fill(1)
       .map((_, i) => getYear(new Date()) - i)
       .map((year) =>
-        date_to_academic_year(new Date(year, getMonth(new Date())))
+        date_to_academic_year(new Date(year - 1, getMonth(new Date())))
       ),
     sorted_courses: [],
   }),
