@@ -12,11 +12,11 @@
             .nav-item
               router-link.nav-link(:to="{ name: 'faq' }") FAQ
             .nav-item
-              router-link.nav-link(:to="{ name: 'course-search' }") Search courses
+              router-link.nav-link(:to="{ name: 'course-search' }") Course rankings
             .nav-item
-              router-link.nav-link(:to="{ name: 'programme-search' }") Search programmes
-            .nav-item
-              router-link.nav-link(:to="{ name: 'quick-facts' }") Fun facts
+              router-link.nav-link(:to="{ name: 'programme-search' }") Programme rankings
+            //.nav-item
+            //  router-link.nav-link(:to="{ name: 'quick-facts' }") Fun facts
             .nav-item
               router-link.nav-link(:to="{ name: 'passrate-by-period' }") Passrate by exam period
             .nav-item.feature--analytics
