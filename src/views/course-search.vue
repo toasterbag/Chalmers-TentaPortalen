@@ -90,8 +90,8 @@ import { getYear, getMonth } from "date-fns";
 
 const date_to_academic_year = (date) =>
   getMonth(date) > 7
-    ? `${getYear(date)}/${getYear(date) + 1}`
-    : `${getYear(date) - 1}/${getYear(date)}`;
+    ? `${getYear(date) - 1}/${getYear(date) + 1}`
+    : `${getYear(date) - 2}/${getYear(date)}`;
 
 export default {
   name: "search-courses",
@@ -112,7 +112,7 @@ export default {
       .fill(1)
       .map((_, i) => getYear(new Date()) - i)
       .map((year) =>
-        date_to_academic_year(new Date(year - 1, getMonth(new Date())))
+        date_to_academic_year(new Date(year, getMonth(new Date())))
       ),
     sorted_courses: [],
   }),
