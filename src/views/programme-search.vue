@@ -1,6 +1,6 @@
 <template lang="pug">
-div(v-if="this.ready")
-  .row
+div
+  .row.my-4
     .col-md-6
       .form-check(v-for="category in categories")
         input.form-check-input(
@@ -27,15 +27,17 @@ div(v-if="this.ready")
       //- )
       //-   template(v-slot:default="{ item }")
       //-     span {{ item.label }}
-  .row.justify-content-center.tenta-table
-    .text-end.mb-2 {{ programmes.length }} results
+  .row.justify-content-center.tenta-table(v-if="this.ready")
+    .d-flex.justify-content-between.mb-1
+      div Tip: You can click on the headers to change sort order!
+      div {{ entries.length }} results
     .col-12
       .row.header.align-items-center
-        .col-2.clickable(@click="sort_by('course_code')") Code
+        .col-1.clickable(@click="sort_by('course_code')") Code
           span(v-if="sort_key == 'course_code'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
-        .col-2.text-end.clickable(@click="sort_by('total_impression_mean')") Overall impression (mean)
+        .col-3.text-end.clickable(@click="sort_by('total_impression_mean')") Overall impression (mean)
           span.ps-2(v-if="sort_key == 'total_impression_mean'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
@@ -53,11 +55,11 @@ div(v-if="this.ready")
             i.fa.fa-chevron-up(v-else)
 
       .row(v-for="(programme, index) in entries", :key="programme.code")
-        .col-2.text-primary
+        .col-1.text-primary
           router-link(
             :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
           ) {{ programme.code }}
-        .col-2.text-end {{ programme.total_impression_mean.roundTo(2) }}
+        .col-3.text-end {{ programme.total_impression_mean.roundTo(2) }}
         .col-1
         .col-2.text-end.d-flex.justify-content-between
           .text-muted ({{ programme.failed }} / {{ programme.total_grades }})
@@ -217,7 +219,7 @@ export default {
 
 <style lang="scss" scoped>
 .tenta-table {
-  .row:nth-child(n + 2) {
+  .row:nth-child(n + 1) {
     .col-2 {
       border-right: 1px solid rgba(0, 0, 0, 0.1);
     }
