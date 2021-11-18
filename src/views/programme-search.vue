@@ -1,28 +1,31 @@
 <template lang="pug">
-.mx-5(v-if="this.ready")
+div(v-if="this.ready")
   .row
-    //- .col-md-2
-    //-   label.form-label Minimum responses
-    //-   input.form-control(
-    //-     v-model="min_responses",
-    //-     @input="updateQuery",
-    //-     type="number"
-    //-   )
-    //- .col-md-2
-    //-   label.form-label Maximum responses
-    //-   input.form-control(
-    //-     v-model="max_responses",
-    //-     @input="updateQuery",
-    //-     type="number"
-    //-   )
-    .col-md-10
-    //- .col-md-2
-    //-   sp-select(
-    //-     v-model="academic_year",
-    //-     :values="year_span",
-    //-     label="Academic year",
-    //-     @input="updateQuery"
-    //-   )
+    .col-md-6
+      .form-check(v-for="category in categories")
+        input.form-check-input(:id="`checkbox-${category.label}`")(
+          type="checkbox",
+          v-model="category.show"
+        )
+        label.form-check-label(:for="`checkbox-${category.label}`")
+          | {{ category.label }}
+      .form-check
+        input#bars-percent.form-check-input(
+          type="checkbox",
+          v-model="show_misc_categories"
+        )
+        label.form-check-label(for="bars-percent")
+          | Other
+    .col-md-4
+      //- sp-select(
+      //-   v-model="category",
+      //-   :values="categories",
+      //-   labelKey="key",
+      //-   label="Category",
+      //-   @input="filter"
+      //- )
+      //-   template(v-slot:default="{ item }")
+      //-     span {{ item.label }}
   .row.justify-content-center.tenta-table
     .text-end.mb-2 {{ programmes.length }} results
     .col-12
@@ -48,10 +51,7 @@
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
 
-      .row(
-        v-for="(programme, index) in sorted_programmes",
-        :key="programme.code"
-      )
+      .row(v-for="(programme, index) in entries", :key="programme.code")
         .col-2.text-primary
           router-link(
             :to="{ name: 'programme', params: { code: programme.code } }"
@@ -88,6 +88,17 @@ export default {
     sort_key: "total_impression_mean",
     order_desc: false,
 
+    category: "All",
+    categories: [
+      {
+        label: "Master of Engineering (Civilingenjör)",
+        prefix: "TK",
+        show: true,
+      },
+      { label: "Engineering (Högskoleingenjör)", prefix: "TI", show: true },
+      { label: "Masters programme", prefix: "MP", show: true },
+    ],
+    show_misc_categories: true,
     academic_year: "",
     year_span: new Array(8)
       .fill(1)
@@ -97,6 +108,25 @@ export default {
       ),
     sorted_programmes: [],
   }),
+  computed: {
+    entries() {
+      return Array.from(this.programmes)
+        .filter(
+          ({ code }) =>
+            !this.categories.some(
+              ({ prefix, show }) => !show && code.startsWith(prefix)
+            )
+        )
+        .filter(({ code }) => {
+          if (this.categories.every(({ prefix }) => !code.startsWith(prefix))) {
+            return this.show_misc_categories;
+          }
+          return true;
+        })
+        .sortBy((x) => x[this.sort_key])
+        .order(!this.order_desc);
+    },
+  },
   watch: {
     $route() {
       this.loadData();
@@ -132,18 +162,18 @@ export default {
         max_score: 3,
         order: "asc",
       };
-      this.sort = this.programmes = await Http.get(`programmes/search`, {
+      const programmes = await Http.get(`programmes/search`, {
         query,
       });
-      this.programmes.forEach((p) => {
+      this.programmes = programmes.map((p) => {
         p.failrate = p.failed
           .div(p.total_grades)
           .mul(100)
           .roundTo(2)
           .toString();
         p.answer_frequency = p.answer_frequency.roundTo(2).toString();
+        return p;
       });
-      this.sort_by(this.sort_key);
       this.ready = true;
     },
     sort_by(key) {
@@ -153,11 +183,6 @@ export default {
         this.order_desc = false;
       }
       this.sort_key = key;
-
-      let programmes = this.programmes
-        .sortBy((x) => x[key])
-        .order(!this.order_desc);
-      this.sorted_programmes = programmes;
     },
     async update_programme_suggestions(term) {
       if (term.length == 0) {
@@ -196,8 +221,5 @@ export default {
       border-right: 1px solid rgba(0, 0, 0, 0.1);
     }
   }
-}
-input {
-  width: 100%;
 }
 </style>
