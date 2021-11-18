@@ -16,13 +16,13 @@
     //-     type="number"
     //-   )
     .col-md-10
-    .col-md-2
-      sp-select(
-        v-model="academic_year",
-        :values="year_span",
-        label="Academic year",
-        @input="updateQuery"
-      )
+    //- .col-md-2
+    //-   sp-select(
+    //-     v-model="academic_year",
+    //-     :values="year_span",
+    //-     label="Academic year",
+    //-     @input="updateQuery"
+    //-   )
   .row.justify-content-center.tenta-table
     .text-end.mb-2 {{ programmes.length }} results
     .col-12
@@ -140,16 +140,8 @@ export default {
           .div(p.total_grades)
           .mul(100)
           .roundTo(2)
-          .toString()
-          .padEnd(2, "0")
-          .padEnd(3, ".")
-          .padEnd(5, "0");
-        p.answer_frequency = p.answer_frequency
-          .roundTo(2)
-          .toString()
-          .padEnd(2, "0")
-          .padEnd(3, ".")
-          .padEnd(5, "0");
+          .toString();
+        p.answer_frequency = p.answer_frequency.roundTo(2).toString();
       });
       this.sort_by(this.sort_key);
       this.ready = true;

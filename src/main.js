@@ -15,12 +15,18 @@ Vue.use(ToasterPlugin);
 
 window.env = {
   ENV: process.env.NODE_ENV,
-  HOST_URL: process.env.NODE_ENV == "production" ? "" : "http://localhost:8855",
-  API_URL:
-    process.env.NODE_ENV == "production"
-      ? "/api/v1"
-      : "http://localhost:8855/api/v1",
+  HOST_URL: "https://tenta.davebay.net/api/v1",
+  API_URL: "https://tenta.davebay.net/api/v1"
 };
+
+// window.env = {
+//   ENV: process.env.NODE_ENV,
+//   HOST_URL: process.env.NODE_ENV == "production" ? "" : "http://localhost:8855",
+//   API_URL:
+//     process.env.NODE_ENV == "production"
+//       ? "/api/v1"
+//       : "http://localhost:8855/api/v1",
+// };
 
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
