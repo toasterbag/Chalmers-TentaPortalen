@@ -26,6 +26,19 @@ export default {
         respinsive: true,
         maintainAspectRatio: !this.is_mobile,
         indexAxis: this.is_mobile ? "y" : "x",
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody: function (context) {
+                const total = context
+                  .map((series) => series.dataset.data[series.dataIndex])
+                  .sum();
+                console.log(total);
+                return `Total: ${total}`;
+              },
+            },
+          },
+        },
         scales: {
           x: {
             stacked: this.stacked,
