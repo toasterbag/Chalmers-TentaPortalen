@@ -1,5 +1,5 @@
 <template lang="pug">
-.mx-5(v-if="this.ready")
+.mx-5
   .row.mt-4
     .col-md-5
       sp-combobox(
@@ -27,7 +27,7 @@
         label="Academic year",
         @input="updateQuery"
       )
-  .row
+  .row.mb-4
     .col-md-2
       label.form-label Minimum responses
       input.form-control(
@@ -42,8 +42,11 @@
         @input="updateQuery",
         type="number"
       )
-  .row.justify-content-center.tenta-table
-    .text-end.mb-2 {{ list.length }} results
+
+  .row.justify-content-center.tenta-table(v-if="this.ready")
+    .d-flex.justify-content-between.mb-1
+      div Tip: You can click on the headers to change sort order!
+      div {{ list.length }} results
     .col-12
       .row.header.align-items-center
         .col-2.clickable(@click="sort_by('course_code')") Code
