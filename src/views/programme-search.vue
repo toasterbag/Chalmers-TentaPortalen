@@ -3,7 +3,8 @@ div(v-if="this.ready")
   .row
     .col-md-6
       .form-check(v-for="category in categories")
-        input.form-check-input(:id="`checkbox-${category.label}`")(
+        input.form-check-input(
+          :id="`checkbox-${category.label}`",
           type="checkbox",
           v-model="category.show"
         )
@@ -54,7 +55,7 @@ div(v-if="this.ready")
       .row(v-for="(programme, index) in entries", :key="programme.code")
         .col-2.text-primary
           router-link(
-            :to="{ name: 'programme', params: { code: programme.code } }"
+            :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
           ) {{ programme.code }}
         .col-2.text-end {{ programme.total_impression_mean.roundTo(2) }}
         .col-1
