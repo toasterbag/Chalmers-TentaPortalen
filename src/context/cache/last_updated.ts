@@ -6,7 +6,10 @@ export type CacheType = Cache<Date>;
 const HOURLY = 1000 * 60 * 60;
 
 const updater = async (ctx: Context) =>
-  new Date((await ctx.prisma.exam.findFirst({}))?.date ?? "2020-01-01");
+  new Date(
+    (await ctx.prisma.exam.findFirst({ orderBy: { date: "desc" } }))?.date ??
+      "2020-01-01",
+  );
 
 export const gen_cache = (ctx: Context): CacheType =>
   new Cache({
