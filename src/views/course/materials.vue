@@ -57,10 +57,10 @@ export default {
       this.exams = res
         .map((exam) => {
           if (exam.thesis) {
-            exam.thesis.url = `${global.env.HOST_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
+            exam.thesis.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
           }
           if (exam.solution) {
-            exam.solution.url = `${global.env.HOST_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
+            exam.solution.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
           }
           return exam;
         })

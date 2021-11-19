@@ -115,7 +115,7 @@ export default {
           this.display.is_thesis = true;
           this.display.course_codes.push(exam.course_code);
           this.display.date = exam.date;
-          this.display.url = `${global.env.HOST_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
+          this.display.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
           this.display.includes_solution = exam.thesis.includes_solution;
           if (
             exam.thesis.filetype === "pdf" ||
@@ -134,7 +134,7 @@ export default {
           this.display.is_thesis = false;
           this.display.course_codes.push(exam.course_code);
           this.display.date = exam.date;
-          this.display.url = `${global.env.HOST_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
+          this.display.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
           if (
             exam.solution.filetype === "pdf" ||
             exam.solution.filetype === "png" ||
