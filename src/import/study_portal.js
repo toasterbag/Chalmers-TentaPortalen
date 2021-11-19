@@ -27,13 +27,19 @@ const START_YEAR = 2010;
 const get_all_course_ids = async () => {
   const CURRENT_YEAR = getYear(new Date());
 
-  const years = Array(CURRENT_YEAR + 1 - START_YEAR)
+  // TODO this might break during the spring semester
+  // the problem is that during the autumn we want to look at 
+  // CURRENT_YEAR + 2 and during the spring its CURRENT_YEAR + 1
+  // This is an easy fix but I am always scared when I have to change
+  // stuff in the import code :(
+  const years = Array(CURRENT_YEAR + 2 - START_YEAR)
     .fill(0)
     .map((_, i) => new Date(i + START_YEAR, 1))
     .map((e) => date_to_academic_year(e));
 
   const queue = new Queue(years);
   let instance_ids = await queue.start(async (academic_year) => {
+    console.log(academic_year);
     const ids = [];
     const base_url = `https://www.student.chalmers.se/sp/course_list`;
     const query = {
