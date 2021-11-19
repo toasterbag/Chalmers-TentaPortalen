@@ -53,12 +53,11 @@ const scrape_all_programmes = async (
   context,
   start_year = getYear(new Date()),
 ) => {
-  // We COULD go further back but we dont really care about that old stuff
   const CURRENT_YEAR = getYear(new Date());
 
   let programme_jobs_sv = [];
   let programme_jobs_en = [];
-  for (let year = start_year; year <= CURRENT_YEAR; year++) {
+  for (let year = start_year; year <= CURRENT_YEAR + 1; year++) {
     const academic_year = date_to_academic_year(new Date(year, 1));
 
     programme_jobs_sv.push([
