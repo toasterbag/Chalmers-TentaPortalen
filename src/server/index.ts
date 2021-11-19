@@ -82,6 +82,7 @@ class Server {
     this.app.use(express.json());
     this.app.use(cors());
     this.app.use(logger_middleware);
+    this.app.use("/public", express.static(this.state.config.paths.data))
   }
 
   wrap_endpoint(endpoint: Endpoint) {
