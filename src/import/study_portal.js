@@ -188,38 +188,35 @@ const import_surveys = async (context) => {
 // I haven't been rate limited yet but I can just feel it coming, run it behind a VPN or something
 const scrape_everything = async (context) => {
   Log.info("Started scraping");
-  // context.status.study_portal.running = true;
 
-  // const periods = await scrape_periods();
-  // const collisions = {};
-  // for (const p of periods) {
-  //   if (collisions[p.academic_year + p.study_period + p.type]) {
-  //     console.log(collisions[p.academic_year + p.study_period + p.type], p);
-  //   } else {
-  //     collisions[p.academic_year + p.study_period + p.type] = p;
-  //   }
-  // }
+  const periods = await scrape_periods();
+  const collisions = {};
+  for (const p of periods) {
+    if (collisions[p.academic_year + p.study_period + p.type]) {
+      console.log(collisions[p.academic_year + p.study_period + p.type], p);
+    } else {
+      collisions[p.academic_year + p.study_period + p.type] = p;
+    }
+  }
 
-  // await context.prisma.period.createMany({
-  //   data: periods,
-  //   skipDuplicates: true,
-  // });
-  // Log.info("Finished fetching exam periods");
+  await context.prisma.period.createMany({
+    data: periods,
+    skipDuplicates: true,
+  });
+  Log.info("Finished fetching exam periods");
 
-  // await import_programmes(context);
-  // await context.prisma.programme.updateMany({ data: { active: false } });
-  // for (const code of await get_active_programmes()) {
-  //   await context.prisma.programme.update({
-  //     data: { active: true },
-  //     where: { code },
-  //   });
-  // }
+  await import_programmes(context);
+  await context.prisma.programme.updateMany({ data: { active: false } });
+  for (const code of await get_active_programmes()) {
+    await context.prisma.programme.update({
+      data: { active: true },
+      where: { code },
+    });
+  }
 
-  // await import_instances(context);
+  await import_instances(context);
   await import_surveys(context);
 
-  // context.status.study_portal.running = false;
-  // context.status.study_portal.updated = new Date();
   Log.success("Finished scraping the study portal");
 };
 export { scrape_everything };
