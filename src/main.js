@@ -15,7 +15,7 @@ Vue.use(ToasterPlugin);
 
 window.env = {
   ENV: process.env.NODE_ENV,
-  PUBLIC_URL: "https://tenta.davebay.net",
+  PUBLIC_URL: "https://tenta.davebay.net/",
   API_URL: "https://tenta.davebay.net/api/v1"
 };
 
