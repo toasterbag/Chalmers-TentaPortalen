@@ -173,7 +173,7 @@ const import_surveys = async (context) => {
   const queue = new Queue(instances);
   await queue.start(async (instance) => {
     const survey = await scrape_survey(context, instance);
-    if (survey && survey.minutes_url) {
+    if (survey) {
       delete survey.minutes_url;
       await context.prisma.survey.createMany({
         data: [survey],
