@@ -7,7 +7,6 @@
     "build": "tsc && tscpaths -p tsconfig.json -s ./src -o ./dist",
     "prestart": "npm run build",
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint '*/**/*.{js,ts}' --quiet --fix"
   },
   "license": "MIT",
