@@ -16,6 +16,7 @@ import { Logger } from "@app/logger";
 import { print_table } from "./table";
 import { find } from "@app/utils";
 import { Body } from "node-fetch";
+import { unlink } from "fs-extra";
 const Log = new Logger({ label: "API" });
 
 const color_method = (method: any) => {
@@ -100,7 +101,7 @@ class Server {
       try {
         const response = await endpoint.handler(req, this.state);
         response.send(res);
-      } catch (e) {
+      } catch (e: any) {
         if (e.http_code) {
           console.error(e);
           res.status(e.http_code).send(e.description);
@@ -109,6 +110,19 @@ class Server {
           res.status(500).send(e);
         }
       }
+
+      if (req.file) {
+        await unlink(req.file.path).catch(() => { });
+      }
+
+      if (req.files) {
+        for (const files of Object.values(req.files)) {
+          for (const file of files) {
+            await unlink(file.path).catch(() => { });
+          }
+        }
+      }
+
     };
   }
 
