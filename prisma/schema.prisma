@@ -16,13 +16,15 @@ model Course {
   replaced_by Course[] @relation("Replacements", references: [course_code])
   replaces    Course[] @relation("Replacements", references: [course_code])
 
-  exams         Exam[]
-  owner         Programme        @relation(fields: [owner_code], references: [code])
-  department_id Int?
-  department    Department?      @relation(fields: [department_id], references: [id])
-  instances     CourseInstance[]
-  surveys       Survey[]
-  LabExam       LabExam[]
+  exams          Exam[]
+  owner          Programme            @relation(fields: [owner_code], references: [code])
+  department_id  Int?
+  department     Department?          @relation(fields: [department_id], references: [id])
+  instances      CourseInstance[]
+  surveys        Survey[]
+  programme_plan ProgrammePlanEntry[]
+
+  alternative_examinations AlternativeExam[]
   @@map("courses")
 }
 
@@ -38,13 +40,37 @@ model CourseInstance {
 
   // examiner      String
   // course_page String
-  // primary_exam
+  // regular_exam
   // second_exam
   // third_exam
 
   survey Survey?
   @@id([course_code, academic_year, start_period, end_period])
   @@map("course_instances")
+}
+
+enum Electivity {
+  Compulsory
+  Elective
+  CompulsoryElective
+}
+
+model ProgrammePlanEntry {
+  programme_code    String
+  // The admission year for the class
+  admission_year    String
+  course_code       String
+  // The year the course is located at in the course plan
+  year              String
+  regular_exam_date String
+  electivity        Electivity @default(Compulsory)
+
+  course    Course    @relation(fields: [course_code], references: [course_code])
+  programme Programme @relation(fields: [programme_code], references: [code])
+
+
+  @@id([programme_code, admission_year])
+  @@map("programme_plan_entry")
 }
 
 model Examiner {
@@ -109,7 +135,7 @@ model ExamAttachment {
   @@map("exam_attachments")
 }
 
-model LabExam {
+model AlternativeExam {
   course_code   String
   exam_code     String
   date          String
@@ -148,14 +174,14 @@ model Survey {
   prerequisite_median        Float
   goals_mean                 Float
   goals_median               Float
-  course_structure_mean      Float
-  course_structure_median    Float
-  course_teaching_mean       Float
-  course_teaching_median     Float
-  course_litterature_mean    Float
-  course_litterature_median  Float
-  examination_mean           Float
-  examination_median         Float
+  structure_mean             Float
+  structure_median           Float
+  teaching_mean              Float
+  teaching_median            Float
+  litterature_mean           Float
+  litterature_median         Float
+  assessment_mean            Float
+  assessment_median          Float
   administration_mean        Float
   administration_median      Float
   workload_mean              Float
@@ -186,11 +212,14 @@ model Department {
 
 model Programme {
   // Official course portal id
-  code    String   @id
+  // id      String  @unique
+  code    String  @id
   name_sv String
   name_en String
-  active  Boolean  @default(false)
-  courses Course[]
+  active  Boolean @default(false)
+
+  courses         Course[]
+  programme_plans ProgrammePlanEntry[]
 
   @@map("programmes")
 }
