@@ -1,5 +1,6 @@
 <template lang="pug">
 .canvas-container
+  //- .text Blue vertical lines indicates that another examiner took over the course that year
   canvas(ref="canvas")
 </template>
 
@@ -16,11 +17,20 @@ export default {
   mounted() {
     this.render();
   },
-  data: () => ({ chart: undefined }),
+  data: () => ({
+    chart: undefined,
+  }),
   computed: {
     chart_opts() {
       return {
         plugins: {
+          comments: [
+            // {
+            //   index: "2017/2018",
+            //   comment: "Changed examiner",
+            //   color: "rgba(91, 142, 125, 0.6)",
+            // },
+          ],
           legend: {
             display: false,
           },

@@ -21,6 +21,7 @@
         v-for="item in displayValues",
         @click="onSelect(item)"
       ) {{ item }}
+        //slot(v-bind:item="item")
 
 </div>
 </template>

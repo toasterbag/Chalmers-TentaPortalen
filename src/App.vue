@@ -1,31 +1,11 @@
 <template lang="pug">
 .wrapper(theme="light")
   sp-alerts
-  .container
-    .navbar.navbar-expand-lg.navbar-light
-      .container-fluid
-        //- This is the items on the left
-        .collapse.navbar-collapse
-          .navbar-nav
-            .nav-item
-              router-link.nav-link(:to="{ name: 'home' }") Home
-            .nav-item
-              router-link.nav-link(:to="{ name: 'faq' }") FAQ
-            .nav-item
-              router-link.nav-link(:to="{ name: 'course-search' }") Course rankings
-            .nav-item
-              router-link.nav-link(:to="{ name: 'programme-search' }") Programme rankings
-            //.nav-item
-            //  router-link.nav-link(:to="{ name: 'quick-facts' }") Fun facts
-            .nav-item
-              router-link.nav-link(:to="{ name: 'passrate-by-period' }") Passrate by exam period
-            .nav-item.feature--analytics
-              router-link.nav-link(:to="{ name: 'analytics' }") Analytics
-        //- This is the items on the right
-        .nav-item 
+  .content
+    Header
 
-    .pb-3(v-if="route_with_searchbar")
-      search-bar
+    //- .pb-3(v-if="route_with_searchbar")
+    //-   search-bar
 
     transition(name="fade", mode="out-in")
       router-view.view
@@ -71,6 +51,75 @@ export default {
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
 @import "~@fortawesome/fontawesome-free/css/all.css";
 
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+/*
+  2. Remove default margin
+*/
+* {
+  margin: 0;
+}
+/*
+  3. Allow percentage-based heights in the application
+*/
+html,
+body {
+  height: 100%;
+}
+/*
+  Typographic tweaks!
+  4. Add accessible line-height
+  5. Improve text rendering
+*/
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+/*
+  6. Improve media defaults
+*/
+img,
+picture,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+/*
+  7. Remove built-in form typography styles
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+/*
+  8. Avoid text overflows
+*/
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+/*
+  9. Create a root stacking context
+*/
+#root,
+#__next {
+  isolation: isolate;
+}
+
 :root [theme="light"] {
   @include spread-map($theme-map-light);
 }
@@ -92,6 +141,12 @@ body,
   background-color: var(--sp-background);
   color: rgba(0, 0, 0, 0.85);
   font-family: "Nunito";
+
+  .content {
+    min-height: 100%;
+    width: 80%;
+    margin: auto;
+  }
 
   .view {
     padding-bottom: 3rem;
@@ -144,6 +199,10 @@ body,
 
 .text-accent {
   color: var(--sp-accent);
+}
+
+.text-size-sm {
+  font-size: 0.75rem;
 }
 
 .font-brand {

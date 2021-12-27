@@ -20,7 +20,7 @@ import Http from "../../plugins/http";
 import { preference } from "vue-preferences";
 
 export default {
-  name: "course-surveys",
+  name: "course-survey-analysis",
   data: () => ({
     ready: false,
     surveys: [],
@@ -62,28 +62,28 @@ export default {
           title: "Structure",
           subtitle:
             "The course structure (as divided into lectures, exercises, lab sessions, simulations etc.) is appropriate in order to reach the intended learning outcome of the course",
-          median_key: "course_structure_median",
-          mean_key: "course_structure_mean",
+          median_key: "structure_median",
+          mean_key: "structure_mean",
         },
         {
           title: "Teaching",
           subtitle: "The teaching worked well",
-          median_key: "course_teaching_median",
-          mean_key: "course_teaching_mean",
+          median_key: "teaching_median",
+          mean_key: "teaching_mean",
         },
         {
           title: "Course litterature",
           subtitle:
             "The course literature (including other course material) supported the learning well",
-          median_key: "course_litterature_median",
-          mean_key: "course_litterature_mean",
+          median_key: "litterature_median",
+          mean_key: "litterature_mean",
         },
         {
           title: "Assessment",
           subtitle:
             "The assessment (including all compulsory elements, exams, assignments etc.) tested whether I had reached the intended learning outcomes of the course",
-          median_key: "examination_median",
-          mean_key: "examination_mean",
+          median_key: "assessment_median",
+          mean_key: "assessment_mean",
         },
         {
           title: "Course administration",
@@ -96,7 +96,7 @@ export default {
           title: "Workload",
           subtitle:
             "The course workload as related to the number of credits was...",
-          median_key: "administration_median",
+          median_key: "workload_median",
           mean_key: "workload_mean",
         },
         {
@@ -119,7 +119,9 @@ export default {
   },
   methods: {
     async loadData() {
-      this.surveys = await Http.get(`course/${this.$route.params.code}/survey`);
+      this.surveys = await Http.get(
+        `course/${this.$route.params.code}/surveys`
+      );
 
       this.ready = true;
     },

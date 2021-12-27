@@ -1,27 +1,3 @@
-<template lang="pug">
-.tabs
-  .tab-row.align-items-center
-    router-link.tab(
-      v-for="{ title, route, badge = undefined } in entries",
-      :to="{ name: route }",
-      :key="route"
-    )
-      span.fw-bold.uppercase {{ title }}
-        span.badge.bg-accent.ms-1(v-if="badge") {{ badge }}
-</template>
-
-<script>
-export default {
-  name: "tabs",
-  props: {
-    entries: {
-      required: true,
-    },
-  },
-};
-</script>
-
-<style lang="scss" scoped>
 .tabs {
   display: flex;
 
@@ -57,4 +33,3 @@ export default {
     }
   }
 }
-</style>

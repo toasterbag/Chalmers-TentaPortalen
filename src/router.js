@@ -28,9 +28,14 @@ const router = new Router({
           component: () => import("./views/course/materials.vue"),
         },
         {
-          path: "survey",
-          name: "course/survey",
-          component: () => import("./views/course/survey.vue"),
+          path: "survey-analysis",
+          name: "course/survey-analysis",
+          component: () => import("./views/course/survey-analysis.vue"),
+        },
+        {
+          path: "surveys",
+          name: "course/surveys",
+          component: () => import("./views/course/surveys.vue"),
         },
       ],
     },

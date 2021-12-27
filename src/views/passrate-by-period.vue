@@ -1,33 +1,33 @@
 <template lang="pug">
 div(v-if="this.ready")
-  .row.justify-content-end.py-md-0.py-3
-    .col-md-2
-      .form-check
-        input#stack-bars.form-check-input(
-          type="checkbox",
-          v-model="stack_bars"
-        )
-        label.form-check-label(for="stack-bars")
-          | Stack bars
-      .form-check
-        input#bars-percent.form-check-input(
-          type="checkbox",
-          :disabled="!stack_bars",
-          v-model="display_percent"
-        )
-        label.form-check-label(for="bars-percent")
-          | Values as percent
-
-  div
-    .row.justify-content-center.pt-2
-      .col-12
-        exam-bar-graph(
-          :exams="periods",
-          :stacked="stack_bars",
-          :percent-mode="display_percent",
-          :unit="display_percent ? '%' : ''"
-        )
-    .tenta-table.p-md-5.py-3
+  div.p-4
+    .row.justify-content-center
+      .col-10
+        .row
+          exam-bar-graph(
+            :exams="periods",
+            :stacked="stack_bars",
+            :percent-mode="display_percent",
+            :unit="display_percent ? '%' : ''"
+          )
+        .row.py-3
+          .d-flex.justify-content-end
+            .form-check.pe-4
+              input#stack-bars.form-check-input(
+                type="checkbox",
+                v-model="stack_bars"
+              )
+              label.form-check-label(for="stack-bars")
+                | Stack bars
+            .form-check
+              input#bars-percent.form-check-input(
+                type="checkbox",
+                :disabled="!stack_bars",
+                v-model="display_percent"
+              )
+              label.form-check-label(for="bars-percent")
+                | Values as percent
+    .tenta-table.pt-2
       .row.header
         .col-3.col-md-2 Period
         .col-2.text-end U

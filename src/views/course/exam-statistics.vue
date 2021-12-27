@@ -1,43 +1,5 @@
 <template lang="pug">
 div(v-if="this.ready")
-  .row.justify-content-between.py-md-0.py-3
-    .col-md-2
-      div Avg. failrate: {{ avg_failrate }}%
-    .col-md-2
-      .form-check(v-if="all_exams.length > 3")
-        input#hide-reexams.form-check-input(
-          type="checkbox",
-          v-model="hide_reexams"
-        )
-        label.form-check-label(for="hide-reexams")
-          | Hide re-exams
-      .form-check(
-        v-else,
-        v-tooltip="{ placement: 'top', title: 'Can only hide re-exams when there are more than 3 exams'}"
-      )
-        input#hide-reexams.form-check-input(
-          type="checkbox",
-          disabled,
-          value="false"
-        )
-        label.form-check-label(for="hide-reexams")
-          | Hide re-exams
-      .form-check
-        input#stack-bars.form-check-input(
-          type="checkbox",
-          v-model="stack_bars"
-        )
-        label.form-check-label(for="stack-bars")
-          | Stack bars
-      .form-check
-        input#bars-percent.form-check-input(
-          type="checkbox",
-          :disabled="!stack_bars",
-          v-model="display_percent"
-        )
-        label.form-check-label(for="bars-percent")
-          | Values as percent
-
   .row.justify-content-between.py-md-0.py-3(v-if="all_exams.isEmpty()")
     .fs-2.text-center This course has no exams
   div(v-else)
@@ -49,6 +11,45 @@ div(v-if="this.ready")
           :percent-mode="display_percent",
           :unit="display_percent ? '%' : ''"
         )
+    .row.justify-content-between.py-2
+      .col-md-2.ps-4
+        div Avg. failrate: {{ avg_failrate }}%
+      .col-md-10
+        .d-flex.justify-content-end
+          .form-check.pe-4(v-if="all_exams.length > 3")
+            input#hide-reexams.form-check-input(
+              type="checkbox",
+              v-model="hide_reexams"
+            )
+            label.form-check-label(for="hide-reexams")
+              | Hide re-exams
+          .form-check(
+            v-else,
+            v-tooltip="{ placement: 'top', title: 'Can only hide re-exams when there are more than 3 exams'}"
+          )
+            input#hide-reexams.form-check-input(
+              type="checkbox",
+              disabled,
+              value="false"
+            )
+            label.form-check-label(for="hide-reexams")
+              | Hide re-exams
+          .form-check.pe-4
+            input#stack-bars.form-check-input(
+              type="checkbox",
+              v-model="stack_bars"
+            )
+            label.form-check-label(for="stack-bars")
+              | Stack bars
+          .form-check
+            input#bars-percent.form-check-input(
+              type="checkbox",
+              :disabled="!stack_bars",
+              v-model="display_percent"
+            )
+            label.form-check-label(for="bars-percent")
+              | Values as percent
+
     .tenta-table.p-md-5.py-3
       .row(v-if="has_low_participation")
         .col-12.text-accent Some exams have low participation ( n < 20 ) and may have rounding errors up to 1%.

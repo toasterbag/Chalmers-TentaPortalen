@@ -55,10 +55,11 @@ div
             i.fa.fa-chevron-up(v-else)
 
       .row(v-for="(programme, index) in entries", :key="programme.code")
-        .col-1.text-primary
-          router-link(
-            :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
-          ) {{ programme.code }}
+        //- .col-1.text-primary
+        //-   router-link(
+        //-     :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
+        //-   ) {{ programme.code }}
+        .col-1.text-primary {{ programme.code }}
         .col-3.text-end {{ programme.total_impression_mean.roundTo(2) }}
         .col-1
         .col-2.text-end.d-flex.justify-content-between

@@ -64,7 +64,11 @@ export default {
   },
   methods: {
     async refresh() {
-      this.status = await Http.get("admin/status");
+      //this.status = await Http.get("admin/status");
+      this.status = {
+        exam_statistics: new Date(),
+        study_portal: new Date(),
+      }
       if (this.status) {
         this.ready = true;
       }
