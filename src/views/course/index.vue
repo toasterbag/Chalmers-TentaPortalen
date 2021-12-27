@@ -25,7 +25,7 @@
       tabs(:entries="nav_items")
 
     .row
-      transition(name="fade", mode="out-in")
+      transition(name="fade", mode="out-in", :key="$router.fullPath")
         router-view
 </template>
 
@@ -67,6 +67,16 @@ export default {
   created() {
     this.loadCourse();
   },
+
+  beforeRouteUpdate(to, from, next) {
+    if (to.name === from.name) {
+      setTimeout(() => {
+        this.loadCourse();
+      }, 20);
+    }
+    next();
+  },
+
   methods: {
     async loadCourse() {
       let res = await Http.get(`course/${this.$route.params.code}`);
