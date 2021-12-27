@@ -45,8 +45,8 @@ div
           span.ps-2(v-if="sort_key == 'failrate'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
-        .col-2.text-end.clickable(@click="sort_by('responses')") Courses owned
-          span.ps-2(v-if="sort_key == 'responses'")
+        .col-2.text-end.clickable(@click="sort_by('courses')") Courses owned
+          span.ps-2(v-if="sort_key == 'courses'")
             i.fa.fa-chevron-down(v-if="order_desc")
             i.fa.fa-chevron-up(v-else)
         .col-3.text-end.clickable(@click="sort_by('answer_frequency')") Answer frequency
