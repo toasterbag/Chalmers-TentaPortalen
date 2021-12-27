@@ -1,7 +1,6 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
 import * as z from "zod";
 import { mkdir, copyFile } from "fs-extra";
 
@@ -20,12 +19,16 @@ export default {
     { prisma, config }: Context,
   ): Promise<Response> => {
     const { course_code, date } = query_schema.parse(unparsed_query);
-    if (!(typeof course_code == "string") || course_code.includes(".")) {
+    if (!(typeof course_code === "string") || course_code.includes(".")) {
       return new Response(400, { code: "Invalid course code" });
     }
 
-    if (!(typeof date == "string") || date.includes(".")) {
+    if (!(typeof date === "string") || date.includes(".")) {
       return new Response(400, { code: "Invalid date" });
+    }
+
+    if (!file) {
+      return new Response(400, { code: "No file uploaded" });
     }
 
     const exam = await prisma.exam.findFirst({
@@ -53,7 +56,7 @@ export default {
 
     const solution = await prisma.examSolution.create({
       data: {
-        filetype: filetype,
+        filetype,
       },
     });
     await prisma.exam.update({

@@ -1,4 +1,5 @@
 import { Logger } from "@app/logger";
+
 const CacheLogger = new Logger({ label: "Cache" });
 
 const NS_PER_MS = 1e6;
@@ -13,10 +14,15 @@ type CacheUpdatePredicate =
 /// A cached value.
 export class Cache<T> {
   private title: string;
+
   private _value: T;
+
   private timestamp: Date;
+
   private shouldUpdate: CacheUpdatePredicate = () => true;
+
   private updater: CacheUpdateFn<T> | undefined = undefined;
+
   // Default: 5 minutes
   private updateInterval: number = 1000 * 60 * 5;
 

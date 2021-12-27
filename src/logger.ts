@@ -1,8 +1,8 @@
-import Winston from "winston";
-import { createLogger, format, transports } from "winston";
-const { combine, timestamp, label: addLabel, printf } = format;
+import Winston, { createLogger, format, transports } from "winston";
 import chalk from "chalk";
 import { th } from "date-fns/locale";
+
+const { combine, timestamp, label: addLabel, printf } = format;
 
 const mkTerminalFormat = (options: LoggerOptions) =>
   printf(({ level, message, label, timestamp }) => {
@@ -22,11 +22,12 @@ interface LoggerOptions {
 
 class Logger {
   private log: Winston.Logger;
+
   constructor(options: LoggerOptions) {
     this.log = Winston.createLogger({
       level: "info",
-      //format: Winston.format.json(),
-      //format: log_format,
+      // format: Winston.format.json(),
+      // format: log_format,
       transports: [
         new Winston.transports.Console({
           format: combine(mkTerminalFormat(options)),

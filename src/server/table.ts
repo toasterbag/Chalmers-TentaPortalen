@@ -1,6 +1,3 @@
-import chalk from "chalk";
-import { stdout } from "process";
-
 const TOP_RIGHT = "╮";
 const TOP_LEFT = "╭";
 const BOTTOM_RIGHT = "╯";

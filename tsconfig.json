@@ -7,16 +7,22 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "strict": true,
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "noImplicitAny": true,
     "esModuleInterop": true,
     "strictNullChecks": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@app/*": ["./src/*"],
-      "@integrations/*": ["./src/integrations/*"]
+      "@app/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ]
 }

@@ -1,20 +1,22 @@
 import fetch from "node-fetch";
 import cheerio from "cheerio";
-import { Logger } from "@app/logger";
-import { Period } from ".prisma/client";
-import { date_to_academic_year } from "@app/utils";
-const Log = new Logger({ label: "Studieportalen" });
+import { AcademicYear, get_user_agent } from "@app/utils/index";
+import { Period } from "@prisma/client";
 
 const map_date_to_study_period = (date: Date) => {
   if (date.getMonth() === 7) {
     return 0;
-  } else if (date.getMonth() === 9) {
+  }
+  if (date.getMonth() === 9) {
     return 1;
-  } else if (date.getMonth() === 11 || date.getMonth() === 0) {
+  }
+  if (date.getMonth() === 11 || date.getMonth() === 0) {
     return 2;
-  } else if (date.getMonth() === 2 || date.getMonth() === 3) {
+  }
+  if (date.getMonth() === 2 || date.getMonth() === 3) {
     return 3;
-  } else if (date.getMonth() === 4 || date.getMonth() === 5) {
+  }
+  if (date.getMonth() === 4 || date.getMonth() === 5) {
     return 4;
   }
   return -1;
@@ -23,6 +25,11 @@ const map_date_to_study_period = (date: Date) => {
 const scrape_periods_for_year = async (academic_year: string) => {
   const res = await fetch(
     `https://student.portal.chalmers.se/sv/chalmersstudier/Sidor/Lasarstider.aspx?year=${academic_year}`,
+    {
+      headers: {
+        "User-Agent": get_user_agent(),
+      },
+    },
   );
 
   const $ = cheerio.load(await res.text());
@@ -38,7 +45,7 @@ const scrape_periods_for_year = async (academic_year: string) => {
       return {
         type: "Exam period",
         study_period: map_date_to_study_period(start),
-        academic_year: date_to_academic_year(start),
+        academic_year: AcademicYear.from_date(start).toString(),
         start,
         end: new Date($("td:nth-child(5)", el).text().trim()),
       };
@@ -55,7 +62,7 @@ const scrape_periods_for_year = async (academic_year: string) => {
       const start = new Date($("td:nth-child(3)", el).text().trim());
       return {
         type: "Re-exam period",
-        academic_year: date_to_academic_year(start),
+        academic_year: AcademicYear.from_date(start).toString(),
         study_period: map_date_to_study_period(start),
         start,
         end: new Date($("td:nth-child(5)", el).text().trim()),
@@ -67,7 +74,7 @@ const scrape_periods_for_year = async (academic_year: string) => {
 
 const scrape_periods = async (): Promise<Array<Period>> => {
   const res = await fetch(
-    `https://student.portal.chalmers.se/en/chalmersstudies/Pages/TheAcademicYear.aspx?year=2020/2021`,
+    "https://student.portal.chalmers.se/en/chalmersstudies/Pages/TheAcademicYear.aspx?year=2020/2021",
   );
 
   const $ = cheerio.load(await res.text());
@@ -78,8 +85,8 @@ const scrape_periods = async (): Promise<Array<Period>> => {
     .toArray()
     .map((e) => $(e).attr("value") ?? "")
     // They decided not to use the term Omtentamen this year so you cant really parse whats what.
-    // We don't have exams or surveys from back then so it doesn's really matter.
-    .filter((year) => year != "2004/2005")
+    // We don't have exams or surveys from back then so it doesn't really matter.
+    .filter((year) => year !== "2004/2005")
     .map((year) => scrape_periods_for_year(year));
 
   return (await Promise.all(requests)).flat();

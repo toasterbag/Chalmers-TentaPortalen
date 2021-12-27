@@ -33,8 +33,8 @@ export interface Config {
     readonly uploads: string;
     readonly exam_sheet_temp: string;
   };
-  readonly postgres: {
-    readonly url: string;
+  readonly redis: {
+    readonly host: string;
   };
   readonly host: string;
   readonly port: number;
@@ -46,10 +46,10 @@ const _default = {
   paths: {
     data: undefined,
     uploads: undefined,
-    exam_sheet_temp: undefined,
+    exam_sheet_temp: "/tmp/course_portal_exams.xlsx",
   },
-  postgres: {
-    url: undefined,
+  redis: {
+    host: undefined,
   },
   host: "localhost",
   port: 8855,

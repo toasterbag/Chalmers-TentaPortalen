@@ -1,25 +1,24 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
 import * as z from "zod";
 
 const query_schema = z.object({
   programme: z
     .string()
     .optional()
-    .transform((s) => (s == "" ? undefined : s)),
+    .transform((s) => (s === "" ? undefined : s)),
   academic_year: z.string(),
   min_responses: z
     .string()
     .optional()
     .transform(Number)
-    .transform((n) => (isNaN(n) ? undefined : n)),
+    .transform((n) => (Number.isNaN(n) ? undefined : n)),
   max_responses: z
     .string()
     .optional()
     .transform(Number)
-    .transform((n) => (isNaN(n) ? undefined : n)),
+    .transform((n) => (Number.isNaN(n) ? undefined : n)),
 });
 
 export default {
@@ -30,12 +29,8 @@ export default {
     { query: unparsed_query }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const {
-      programme,
-      academic_year,
-      min_responses,
-      max_responses,
-    } = query_schema.parse(unparsed_query);
+    const { programme, academic_year, min_responses, max_responses } =
+      query_schema.parse(unparsed_query);
 
     const data = await prisma.survey.findMany({
       where: {

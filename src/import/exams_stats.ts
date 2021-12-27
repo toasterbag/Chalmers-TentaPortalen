@@ -2,12 +2,13 @@ import chalk from "chalk";
 
 import { Context } from "@app/context";
 import { Logger } from "@app/logger";
-import { date_to_academic_year } from "@app/utils";
+import { AcademicYear } from "@app/utils";
 import { format } from "date-fns";
 import type { WorkSheet } from "xlsx";
-const Log = new Logger({ label: "Import" });
 
 import XLSX from "xlsx";
+
+const Log = new Logger({ label: "Import" });
 
 const gradeToColumnName = (grade: string) => {
   switch (grade) {
@@ -57,7 +58,7 @@ function _parseRow(sheet: any, row: any) {
     name: _getString(sheet, "B", row),
     grade,
     owner: _getString(sheet, "D", row),
-    date: date,
+    date,
     nrOfStudents: _getString(sheet, "J", row),
     type: _getString(sheet, "F", row),
   };
@@ -71,9 +72,9 @@ const parseDatasheet = (src: string) => {
   // Itterate over sheets in excel doc
 
   Object.entries(collection).forEach(([name, sheet]: [string, WorkSheet]) => {
-    if (sheet["A1"]?.v.toLowerCase() == "kurs") {
+    if (sheet.A1?.v.toLowerCase() == "kurs") {
       if (sheet["!ref"] == undefined) {
-        //range: [first column, last column]
+        // range: [first column, last column]
         throw new Error(`Malformed xlsx sheet '${name}'`);
       }
       const range = sheet["!ref"].split(":");
@@ -110,12 +111,12 @@ const parseDatasheet = (src: string) => {
 // So it seems they changed the format?
 const parseDatasheet2 = (src: string) => {
   const workbook = XLSX.readFile(src);
-  const collection = workbook["Sheets"];
+  const collection = workbook.Sheets;
 
   const courses: any = {};
   Object.entries(collection).forEach(([name, sheet]: any) => {
     if (name == "Sheet1") {
-      //range: [first column, last column]
+      // range: [first column, last column]
       const range = sheet["!ref"].split(":");
       const numberOfRows = range[1].substr(1);
 
@@ -163,7 +164,7 @@ export default async (context: Context) => {
     course.exams.map((exam: any) => ({
       course_code: course.code,
       date: format(exam.date, "yyyy-MM-dd"),
-      academic_year: date_to_academic_year(exam.date),
+      academic_year: AcademicYear.from_date(exam.date).toString(),
       failed: Number(exam.failed ?? 0),
       three: Number(exam.three ?? 0),
       four: Number(exam.four ?? 0),
@@ -192,9 +193,6 @@ export default async (context: Context) => {
     data: exams.filter((exam: any) => course_codes.has(exam.course_code)),
     skipDuplicates: true,
   });
-
-  const completed = new Date();
-  context.status.exam_statistics.updated = completed;
 
   Log.info(success("Successfully imported all data!"));
 };

@@ -1,17 +1,16 @@
-import { Programme } from ".prisma/client";
 import { Context } from "@app/context";
 import { Cache } from "@app/context/cache";
-import { differenceInHours } from "date-fns";
+import { Programme } from "@prisma/client";
 
 export type CacheType = Cache<{ [id: string]: Programme }>;
 
-const updater = async (ctx: Context) => {
+const updater = async ({ prisma }: Context) => {
   const programmes = (
-    await ctx.prisma.programme.findMany({ select: { code: true } })
+    await prisma.programme.findMany({ select: { code: true } })
   ).map((e) => e.code);
   const data: any = {};
   for (const owner of programmes) {
-    const res = await ctx.prisma.$queryRaw`
+    const res: any = await prisma.$queryRaw`
     SELECT
       s.academic_year,
       SUM(s.respondents) as respondents,
@@ -19,10 +18,10 @@ const updater = async (ctx: Context) => {
       AVG(s.answer_frequency) as answer_frequency,
       AVG(s.prerequisite_mean) as prerequisite_mean,
       AVG(s.goals_mean) as goals_mean,
-      AVG(s.course_structure_mean) as course_structure_mean,
-      AVG(s.course_teaching_mean) as course_teaching_mean,
-      AVG(s.course_litterature_mean) as course_litterature_mean,
-      AVG(s.examination_mean) as examination_mean,
+      AVG(s.structure_mean) as structure_mean,
+      AVG(s.teaching_mean) as teaching_mean,
+      AVG(s.litterature_mean) as litterature_mean,
+      AVG(s.assessment_mean) as examination_mean,
       AVG(s.administration_mean) as administration_mean,
       AVG(s.workload_mean) as workload_mean,
       AVG(s.working_environment_mean) as working_environment_mean,

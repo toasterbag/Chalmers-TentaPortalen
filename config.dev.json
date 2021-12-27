@@ -1,0 +1,13 @@
+{
+  "paths": {
+    "data": "/data",
+    "uploads": "/tmp",
+    "exam_sheet_temp": "/tmp/_tentastatistik.xlsx"
+  },
+  "redis": {
+    "host": "redis"
+  },
+  "host": "0.0.0.0",
+  "port": 10006,
+  "admin_password": "123"
+}

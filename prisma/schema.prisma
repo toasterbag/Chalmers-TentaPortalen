@@ -13,9 +13,6 @@ model Course {
   name_sv     String
   name_en     String
 
-  replaced_by Course[] @relation("Replacements", references: [course_code])
-  replaces    Course[] @relation("Replacements", references: [course_code])
-
   exams          Exam[]
   owner          Programme            @relation(fields: [owner_code], references: [code])
   department_id  Int?
@@ -31,45 +28,81 @@ model Course {
 model CourseInstance {
   course_code     String
   course          Course @relation(fields: [course_code], references: [course_code])
-  study_portal_id String
-
-  academic_year String
+  study_portal_id String @unique
+  academic_year   String
   // Study period 0 is during the summer
-  start_period  Int
-  end_period    Int
+  start_period    Int
+  end_period      Int
+  language        String
 
-  // examiner      String
-  // course_page String
-  // regular_exam
-  // second_exam
-  // third_exam
+  // examiner_cid    String
+  // examiner        Examiner @relation(fields: [examiner_cid], references: [cid])
 
-  survey Survey?
+  survey             Survey?
+  ProgrammePlanEntry ProgrammePlanEntry[]
   @@id([course_code, academic_year, start_period, end_period])
   @@map("course_instances")
+}
+
+model CourseModule {
+  course_instance_id String
+  module_id          String
+  kind               String
+  // Högskolepoäng times 10 so we dont have to think about floats
+  points             Int
+  start_period       Int
+  end_period         Int
+
+  ModuleDates ModuleDates?
+
+  @@id([course_instance_id, module_id])
+  @@map("course_modules")
+}
+
+model ModuleDates {
+  course_instance_id String
+  module_id          String
+  module             CourseModule @relation(fields: [course_instance_id, module_id], references: [course_instance_id, module_id])
+
+  primary_date   String
+  secondary_date String
+  tertiary_date  String
+
+  @@id([course_instance_id, module_id])
+  @@map("course_module_dates")
 }
 
 enum Electivity {
   Compulsory
   Elective
-  CompulsoryElective
+  ElectiveCompulsory
+  NotApplicable
+}
+
+model ProgrammeInstance {
+  instance_id        String               @id
+  programme_code     String
+  admission_year     String
+  ProgrammePlanEntry ProgrammePlanEntry[]
 }
 
 model ProgrammePlanEntry {
-  programme_code    String
-  // The admission year for the class
-  admission_year    String
-  course_code       String
+  programme_code        String
+  programme_instance_id String
+  course_code           String
+  course_instance_id    String
   // The year the course is located at in the course plan
-  year              String
-  regular_exam_date String
-  electivity        Electivity @default(Compulsory)
+  grade                 Int
+  electivity            Electivity
 
-  course    Course    @relation(fields: [course_code], references: [course_code])
-  programme Programme @relation(fields: [programme_code], references: [code])
+  programme          Programme         @relation(fields: [programme_code], references: [code])
+  programme_instance ProgrammeInstance @relation(fields: [programme_instance_id], references: [instance_id])
+
+  course          Course         @relation(fields: [course_code], references: [course_code])
+  course_instance CourseInstance @relation(fields: [course_instance_id], references: [study_portal_id])
 
 
-  @@id([programme_code, admission_year])
+  @@id([programme_instance_id, course_instance_id])
   @@map("programme_plan_entry")
 }
 
@@ -165,6 +198,7 @@ model Survey {
   academic_year String
   start_period  Int
   end_period    Int
+  language      String
 
   respondents      Int
   responses        Int
@@ -224,13 +258,23 @@ model Programme {
   @@map("programmes")
 }
 
-model log {
+model PageViews {
   timestamp DateTime @id @default(now()) @db.Timestamptz(6)
   page      String
   event     String
   data      String
   cookie    String
   ip        String
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime
+  level     String
+  msg       String?
+  meta      Json
+
+  @@map("log")
 }
 
 model feedback {

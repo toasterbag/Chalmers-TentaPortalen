@@ -1,7 +1,6 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
 import { join } from "node:path";
 import * as z from "zod";
 import { mkdir, copyFile, unlink } from "fs-extra";
@@ -30,7 +29,7 @@ export default {
   ): Promise<Response> => {
     const body = common_schema.parse(unparsed_body);
 
-    if (body.verified == false) {
+    if (body.verified === false) {
       const solution = await prisma.examSolution.delete({
         where: {
           id: body.solution_id,
@@ -67,7 +66,7 @@ export default {
           },
           where: {
             course_code_date: {
-              course_code: course_code,
+              course_code,
               date: approve.date,
             },
           },
@@ -79,7 +78,7 @@ export default {
           },
           where: {
             course_code_date: {
-              course_code: course_code,
+              course_code,
               date: approve.date,
             },
           },

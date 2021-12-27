@@ -1,17 +1,12 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
-import * as z from "zod";
 
 export default {
   method: Method.GET,
   path: "/facts",
 
-  handler: async (
-    { params }: Request,
-    { prisma, cache }: Context,
-  ): Promise<Response> => {
+  handler: async (_: Request, { prisma }: Context): Promise<Response> => {
     const grades = await prisma.exam.aggregate({
       _sum: {
         failed: true,
@@ -23,78 +18,76 @@ export default {
 
     const instances = await prisma.courseInstance.count({});
 
-    const programmes = (await prisma.programme.findMany({})).map(async (p) => {
-      return {
-        ...p,
-        ...(
-          await prisma.exam.aggregate({
-            _sum: {
-              failed: true,
-              three: true,
-              four: true,
-              five: true,
-            },
-            where: {
-              course: {
-                owner_code: p.code,
-              },
-              academic_year: {
-                in: [
-                  "2021/2022",
-                  "2020/2021",
-                  "2019/2020",
-                  "2018/2019",
-                  "2017/2018",
-                ],
-              },
-            },
-          })
-        )._sum,
-        ...(
-          await prisma.survey.aggregate({
-            _avg: {
-              total_impression_mean: true,
-            },
-            where: {
-              course: {
-                owner_code: p.code,
-              },
-              academic_year: {
-                in: [
-                  "2021/2022",
-                  "2020/2021",
-                  "2019/2020",
-                  "2018/2019",
-                  "2017/2018",
-                ],
-              },
-            },
-          })
-        )._avg,
-      };
-    });
-    const programme_by_grade = (await Promise.all(programmes))
-      .filter((p: any) => p.code.startsWith("TK"))
-      .filter((p: any) => p.failed != null)
-      .map((p: any) => {
-        p.total = p.failed + p.three + p.four + p.five;
-        p.failrate = p.failed.div(p.total).mul(100).round();
-        return p;
-      })
-      .filter((p: any) => p.total > 100)
+    // const programmes = (await prisma.programme.findMany({})).map(async (p) => {
+    //   return {
+    //     ...p,
+    //     ...(
+    //       await prisma.exam.aggregate({
+    //         _sum: {
+    //           failed: true,
+    //           three: true,
+    //           four: true,
+    //           five: true,
+    //         },
+    //         where: {
+    //           course: {
+    //             owner_code: p.code,
+    //           },
+    //           academic_year: {
+    //             in: [
+    //               "2021/2022",
+    //               "2020/2021",
+    //               "2019/2020",
+    //               "2018/2019",
+    //               "2017/2018",
+    //             ],
+    //           },
+    //         },
+    //       })
+    //     )._sum,
+    //     ...(
+    //       await prisma.survey.aggregate({
+    //         _avg: {
+    //           total_impression_mean: true,
+    //         },
+    //         where: {
+    //           course: {
+    //             owner_code: p.code,
+    //           },
+    //           academic_year: {
+    //             in: [
+    //               "2021/2022",
+    //               "2020/2021",
+    //               "2019/2020",
+    //               "2018/2019",
+    //               "2017/2018",
+    //             ],
+    //           },
+    //         },
+    //       })
+    //     )._avg,
+    //   };
+    // });
+    // const programme_by_grade = (await Promise.all(programmes))
+    //   .filter((p) => p.code.startsWith("TK"))
+    //   .filter(is_not_null)
+    //   .map((p) => {
+    //     p.total = p.failed + p.three + p.four + p.five;
+    //     p.failrate = p.failed.div(p.total).mul(100).round();
+    //     return p;
+    //   })
+    //   .filter((p) => p.total > 100)
 
-      .sort((a: any, b: any) => a.failrate - b.failrate);
+    //   .sort((a, b) => a.failrate - b.failrate);
 
-    const programme_by_satisfaction = (await Promise.all(programmes))
-      .map((p: any) => {
-        p.total = p.failed + p.three + p.four + p.five;
-        return p;
-      })
-      .filter((p: any) => p.total > 100)
-      .filter((p: any) => p.total_impression_mean != null)
-      .sort(
-        (a: any, b: any) => a.total_impression_mean - b.total_impression_mean,
-      );
+    // const programme_by_satisfaction = (await Promise.all(programmes))
+    //   .map((p) => {
+    //     p.total = p.failed + p.three + p.four + p.five;
+    //     return p;
+    //   })
+    //   .filter((p) => p.total > 100)
+    //   .filter((p) => p.total_impression_mean != null)
+    //   .sort((a, b) => a.total_impression_mean - b.total_impression_mean);
 
     // const programme_grades = await prisma.$queryRaw`
     //   SELECT
@@ -111,8 +104,8 @@ export default {
     return Ok({
       exams_written: grades._sum,
       course_instances: instances,
-      programme_by_grade,
-      programme_by_satisfaction,
+      // programme_by_grade,
+      // programme_by_satisfaction,
     });
   },
 };

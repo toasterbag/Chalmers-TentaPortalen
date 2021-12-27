@@ -1,1 +1,0 @@
-{"version":3,"file":"list.js","sourceRoot":"","sources":["../../../src/routes/periods/list.ts"],"names":[],"mappings":";;AACA,wCAAmD;AAKnD,kBAAe;IACb,MAAM,EAAE,eAAM,CAAC,GAAG;IAClB,IAAI,EAAE,UAAU;IAEhB,OAAO,EAAE,KAAK,EACZ,EAAE,MAAM,EAAW,EACnB,EAAE,MAAM,EAAW,EACA,EAAE;QACrB,OAAO,WAAE,CAAC,MAAM,MAAM,CAAC,MAAM,CAAC,QAAQ,CAAC,EAAE,CAAC,CAAC,CAAC;IAC9C,CAAC;CACF,CAAC"}

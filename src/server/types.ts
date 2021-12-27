@@ -13,33 +13,48 @@ enum Method {
   PATCH = "PATCH",
 }
 
+// type JsonValue = number | boolean | string | Date | JSON | Array<JsonValue>;
+// type Json = { [key: string]: JsonValue };
+
 class Response {
-  private _status: number;
-  private body: any;
+  private status: number;
+
+  private body: unknown;
+
+  private headers: { [key: string]: string };
 
   constructor(status: number, body: any = {}) {
-    this._status = status;
+    this.status = status;
     this.body = body;
+    this.headers = {};
   }
 
-  status(status: number): this {
-    this._status = status;
+  set_status(status: number): this {
+    this.status = status;
     return this;
   }
 
-  json(obj: any): this {
+  set_content_type(val: string): this {
+    this.headers["Content-Type"] = val;
+    return this;
+  }
+
+  set_body(obj: unknown): this {
     this.body = obj;
     return this;
   }
 
   send(res: ExpressResponse): void {
-    res.status(this._status);
-    res.json(this.body);
+    for (const [key, val] of Object.entries(this.headers)) {
+      res.set(key, val);
+    }
+    res.status(this.status);
+    res.send(this.body);
   }
 }
 
-function Ok(json: any = {}): Response {
-  return new Response(200).json(json);
+function Ok(body: unknown = {}): Response {
+  return new Response(200).set_body(body);
 }
 
 type ParseRouteParameters<T> = T extends `${string}/:${infer U}/${infer R}`

@@ -1,5 +1,6 @@
 .env
 node_modules
 uploads
-data
+dist
 config.json
+yarn-error.log

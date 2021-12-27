@@ -6,13 +6,13 @@ import * as z from "zod";
 
 export default {
   method: Method.GET,
-  path: "/course/:code/survey",
+  path: "/course/:code/surveys",
 
   handler: async (
     { params }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const code = params.code;
+    const { code } = params;
     const data = await prisma.survey.findMany({
       where: { course_code: code.toUpperCase() },
       orderBy: [{ academic_year: "asc" }, { start_period: "asc" }],

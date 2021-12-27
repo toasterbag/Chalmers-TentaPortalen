@@ -1,7 +1,0 @@
-const ERROR_TYPES = {
-  NO_SURVEY_AVAILABLE: Symbol(),
-  COURSE_INSTANCE_NOT_FOUND: Symbol(),
-  SURVEY_FORMAT_TOO_OLD: Symbol(),
-};
-
-export { ERROR_TYPES };

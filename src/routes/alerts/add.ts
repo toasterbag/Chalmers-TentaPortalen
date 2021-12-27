@@ -1,7 +1,6 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
 import * as z from "zod";
 
 const body_schema = z.object({
@@ -17,8 +16,8 @@ export default {
   auth: ["admin"],
 
   handler: async (
-    { headers, body: unparsed_body }: Request,
-    { prisma, config }: Context,
+    { body: unparsed_body }: Request,
+    { prisma }: Context,
   ): Promise<Response> => {
     const body = body_schema.parse(unparsed_body);
     await prisma.alerts.create({

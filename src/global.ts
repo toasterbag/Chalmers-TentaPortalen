@@ -20,7 +20,8 @@ declare global {
 
   interface Array<T> {
     take(n: number): Array<T>;
-    sum(): Array<T>;
+    sum(): number;
+    average(): number;
     min(): number;
     max(): number;
     first(): T;
@@ -82,9 +83,9 @@ global.wait = (t) => new Promise((resolve) => setTimeout(resolve, t));
 
 Number.prototype.roundTo = function (decimalPlaces) {
   return Number(
-    Math.round(Number(this.valueOf() + "e" + decimalPlaces)) +
-      "e-" +
-      decimalPlaces,
+    `${Math.round(
+      Number(`${this.valueOf()}e${decimalPlaces}`),
+    )}e-${decimalPlaces}`,
   );
 };
 
@@ -153,18 +154,15 @@ Array.prototype.max = function () {
 };
 
 Array.prototype.sum = function () {
-  if (this.length == 0) {
-    return undefined;
-  }
   return this.reduce((a, b) => a + b, 0);
 };
 
-// Array.prototype.average = function () {
-//   if (this.len == 0) {
-//     return undefined;
-//   }
-//   return this.sum() / this.length;
-// };
+Array.prototype.average = function () {
+  if (this.isEmpty()) {
+    return 0;
+  }
+  return this.sum() / this.length;
+};
 
 Array.prototype.first = function () {
   if (this.length == 0) {

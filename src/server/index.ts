@@ -1,23 +1,20 @@
 import { Server as HttpServer } from "http";
-import express, { NextFunction } from "express";
-import { Application, RequestHandler } from "express";
-import { join } from "path";
-import multer from "multer";
-import chalk from "chalk";
-import {
+import express, {
+  Application,
+  RequestHandler,
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
+import { join } from "path";
+import multer from "multer";
+import chalk from "chalk";
 import cors from "cors";
 
-import { Method, Response, Endpoint, EndpointHandler, Ok } from "./types";
 import { Context } from "@app/context";
-import { Logger } from "@app/logger";
-import { print_table } from "./table";
-import { find } from "@app/utils";
-import { Body } from "node-fetch";
+import { find, is_defined } from "@app/utils/index";
 import { unlink } from "fs-extra";
-const Log = new Logger({ label: "API" });
+import { print_table } from "./table";
+import { Method, Response, Endpoint, EndpointHandler, Ok } from "./types";
 
 const color_method = (method: any) => {
   switch (method) {
@@ -36,93 +33,90 @@ const color_method = (method: any) => {
   }
 };
 
-const color_status = (method: any) => {
-  switch ((method / 100).floor()) {
-    case 2:
-      return chalk.green;
-    case 3:
-      return chalk.blue;
-    case 4:
-      return chalk.yellow;
-    case 5:
-      return chalk.red;
-    default:
-      return chalk.white;
-  }
-};
-
-const logger_middleware = (
-  req: ExpressRequest,
-  res: ExpressResponse,
-  next: NextFunction,
-) => {
-  const method = `${color_method(req.method)(req.method.padEnd(5))}`;
-  Log.info(`${method} <-  ${req.path}`);
-
-  res.on("finish", function () {
-    const status = color_status(res.statusCode)(res.statusCode);
-    Log.info(`${method} ${status} ${req.path}`);
-  });
-  next();
-};
+// const color_status = (method: any) => {
+//   switch ((method / 100).floor()) {
+//     case 2:
+//       return chalk.green;
+//     case 3:
+//       return chalk.blue;
+//     case 4:
+//       return chalk.yellow;
+//     case 5:
+//       return chalk.red;
+//     default:
+//       return chalk.white;
+//   }
+// };
 
 type ServerArgs = {
-  state: Context;
+  ctx: Context;
   mount_path?: string;
 };
 class Server {
   private app: Application;
-  private state: Context;
+
+  private ctx: Context;
+
   private mount_path: string;
+
   private endpoints: Array<Endpoint> = [];
 
-  constructor({ state, mount_path = "/" }: ServerArgs) {
-    this.state = state;
+  constructor({ ctx, mount_path = "/" }: ServerArgs) {
+    this.ctx = ctx;
     this.mount_path = mount_path;
     this.app = express();
     this.app.use(express.json());
     this.app.use(cors());
-    this.app.use(logger_middleware);
-    this.app.use("/public", express.static(this.state.config.paths.data))
+    this.app.use("/public", express.static(this.ctx.config.paths.data));
   }
 
   wrap_endpoint(endpoint: Endpoint) {
     return async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
       if (endpoint.auth?.includes("admin")) {
         if (
-          req.headers.authorization != this.state.config.admin_password &&
-          req.body.password != this.state.config.admin_password
+          req.headers.authorization !== this.ctx.config.admin_password &&
+          req.body.password !== this.ctx.config.admin_password
         ) {
           res.status(401).send();
           return;
         }
       }
 
+      const log = this.ctx.log.extend({
+        method: req.method,
+        path: req.path,
+        hostname: req.hostname,
+        ip: req.ip,
+      });
+      log.info("Incoming request");
+
       try {
-        const response = await endpoint.handler(req, this.state);
+        const response = await endpoint.handler(req, this.ctx);
         response.send(res);
+        log.info("Response sent", { status: res.statusCode });
       } catch (e: any) {
         if (e.http_code) {
           console.error(e);
           res.status(e.http_code).send(e.description);
+          log.info(e.description, { status: res.statusCode });
         } else {
           console.error(e);
           res.status(500).send(e);
+          log.info("Internal server error", { status: res.statusCode });
         }
       }
 
       if (req.file) {
-        await unlink(req.file.path).catch(() => { });
+        await unlink(req.file.path).catch(() => {});
       }
 
       if (req.files) {
         for (const files of Object.values(req.files)) {
           for (const file of files) {
-            await unlink(file.path).catch(() => { });
+            await unlink(file.path).catch(() => {});
           }
         }
       }
-
     };
   }
 
@@ -153,27 +147,26 @@ class Server {
   }
 
   mount(http_server: HttpServer): void {
-    const uploads = multer({ dest: this.state.config.paths.uploads });
+    const uploads = multer({ dest: this.ctx.config.paths.uploads });
 
-    const routes = [];
-    for (const endpoint of this.endpoints) {
-      const method = endpoint.method;
+    const routes = Object.values(this.endpoints).map((endpoint) => {
+      const { method } = endpoint;
       const path = join(this.mount_path, endpoint.path);
       const handler = this.wrap_endpoint(endpoint);
-      const callbacks: Array<RequestHandler> = endpoint.middleware ?? [];
+      let callbacks: Array<RequestHandler> = endpoint.middleware ?? [];
 
       // Add file upload middleware
       if (endpoint.uploads) {
-        for (const [key, val] of Object.entries(endpoint.uploads)) {
-          switch (val) {
-            case "single":
-              callbacks.push(uploads.single(key));
-              break;
-            case "array":
-              callbacks.push(uploads.array(key));
-              break;
-          }
-        }
+        const file_callbacks = Object.entries(endpoint.uploads)
+          .map(([key, val]) => {
+            if (val === "single") {
+              return uploads.single(key);
+            }
+
+            return uploads.array(key);
+          })
+          .filter(is_defined);
+        callbacks = callbacks.concat(file_callbacks);
       }
 
       callbacks.push(handler);
@@ -198,11 +191,11 @@ class Server {
 
       const colored_path = path.replace(
         /:([a-zA-Z]*)/g,
-        (e) => ":" + chalk.yellow(e.slice(1)),
+        (e) => `:${chalk.yellow(e.slice(1))}`,
       );
       const colored_method = `${color_method(method)(method.padEnd(7))}`;
-      routes.push({ method: colored_method, path: colored_path });
-    }
+      return { method: colored_method, path: colored_path };
+    });
 
     print_table("Registered endpoints", ["method", "path"], routes);
     http_server.addListener("request", this.app);

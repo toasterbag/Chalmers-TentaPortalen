@@ -12,7 +12,7 @@ export default {
     { params }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const term = params.term;
+    const { term } = params;
     const programmes_pending = prisma.programme.findMany({
       where: {
         OR: [

@@ -1,12 +1,10 @@
 {
   "paths": {
-    "data": "./data",
-    "uploads": "./uploads"
-  },
-  "postgres": {
-    "url": "postgresql://admin:password@localhost/course-portal"
+    "data": "/data",
+    "uploads": "/tmp",
+    "exam_sheet_temp": "/tmp/_tentastatistik.xlsx"
   },
   "host": "localhost",
-  "port": 8855,
+  "port": 10006,
   "admin_password": "a bad password"
 }
