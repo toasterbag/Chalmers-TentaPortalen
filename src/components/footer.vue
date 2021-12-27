@@ -1,7 +1,7 @@
 <template lang="pug">
 .sp-footer
   router-link.font-brand.brand.align-self-center.flex-fill(
-    :to="{ name: 'name' }"
+    :to="{ name: 'home' }"
   )
     .fs-2 CoursePortal
     div Tentō, ergo sum
