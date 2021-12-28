@@ -50,6 +50,7 @@ class Worker {
       programme_plan_entries,
       modules,
       module_dates,
+      examiners,
     } = res;
     // Skip all non-chalmers courses, GU programmes owns a couple
     // and we can't match against those as they aren't included in our ladok reports
@@ -60,10 +61,15 @@ class Worker {
       // );
       return;
     }
-    await this.prisma.department.upsert({
-      where: { id: department.id },
-      create: department,
-      update: department,
+
+    await this.prisma.examiner.createMany({
+      data: examiners,
+      skipDuplicates: true,
+    });
+
+    await this.prisma.department.createMany({
+      data: [department],
+      skipDuplicates: true,
     });
 
     await this.prisma.course.upsert({
@@ -89,11 +95,14 @@ class Worker {
         );
       }
     }
-
-    await this.prisma.programmePlanEntry.createMany({
-      data: programme_plan_entries,
-      skipDuplicates: true,
-    });
+    try {
+      await this.prisma.programmePlanEntry.createMany({
+        data: programme_plan_entries,
+        skipDuplicates: true,
+      });
+    } catch {
+      console.log(programme_plan_entries);
+    }
 
     await this.prisma.courseModule.createMany({
       data: modules,

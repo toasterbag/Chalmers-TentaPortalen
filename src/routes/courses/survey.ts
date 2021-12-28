@@ -1,8 +1,6 @@
 import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
-import { Body } from "node-fetch";
-import * as z from "zod";
 
 export default {
   method: Method.GET,
@@ -15,6 +13,11 @@ export default {
     const { code } = params;
     const data = await prisma.survey.findMany({
       where: { course_code: code.toUpperCase() },
+      include: {
+        instance: {
+          select: { examiner_cid: true },
+        },
+      },
       orderBy: [{ academic_year: "asc" }, { start_period: "asc" }],
     });
 

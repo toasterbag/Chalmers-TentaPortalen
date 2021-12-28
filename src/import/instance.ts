@@ -47,6 +47,9 @@ export type ErrorKind =
   | "CouldNotParseSwedishDepartmentName"
   | "CouldNotParseTeachingLanguage"
   | "CouldNotParseExaminer"
+  | "CourseIsGymnasieLevel"
+  | "CourseIsPreeducationLevel"
+  | "CourseInstanceCancelled"
   | "NoInstancesFound";
 
 class InstanceFetchError extends Error {
@@ -155,6 +158,22 @@ const scrape_instances_for_id = async (
 ): Promise<Instance | InstanceFetchError> => {
   const [html_sv, html_en] = await fetch_course_instance_page(study_portal_id);
 
+  // if (html_sv.includes("kan ej ingå i Chalmersexamen")) {
+  //   return new InstanceFetchError("CourseIsGymnasieLevel", study_portal_id);
+  // }
+
+  if (html_sv.includes("<b>Utbildningsnivå:</b>&nbsp;Gymnasial nivå")) {
+    return new InstanceFetchError("CourseIsGymnasieLevel", study_portal_id);
+  }
+
+  if (html_sv.includes("<b>Utbildningsnivå:</b>&nbsp;Förutbildningsnivå")) {
+    return new InstanceFetchError("CourseIsPreeducationLevel", study_portal_id);
+  }
+
+  if (html_sv.includes("Detta kurstillfälle är inställt")) {
+    return new InstanceFetchError("CourseInstanceCancelled", study_portal_id);
+  }
+
   const $sv = cheerio.load(html_sv);
   const $en = cheerio.load(html_en);
 
@@ -235,6 +254,10 @@ const scrape_instances_for_id = async (
     }))
     .filter(is_examiner);
 
+  if (examiners.isEmpty()) {
+    return new InstanceFetchError("CouldNotParseExaminer", study_portal_id);
+  }
+
   const lang_el = $en("table table p")
     .toArray()
     .find((e) => {
@@ -313,17 +336,16 @@ const scrape_instances_for_id = async (
                 points: Number(points) * 10,
                 start_period: study_periods.indexOf(true),
                 end_period: study_periods.lastIndexOf(true),
-                // examiner: examiner.cid,
               },
               dates:
                 primary_date.length > 0
                   ? {
-                    course_instance_id: study_portal_id,
-                    module_id,
-                    primary_date: parse_exam_date(primary_date),
-                    secondary_date: parse_exam_date(secondary_date),
-                    tertiary_date: parse_exam_date(tertiary_date),
-                  }
+                      course_instance_id: study_portal_id,
+                      module_id,
+                      primary_date: parse_exam_date(primary_date),
+                      secondary_date: parse_exam_date(secondary_date),
+                      tertiary_date: parse_exam_date(tertiary_date),
+                    }
                   : undefined,
             };
           });
@@ -344,6 +366,7 @@ const scrape_instances_for_id = async (
                 module.end_period > end ? module.end_period : end,
               0,
             ),
+            examiner_cid: examiners[0].cid,
           },
           modules,
         };

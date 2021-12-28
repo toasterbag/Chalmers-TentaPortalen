@@ -123,7 +123,7 @@ interface ProgrammeData {
 const scrape_all_programmes = async (
   start_year = getYear(new Date()),
 ): Promise<Array<ProgrammeData> | ImportError> => {
-  const current_year = getYear(new Date());
+  const current_year = getYear(new Date()) + 1;
 
   const programmes: Array<ProgrammeData> = [];
   for (const year of range(start_year, current_year)) {
@@ -217,7 +217,7 @@ const scrape_all_programmes = async (
 };
 
 const get_active_programmes = async () => {
-  const res = await scrape_all_programmes(getYear(new Date()));
+  const res = await scrape_all_programmes();
   if (is_error(res)) {
     console.error(res);
     return [];

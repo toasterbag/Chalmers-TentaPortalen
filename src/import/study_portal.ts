@@ -235,7 +235,6 @@ const scrape_everything = async (ctx: Context) => {
     });
   }
   console.info("Finished scraping programmes");
-  await wait(1000);
 
   for (const programme of await ctx.prisma.programme.findMany({
     distinct: ["code"],

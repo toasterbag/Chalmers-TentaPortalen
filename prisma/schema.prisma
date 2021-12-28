@@ -35,8 +35,8 @@ model CourseInstance {
   end_period      Int
   language        String
 
-  // examiner_cid    String
-  // examiner        Examiner @relation(fields: [examiner_cid], references: [cid])
+  examiner_cid String
+  examiner     Examiner @relation(fields: [examiner_cid], references: [cid])
 
   survey             Survey?
   ProgrammePlanEntry ProgrammePlanEntry[]
@@ -111,6 +111,7 @@ model Examiner {
   name String
 
   @@map("examiners")
+  CourseInstance CourseInstance[]
 }
 
 model Exam {
