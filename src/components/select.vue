@@ -75,7 +75,6 @@ export default {
         this.search = "";
         this.$emit("input", [...this.value, item]);
       } else {
-        console.log(item);
         this.search = item;
         this.$emit("input", [item]);
       }
