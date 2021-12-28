@@ -9,11 +9,8 @@
           span {{ course.name_en }}
           .fst-italic {{ course.name_sv }}
         div
-          span.pe-2
-            | Owner:&nbsp;
-            router-link(
-              :to="{ name: 'programme/exam-statistics', params: { code: course.owner_code } }"
-            ) {{ course.owner_code }}
+          span.pe-2 Owner:&nbsp;
+            span.text-primary {{ course.owner_code }}
           span.pe-2
             a(
               target="_blank",
