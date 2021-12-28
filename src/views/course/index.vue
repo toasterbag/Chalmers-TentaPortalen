@@ -69,7 +69,7 @@ export default {
   },
 
   beforeRouteUpdate(to, from, next) {
-    if (to.name === from.name) {
+    if (to.name.startsWith("course/")) {
       setTimeout(() => {
         this.loadCourse();
       }, 20);
