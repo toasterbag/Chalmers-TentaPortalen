@@ -1,24 +1,23 @@
 <template lang="pug">
 .mx-5
   .row.mt-4
-    .col-md-5
+    .col-md-3
       sp-combobox(
-        v-model="programme",
-        :suggestions="programme_suggestions",
-        label="Programme",
-        @update:search-input="update_programme_suggestions",
-        @blur="programme_suggestions = []",
+        v-model="owner",
+        :suggestions="owner_suggestions",
+        label="Owner",
+        @update:search-input="update_owner_suggestions",
+        @blur="owner_suggestions = []",
         @input="updateQuery"
       )
-    .col-md-5
+    .col-md-3
       sp-combobox(
-        v-model="department",
-        :suggestions="department_suggestions",
-        label="Department",
-        @update:search-input="update_department_suggestions",
-        @blur="department_suggestions = []",
-        @input="updateQuery",
-        item-key="name_en"
+        v-model="programme_plan",
+        :suggestions="programme_plan_suggestions",
+        label="Programme plan",
+        @update:search-input="update_programme_plan_suggestions",
+        @blur="programme_plan_suggestions = []",
+        @input="updateQuery"
       )
     .col-md-2
       sp-select(
@@ -100,8 +99,10 @@ export default {
   name: "search-courses",
   data: () => ({
     ready: false,
-    programme: "",
-    programme_suggestions: [],
+    programme_plan: "",
+    programme_plan_suggestions: [],
+    owner: "",
+    owner_suggestions: [],
     department: "",
     department_suggestions: [],
     min_responses: "",
@@ -121,26 +122,21 @@ export default {
   }),
   watch: {
     $route() {
-      this.loadData();
+      this.load_data();
     },
   },
   created() {
-    this.academic_year = this.$route.query.academic_year ?? this.year_span[1];
-    this.programme = this.$route.query.programme ?? "";
-    this.department = this.$route.query.department ?? "";
-    this.min_responses = this.$route.query.min_responses ?? "";
-    this.max_responses = this.$route.query.max_responses ?? "";
-    this.loadData();
+    this.load_data();
   },
   methods: {
     async updateQuery() {
       const query = { academic_year: this.academic_year };
-      if (this.programme) {
-        query.programme = this.programme;
+      if (this.programme_plan) {
+        query.programme_plan = this.programme_plan;
       }
 
-      if (this.department[0] && this.department[0].id) {
-        query.department = this.department[0].id;
+      if (this.owner) {
+        query.owner = this.owner;
       }
 
       if (this.min_responses) {
@@ -157,25 +153,22 @@ export default {
         })
         .catch(() => {});
     },
-    async loadData() {
+    async load_data() {
+      this.academic_year == this.$route.query.academic_year[0] ??
+        this.year_span[1];
+      console.log(this.$route.query.academic_year[0]);
+      this.owner = this.$route.query.owner ?? "";
+      this.programme_plan = this.$route.query.programme_plan ?? "";
+      this.min_responses = this.$route.query.min_responses ?? undefined;
+      this.max_responses = this.$route.query.max_responses ?? undefined;
+
       const query = {
+        programme_plan: this.programme_plan,
         academic_year: this.academic_year,
-        min_score: 0,
-        max_score: 3,
+        min_responses: this.min_responses,
+        max_responses: this.max_responses,
         order: "asc",
       };
-      if (this.$route.query.programme) {
-        query.programme = this.$route.query.programme;
-      }
-      if (this.$route.query.department) {
-        query.department = this.$route.query.department;
-      }
-      if (this.$route.query.min_responses) {
-        query.min_responses = this.$route.query.min_responses;
-      }
-      if (this.$route.query.max_responses) {
-        query.max_responses = this.$route.query.max_responses;
-      }
 
       const res = await Http.get(`courses/search`, { query });
       this.list = res;
@@ -190,20 +183,35 @@ export default {
       }
       this.sort_key = key;
 
-      let courses = this.list.sortBy((x) => x[key]).order(!this.order_desc);
+      let courses = this.list.sortByKey((x) => x[key]).order(!this.order_desc);
       this.sorted_courses = courses;
     },
-    async update_programme_suggestions(term) {
+    async update_programme_plan_suggestions(term) {
       if (term.length == 0) {
         return;
       }
 
       if (term.length < 2) {
-        this.programme_suggestions = [];
+        this.programme_plan_suggestions = [];
         return;
       }
       const res = await Http.get(`search/${term}`);
-      this.programme_suggestions = res.programmes.take(8).map((e) => e.code);
+      this.programme_plan_suggestions = res.programmes
+        .take(8)
+        .map((e) => e.code);
+      this.$forceUpdate();
+    },
+    async update_owner_suggestions(term) {
+      if (term.length == 0) {
+        return;
+      }
+
+      if (term.length < 2) {
+        this.owner_suggestions = [];
+        return;
+      }
+      const res = await Http.get(`search/${term}`);
+      this.owner_suggestions = res.programmes.take(8).map((e) => e.code);
       this.$forceUpdate();
     },
     async update_department_suggestions(term) {
