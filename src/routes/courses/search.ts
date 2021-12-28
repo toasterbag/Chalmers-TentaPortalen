@@ -19,6 +19,10 @@ const query_schema = z.object({
     .optional()
     .transform(Number)
     .transform((n) => (Number.isNaN(n) ? undefined : n)),
+  programme_plan: z
+    .string()
+    .optional()
+    .transform((s) => (s === "" ? undefined : s)),
 });
 
 export default {
@@ -29,8 +33,30 @@ export default {
     { query: unparsed_query }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const { programme, academic_year, min_responses, max_responses } =
-      query_schema.parse(unparsed_query);
+    const {
+      programme,
+      academic_year,
+      min_responses,
+      max_responses,
+      programme_plan,
+    } = query_schema.parse(unparsed_query);
+
+    const wheres = [];
+    if (programme_plan) {
+      const courses_in_plan = await prisma.programmePlanEntry.findMany({
+        select: {
+          course_code: true,
+        },
+        where: {
+          programme_code: programme_plan,
+        },
+      });
+      wheres.push({
+        course_code: {
+          in: courses_in_plan.map((e) => e.course_code),
+        },
+      });
+    }
 
     const data = await prisma.survey.findMany({
       where: {
@@ -53,6 +79,8 @@ export default {
               lte: max_responses,
             },
           },
+
+          ...wheres,
         ],
       },
       orderBy: {
