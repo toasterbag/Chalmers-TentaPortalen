@@ -27,11 +27,11 @@ export default {
         plugins: {
           comments: [
             ...this.comments,
-            {
-              horizontal: true,
-              index: "3.0",
-              color: "hsla(357, 46%, 52%, 0.2)",
-            },
+            // {
+            //   horizontal: true,
+            //   index: "3.0",
+            //   color: "hsla(357, 46%, 52%, 0.2)",
+            // },
           ],
         },
         scales: {
