@@ -24,7 +24,7 @@ export default {
   computed: {
     chart_opts() {
       return {
-        respinsive: true,
+        responsive: true,
         maintainAspectRatio: !this.is_mobile,
         indexAxis: this.is_mobile ? "y" : "x",
         plugins: {

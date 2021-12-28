@@ -1,13 +1,13 @@
 <template lang="pug">
 .canvas-container
-  .text Blue vertical lines indicates that another examiner took over the course that year
+  .text-red Blue vertical lines indicates when the course changed examiner
   canvas(ref="canvas")
 </template>
 
 <script>
 import { Chart } from "chart.js";
 export default {
-  name: "survey-bar-chart",
+  name: "survey-line-chart",
   props: {
     labels: { required: true },
     means: { required: true },
@@ -25,10 +25,14 @@ export default {
     chart_opts() {
       return {
         plugins: {
-          comments: this.comments,
-          legend: {
-            display: false,
-          },
+          comments: [
+            ...this.comments,
+            {
+              horizontal: true,
+              index: "3.0",
+              color: "hsla(357, 46%, 52%, 0.2)",
+            },
+          ],
         },
         scales: {
           y: {

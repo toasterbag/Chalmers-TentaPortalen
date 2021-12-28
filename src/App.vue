@@ -7,7 +7,7 @@
     //- .pb-3(v-if="route_with_searchbar")
     //-   search-bar
 
-    transition(name="fade", mode="out-in")
+    transition(name="fade", mode="out-in", :key="$router.fullPath")
       router-view.view
   sp-footer
 
@@ -120,6 +120,8 @@ h6 {
   isolation: isolate;
 }
 
+@import "./styles.scss";
+
 :root [theme="light"] {
   @include spread-map($theme-map-light);
 }
@@ -183,22 +185,6 @@ body,
   &:hover {
     color: var(--sp-background);
   }
-}
-
-.text {
-  color: var(--sp-text);
-}
-
-.text-white {
-  color: var(--sp-background) !important;
-}
-
-.text-primary {
-  color: var(--sp-primary) !important;
-}
-
-.text-accent {
-  color: var(--sp-accent);
 }
 
 .text-size-sm {

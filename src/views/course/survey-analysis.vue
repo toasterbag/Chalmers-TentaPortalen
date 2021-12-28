@@ -7,7 +7,7 @@
       .col-12.p-3(v-for="chart in charts")
         .fs-3 {{ chart.title }}
         .text-muted {{ chart.subtitle }}
-        survey-bar-chart(
+        survey-line-chart(
           :labels="labels",
           :means="chart.means",
           :medians="chart.medians",
@@ -127,13 +127,13 @@ export default {
 
       this.comments = this.surveys
         .filter((s, i, arr) => {
-          if (i == 0) return false;
-          return s.instance.examiner_cid !== arr[i - 1].instance.examiner_cid;
+          if (i == 0) return true;
+          return s.instance.examiner.cid !== arr[i - 1].instance.examiner.cid;
         })
         .map((s) => ({
           index: s.academic_year,
-          comment: "Changed examiner",
-          color: "rgba(91, 142, 125, 0.6)",
+          comment: s.instance.examiner.name,
+          color: "rgba(91, 142, 125, 0.3)",
         }));
 
       this.ready = true;

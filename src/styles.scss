@@ -1,35 +1,27 @@
-.tabs {
-  display: flex;
-
-  .tab-row {
-    display: flex;
-    overflow-wrap: normal;
-    flex-wrap: no-wrap;
-
-    .tab {
-      padding: 0.5rem 1rem;
-      display: block;
-      overflow-wrap: normal;
-
-      &:hover {
-        color: var(--sp-primary);
-      }
-    }
-  }
-
-  .router-link-exact-active {
-    color: var(--sp-primary);
-    border-bottom: 2px solid var(--sp-primary);
-  }
+.text {
+  color: var(--sp-text);
 }
 
-@media (max-width: 575.98px) {
-  .tabs {
-    display: block;
-    .tab-row {
-      min-width: 100px;
-      padding: 1rem 0;
-      overflow-x: auto;
-    }
-  }
+.text-white {
+  color: var(--sp-background) !important;
+}
+
+.text-primary {
+  color: var(--sp-primary) !important;
+}
+
+.text-accent {
+  color: var(--sp-accent);
+}
+
+.text-red {
+  color: var(--sp-red);
+}
+
+.text-blue {
+  color: var(--sp-blue);
+}
+
+.text-yellow {
+  color: var(--sp-blue);
 }
