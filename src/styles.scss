@@ -14,14 +14,65 @@
   color: var(--sp-accent);
 }
 
-.text-red {
-  color: var(--sp-red);
+$prefix: "sp";
+
+$theme:  (
+    fonts: (
+      "sans": "Nunito",
+      "header": "Montserrat",
+    ),
+    palette: (
+      "primary": "var(--#{$prefix}-blue)",
+      "accent": "var(--#{$prefix}-red)",
+      "background": #f0efee,
+      "warning": "var(--#{$prefix}-yellow)",
+      "error": "var(--#{$prefix}-red)",
+
+      "green": hsl(92, 33%, 56%),
+      "blue": hsl(160, 22%, 46%),
+      "yellow": hsl(50, 83%, 74%),
+      "red": hsl(357, 46%, 52%),
+      "purple": hsl(255, 25%, 59%),
+      "text": #4e5358,
+      "text-muted": #68778d,
+    ),
+);
+
+@each $name, $value in map-get($theme, "palette") {
+  .text-#{$name} {
+    color: var(--#{$prefix}-#{$name}) !important;
+  }
+
+  .bg-#{$name} {
+    background-color: var(--#{$prefix}-#{$name}) !important;
+  }
 }
 
-.text-blue {
-  color: var(--sp-blue);
+@each $name, $value in map-get($theme, "fonts") {
+  .font-#{$name} {
+    font-family: #{$value};
+  }
 }
 
-.text-yellow {
-  color: var(--sp-blue);
+body {
+  font-family: var(--ex-font-sans);
 }
+
+
+:root {
+  @each $name, $value in map-get($theme, "palette") {
+    --#{$prefix}-#{$name}: #{$value};
+  }
+  @each $name, $value in map-get($theme, "fonts") {
+    --#{$prefix}-font-#{$name}: #{$value};
+  }
+
+  --sp-search-box-z: 1000;
+  --footer-height: 200px;
+  --input-disabled-solid-color: #949494;
+  --bg-card: #f0efee;
+  --bg-card-raised: #f8f8f8;
+  --sp-paper: #e7e7e7;
+  
+}
+
