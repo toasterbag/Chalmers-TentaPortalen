@@ -67,7 +67,6 @@ const chart_comments = {
       const ctx = chart.ctx;
 
       const area = chart.chartArea;
-      console.log(area)
 
       if(chart.scales.x._gridLineItems && chart.config.type == "line") {
         const max_width = chart.scales.x._gridLineItems[1].x1 - chart.scales.x._gridLineItems[0].x1;
