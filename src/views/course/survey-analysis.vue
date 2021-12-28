@@ -11,7 +11,8 @@
           :labels="labels",
           :means="chart.means",
           :medians="chart.medians",
-          :display-mean="display_mean_values"
+          :display-mean="display_mean_values",
+          :comments="comments"
         )
 </template>
 
@@ -24,6 +25,7 @@ export default {
   data: () => ({
     ready: false,
     surveys: [],
+    comments: [],
   }),
 
   computed: {
@@ -122,6 +124,17 @@ export default {
       this.surveys = await Http.get(
         `course/${this.$route.params.code}/surveys`
       );
+
+      this.comments = this.surveys
+        .filter((s, i, arr) => {
+          if (i == 0) return false;
+          return s.instance.examiner_cid !== arr[i - 1].instance.examiner_cid;
+        })
+        .map((s) => ({
+          index: s.academic_year,
+          comment: "Changed examiner",
+          color: "rgba(91, 142, 125, 0.6)",
+        }));
 
       this.ready = true;
     },

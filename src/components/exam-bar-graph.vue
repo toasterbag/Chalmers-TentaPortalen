@@ -12,6 +12,7 @@ export default {
     stacked: { default: false },
     percentMode: { default: false },
     unit: { default: "" },
+    comments: { default: () => [] },
   },
   mounted() {
     this.render();
@@ -27,6 +28,7 @@ export default {
         maintainAspectRatio: !this.is_mobile,
         indexAxis: this.is_mobile ? "y" : "x",
         plugins: {
+          comments: this.comments,
           tooltip: {
             callbacks: {
               afterBody: function (context) {
