@@ -15,7 +15,7 @@ export default {
       where: { course_code: code.toUpperCase() },
       include: {
         instance: {
-          select: { examiner_cid: true },
+          include: { examiner: true },
         },
       },
       orderBy: [{ academic_year: "asc" }, { start_period: "asc" }],
