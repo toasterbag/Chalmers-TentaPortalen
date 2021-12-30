@@ -73,11 +73,31 @@ const is_examiner = (obj: any): obj is Examiner => {
 };
 const thesis_regex = /[[A-Z]{3}X[0-9]{2}]/;
 
+const months: Record<string, string> = {
+  Jan: "01",
+  Feb: "02",
+  Mar: "03",
+  Apr: "04",
+  Maj: "05",
+  Jun: "06",
+  Jul: "07",
+  Aug: "08",
+  Sep: "09",
+  Okt: "10",
+  Nov: "11",
+  Dec: "12",
+};
+const month_map = (month: string) =>
+  month in months ? months[month] : undefined;
+
+const date_regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
 const parse_exam_date = (s: string) => {
   const date = s.slice(0, 2);
-  const month = s.slice(3, 6);
+  const month = month_map(s.slice(3, 6));
   const year = s.slice(7, 11);
-  return `${year}-${month}-${date}`;
+  const expr = `${year}-${month}-${date}`;
+  if (date_regex.test(expr)) return expr;
+  return null;
 };
 
 const fetch_course_instance_page = async (
@@ -295,6 +315,10 @@ const scrape_instances_for_id = async (
         const modules = $sv("tr:nth-child(n+3)", e)
           .toArray()
           .map((module_el) => {
+            if ($sv(module_el).text().includes("Ansvarig")) {
+              return undefined;
+            }
+
             const get_cell = (index: number) =>
               $sv(`td:nth-child(${index})`, module_el).text();
             const get_points = (index: number) => {
@@ -316,9 +340,9 @@ const scrape_instances_for_id = async (
             const summer_points = get_points(10);
             // const misc_points = get_points(11);
 
-            const primary_date = get_cell(13).trim();
-            const secondary_date = get_cell(14).trim();
-            const tertiary_date = get_cell(15).trim();
+            const primary_date = parse_exam_date(get_cell(13).trim());
+            const secondary_date = parse_exam_date(get_cell(14).trim());
+            const tertiary_date = parse_exam_date(get_cell(15).trim());
 
             // Study period 0 means its a summer course
             const study_periods = [
@@ -338,17 +362,18 @@ const scrape_instances_for_id = async (
                 end_period: study_periods.lastIndexOf(true),
               },
               dates:
-                primary_date.length > 0
+                primary_date !== null
                   ? {
                       course_instance_id: study_portal_id,
                       module_id,
-                      primary_date: parse_exam_date(primary_date),
-                      secondary_date: parse_exam_date(secondary_date),
-                      tertiary_date: parse_exam_date(tertiary_date),
+                      primary_date,
+                      secondary_date,
+                      tertiary_date,
                     }
                   : undefined,
             };
-          });
+          })
+          .filter(is_defined);
 
         return {
           instance: {
