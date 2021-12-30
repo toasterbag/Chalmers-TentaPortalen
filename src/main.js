@@ -7,11 +7,14 @@ import components from "./plugins/components";
 import VuePreferences from "vue-preferences";
 import DialogPlugin from "./plugins/dialog";
 import ToasterPlugin from "./plugins/toaster";
+import {Teleport, TeleportTarget} from "./plugins/teleport";
 
 Vue.use(VuePreferences);
 
 Vue.use(DialogPlugin);
 Vue.use(ToasterPlugin);
+Vue.component("teleport", Teleport);
+Vue.component("teleport-target", TeleportTarget);
 
 const should_use_production_api = process.env.NODE_ENV == "production" || process.env.NODE_ENV == "staging";
 
@@ -123,6 +126,38 @@ const chart_comments = {
         }
       }
   },
+  afterDraw: function (chart, args, options) {
+    const ctx = chart.ctx;
+
+    const area = chart.chartArea;
+
+    if(chart.scales.x._gridLineItems && chart.config.type == "line") {
+      const max_width = chart.scales.x._gridLineItems[1].x1 - chart.scales.x._gridLineItems[0].x1;
+
+      for(let {index, comment} of options) {
+        const _index = chart.data.labels.findIndex(e => e == index)
+        const datapoint = chart.scales.x._gridLineItems[_index]
+        if(datapoint !== undefined) {
+         
+          ctx.fillStyle = "rgb(91, 142, 125)";
+          ctx.font = "16px Nunito"
+          const text_metrics = ctx.measureText(comment);
+          if(text_metrics.width > max_width) {
+            ctx.font = "12px Nunito"
+            const text_metrics = ctx.measureText(comment);
+            if(text_metrics.width > max_width) {
+              comment = comment.slice(0, 10) + "..."                
+            }
+          }
+
+          const [x, y] = _index === chart.scales.x._gridLineItems.length - 1
+            ? [datapoint.x1 - 10 - text_metrics.width, area.bottom - 150]
+            : [datapoint.x1 + 10, area.bottom - 50];
+          ctx.fillText(comment, x, y);
+        }
+      }
+    }
+},
 };
 
 Chart.register(chart_comments);

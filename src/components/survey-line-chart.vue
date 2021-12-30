@@ -13,7 +13,10 @@ export default {
     means: { required: true },
     medians: { required: true },
     displayMean: { default: true },
+    displayExams: { default: false },
     comments: { default: () => [] },
+
+    exams: { default: () => [] },
   },
   mounted() {
     this.render();
@@ -22,6 +25,65 @@ export default {
     chart: undefined,
   }),
   computed: {
+    exam_dataset() {
+      if (!this.displayExams) return [];
+      return [
+        {
+          label: "U",
+          type: "bar",
+          backgroundColor: CSS.getVar("sp-red-30"), //"rgba(240,49,24,0.8)",
+          data: this.exams.map((e) => e.failed),
+          stack: "exam",
+          yAxisID: "yExams",
+        },
+        {
+          label: "3",
+          type: "bar",
+          backgroundColor: CSS.getVar("sp-yellow-30"), //"rgba(169,214,63,0.8)",
+          data: this.exams.map((e) => e.three),
+          stack: "exam",
+          yAxisID: "yExams",
+        },
+        {
+          label: "4",
+          type: "bar",
+          backgroundColor: CSS.getVar("sp-green-30"), // "rgba(138,176,41,0.8)",
+          data: this.exams.map((e) => e.four),
+          stack: "exam",
+          yAxisID: "yExams",
+        },
+        {
+          label: "5",
+          type: "bar",
+          backgroundColor: CSS.getVar("sp-blue-30"), // "rgba(92,126,14,0.8)",
+          data: this.exams.map((e) => e.five),
+          stack: "exam",
+          yAxisID: "yExams",
+        },
+      ];
+    },
+    scales() {
+      return Object.assign(
+        {
+          ySurvey: {
+            min: 1,
+            max: 5,
+          },
+          x: {
+            stacked: true,
+          },
+        },
+        this.displayExams
+          ? {
+              yExams: {
+                min: 0,
+                max: 100,
+                stacked: true,
+              },
+            }
+          : {}
+      );
+    },
     chart_opts() {
       return {
         plugins: {
@@ -34,12 +96,7 @@ export default {
             // },
           ],
         },
-        scales: {
-          y: {
-            min: 1,
-            max: 5,
-          },
-        },
+        scales: this.scales,
       };
     },
     chart_data() {
@@ -52,6 +109,7 @@ export default {
             backgroundColor: CSS.getVar("sp-red"), //"rgba(240,49,24,0.8)",
             borderColor: CSS.getVar("sp-red"),
             data: this.means,
+            yAxisId: "ySurvey",
           },
           {
             label: "Median",
@@ -59,7 +117,9 @@ export default {
             backgroundColor: CSS.getVar("sp-green"),
             borderColor: CSS.getVar("sp-green"),
             data: this.medians,
+            yAxisId: "ySurvey",
           },
+          ...this.exam_dataset,
         ],
       };
     },

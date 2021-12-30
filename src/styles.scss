@@ -1,44 +1,48 @@
-.text {
-  color: var(--sp-text);
-}
+@use "sass:map";
+@use "sass:color";
+@use "sass:math";
 
-.text-white {
-  color: var(--sp-background) !important;
-}
-
-.text-primary {
-  color: var(--sp-primary) !important;
-}
-
-.text-accent {
-  color: var(--sp-accent);
+@function generate-alphas($palette) {
+  $alpha-colors: ();
+  @each $alpha in $alpha-steps {
+    @each $color, $value in $palette {
+      $fraction: calc(-1 * (1 - ($alpha / 100)));
+      $alpha-colors: map.set($alpha-colors, "#{$color}-#{$alpha}", color.adjust($value, $alpha: $fraction));
+    }
+  }  
+  @return $alpha-colors;
 }
 
 $prefix: "sp";
 
-$theme:  (
+$alpha-steps: (90, 70, 50, 30, 10);
+
+$theme: (
     fonts: (
       "sans": "Nunito",
       "header": "Montserrat",
     ),
     palette: (
-      "primary": "var(--#{$prefix}-blue)",
-      "accent": "var(--#{$prefix}-red)",
-      "background": #f0efee,
-      "warning": "var(--#{$prefix}-yellow)",
-      "error": "var(--#{$prefix}-red)",
+      "primary": hsla(160, 22%, 46%, 1.0),
+      "accent": hsla(357, 46%, 52%, 1.0),
+      "background": hsla(30, 6%, 94%, 1.0),
+      "warning": hsla(50, 83%, 74%, 1.0),
+      "error": hsla(357, 46%, 52%, 1.0),
 
-      "green": hsl(92, 33%, 56%),
-      "blue": hsl(160, 22%, 46%),
-      "yellow": hsl(50, 83%, 74%),
-      "red": hsl(357, 46%, 52%),
-      "purple": hsl(255, 25%, 59%),
-      "text": #4e5358,
-      "text-muted": #68778d,
+      "green": hsla(92, 33%, 56%, 1.0),
+      "blue": hsla(160, 22%, 46%,1.0 ),
+      "yellow": hsla(50, 83%, 74%, 1.0),
+      "red": hsla(357, 46%, 52%,1.0),
+      "purple": hsla(255, 25%, 59%,1.0),
+      "text": hsla(210, 6%, 33%, 1.0),
+      "text-muted": hsla(216, 15%, 48%, 1.0),
     ),
 );
 
-@each $name, $value in map-get($theme, "palette") {
+$palette: map.get($theme, "palette");
+$palette: map.merge($palette, generate-alphas($palette));
+
+@each $name, $value in $palette {
   .text-#{$name} {
     color: var(--#{$prefix}-#{$name}) !important;
   }
@@ -48,7 +52,7 @@ $theme:  (
   }
 }
 
-@each $name, $value in map-get($theme, "fonts") {
+@each $name, $value in map.get($theme, "fonts") {
   .font-#{$name} {
     font-family: #{$value};
   }
@@ -60,10 +64,10 @@ body {
 
 
 :root {
-  @each $name, $value in map-get($theme, "palette") {
+  @each $name, $value in $palette {
     --#{$prefix}-#{$name}: #{$value};
   }
-  @each $name, $value in map-get($theme, "fonts") {
+  @each $name, $value in map.get($theme, "fonts") {
     --#{$prefix}-font-#{$name}: #{$value};
   }
 
@@ -73,6 +77,13 @@ body {
   --bg-card: #f0efee;
   --bg-card-raised: #f8f8f8;
   --sp-paper: #e7e7e7;
-  
 }
 
+.p-rel {
+  position: relative;
+}
+
+
+.p-sticky {
+  position: sticky;
+}

@@ -1,16 +1,20 @@
 <template lang="pug">
 .wrapper(theme="light")
   sp-alerts
-  .content
-    Header
+  .row.justify-content-center
+    .col-10
+      Header
 
-    //- .pb-3(v-if="route_with_searchbar")
-    //-   search-bar
+  .row
+    .col-2
+    .col-8
+      transition(name="fade", mode="out-in", :key="$router.fullPath")
+        router-view.view
+    .col-2
+      .sticky-top(style="margin-top: 60%")
+        teleport-target(name="sp-sidebar")
 
-    transition(name="fade", mode="out-in", :key="$router.fullPath")
-      router-view.view
   sp-footer
-
   dialog-portal
 </template>
 
@@ -122,13 +126,6 @@ h6 {
 
 @import "./styles.scss";
 
-:root [theme="light"] {
-  @include spread-map($theme-map-light);
-}
-:root [theme="light"] {
-  @include spread-map($theme-map-dark);
-}
-
 html {
   height: 100vh;
   box-sizing: border-box;
@@ -143,12 +140,6 @@ body,
   background-color: var(--sp-background);
   color: rgba(0, 0, 0, 0.85);
   font-family: "Nunito";
-
-  .content {
-    min-height: 100%;
-    width: 80%;
-    margin: auto;
-  }
 
   .view {
     padding-bottom: 3rem;

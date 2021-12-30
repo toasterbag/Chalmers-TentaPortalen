@@ -53,12 +53,9 @@ export default {
         data.date = data.academic_year;
         data.percent = {};
 
-        const percentages = [
-          data.failed,
-          data.three,
-          data.four,
-          data.five,
-        ].map((e) => e.div(data.total).mul(100));
+        const percentages = [data.failed, data.three, data.four, data.five].map(
+          (e) => e.div(data.total).mul(100)
+        );
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
           100
