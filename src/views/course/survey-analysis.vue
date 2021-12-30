@@ -1,19 +1,28 @@
 <template lang="pug">
-.container
-  div(v-if="this.ready")
-    .d-flex.justify-content-end
-
-    .row.justify-content-center.border-bottom(v-for="charts in chart_grid")
-      .col-12.p-3(v-for="chart in charts")
-        .fs-3 {{ chart.title }}
-        .text-muted {{ chart.subtitle }}
-        survey-line-chart(
-          :labels="labels",
-          :means="chart.means",
-          :medians="chart.medians",
-          :display-mean="display_mean_values",
-          :comments="comments"
-        )
+div(v-if="this.ready")
+  .row.justify-content-center.border-bottom(v-for="charts in chart_grid")
+    .col-12.p-3(v-for="chart in charts")
+      .fs-3 {{ chart.title }}
+      .text-muted {{ chart.subtitle }}
+      survey-line-chart(
+        :labels="labels",
+        :means="chart.means",
+        :medians="chart.medians",
+        :display-mean="display_mean_values",
+        :display-exams="show_exams",
+        :comments="comments",
+        :exams="primary_exams"
+      )
+  teleport(to="sp-sidebar")
+    .d-flex.justify-content-end.sticky-top.pt-4
+      .sidebar
+        .form-check.pe-4
+          input#show-exams.form-check-input(
+            type="checkbox",
+            v-model="show_exams"
+          )
+          label.form-check-label.user-select-none(for="show-exams")
+            | Show exams
 </template>
 
 <script>
@@ -26,6 +35,7 @@ export default {
     ready: false,
     surveys: [],
     comments: [],
+    show_exams: false,
   }),
 
   computed: {
@@ -125,6 +135,33 @@ export default {
         `course/${this.$route.params.code}/surveys`
       );
 
+      const primary_exams = await Http.get(
+        `course/${this.$route.params.code}/exams/primary`
+      );
+
+      const years = new Set(this.surveys.map((e) => e.academic_year));
+      this.primary_exams = primary_exams
+        .filter((e) => years.has(e.academic_year))
+        .map((data) => {
+          data.total = data.failed + data.three + data.four + data.five;
+          const percentages = [
+            data.failed,
+            data.three,
+            data.four,
+            data.five,
+          ].map((e) => e.div(data.total).mul(100));
+          const [failed, three, four, five] = Math.roundToTarget(
+            percentages,
+            100
+          );
+
+          data.failed = failed;
+          data.three = three;
+          data.four = four;
+          data.five = five;
+          return data;
+        });
+
       this.comments = this.surveys
         .filter((s, i, arr) => {
           if (i == 0) return true;
@@ -142,4 +179,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.sidebar {
+  top: 10vh;
+}
+</style>

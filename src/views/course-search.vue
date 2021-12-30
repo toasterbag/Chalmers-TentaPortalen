@@ -10,6 +10,14 @@
         @blur="owner_suggestions = []",
         @input="updateQuery"
       )
+    .col-md-2
+      sp-select(
+        v-model="academic_year",
+        :values="year_span",
+        label="Academic year",
+        @input="updateQuery"
+      )
+  .row.mb-4
     .col-md-3
       sp-combobox(
         v-model="programme_plan",
@@ -19,13 +27,20 @@
         @blur="programme_plan_suggestions = []",
         @input="updateQuery"
       )
-    .col-md-2
+    .col-md-3(v-if="programme_plan.length")
       sp-select(
-        v-model="academic_year",
-        :values="year_span",
-        label="Academic year",
+        v-model="electivity",
+        :values="electiviy_categories",
+        label="Electivity",
         @input="updateQuery"
       )
+    //- .col-md-3(v-if="programme_plan !== ''")
+    //-   sp-select(
+    //-     v-model="grade",
+    //-     :values="grade",
+    //-     label="Electivity",
+    //-     @input="updateQuery"
+    //-   )
   .row.mb-4
     .col-md-2
       label.form-label Minimum responses
@@ -105,6 +120,13 @@ export default {
     owner_suggestions: [],
     department: "",
     department_suggestions: [],
+    electivity: "All",
+    electiviy_categories: [
+      "All",
+      "Compulsory",
+      "ElectiveCompulsory",
+      "Elective",
+    ],
     min_responses: "",
     max_responses: "",
     list: [],
@@ -139,6 +161,10 @@ export default {
         query.owner = this.owner;
       }
 
+      if (this.electivity) {
+        query.electivity = this.electivity;
+      }
+
       if (this.min_responses) {
         query.min_responses = this.min_responses;
       }
@@ -154,16 +180,16 @@ export default {
         .catch(() => {});
     },
     async load_data() {
-      this.academic_year == this.$route.query.academic_year[0] ??
-        this.year_span[1];
-      console.log(this.$route.query.academic_year[0]);
+      this.academic_year = this.$route.query.academic_year ?? this.year_span[1];
       this.owner = this.$route.query.owner ?? "";
       this.programme_plan = this.$route.query.programme_plan ?? "";
+      this.electivity = this.$route.query.electivity ?? "";
       this.min_responses = this.$route.query.min_responses ?? undefined;
       this.max_responses = this.$route.query.max_responses ?? undefined;
 
       const query = {
         programme_plan: this.programme_plan,
+        electivity: this.electivity == "All" ? undefined : this.electivity,
         academic_year: this.academic_year,
         min_responses: this.min_responses,
         max_responses: this.max_responses,
