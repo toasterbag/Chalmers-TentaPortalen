@@ -71,7 +71,7 @@ const chart_comments = {
 
       const area = chart.chartArea;
 
-      if(chart.scales.x._gridLineItems && chart.config.type == "line") {
+      if(chart.scales.x._gridLineItems && chart.scales.x._gridLineItems.length >= 2 && chart.config.type == "line") {
         const max_width = chart.scales.x._gridLineItems[1].x1 - chart.scales.x._gridLineItems[0].x1;
 
         for(let {index, color, comment, horizontal} of options) {
@@ -131,7 +131,7 @@ const chart_comments = {
 
     const area = chart.chartArea;
 
-    if(chart.scales.x._gridLineItems && chart.config.type == "line") {
+    if(chart.scales.x._gridLineItems && chart.scales.x._gridLineItems.length >= 2  &&chart.config.type == "line") {
       const max_width = chart.scales.x._gridLineItems[1].x1 - chart.scales.x._gridLineItems[0].x1;
 
       for(let {index, comment} of options) {
