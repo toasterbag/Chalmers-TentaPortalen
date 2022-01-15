@@ -1,5 +1,5 @@
 <template lang="pug">
-teleport(to="sp-toaster")
+teleport(to="body")
   .sp-toast-container
     .sp-toast.d-flex.align-items-center(
       v-for="({ id, toast }, index) in queue",
@@ -14,11 +14,19 @@ teleport(to="sp-toaster")
 </template>
 
 <script lang="ts">
-const wait = (t) => new Promise((resolve) => setTimeout(resolve, t));
+import { inject, ref, Ref, computed, ComputedRef } from "vue";
+import { Toast, Toaster } from ".";
+
+interface ToastWrapper {
+  id: number;
+  toast: Toast;
+  exiting: boolean;
+}
+
+const wait = (t: number) => new Promise((resolve) => setTimeout(resolve, t));
 export default {
-  name: "sp-toast-portal",
+  name: "sp-toaster",
   data: () => ({
-    queue: [],
     styles: {
       success: {
         icon: "fa-check",
@@ -39,7 +47,7 @@ export default {
   }),
   async mounted() {
     let counter = 0;
-    this.$onToast(async (toast) => {
+    this.$toaster.on_toast(async (toast) => {
       if (toast.style) {
         toast = Object.assign({}, this.styles[toast.style], toast);
       }
@@ -57,6 +65,32 @@ export default {
       index = this.queue.findIndex((e) => e.id == id);
       this.queue.splice(index, 1);
     });
+  },
+  async setup() {
+    let counter = 0;
+    const toasts: Ref<Record<number, ToastWrapper>> = ref({});
+    const queue: ComputedRef<Array<ToastWrapper>> = computed(() => {
+      return Object.values(toasts.value);
+    });
+    const toaster: Toaster | undefined = inject("toaster");
+    if (toaster === undefined) return;
+
+    toaster.on_toast(async (toast: Toast) => {
+      const id = (counter += 1);
+      toasts.value[id] = {
+        id,
+        toast,
+        exiting: false,
+      };
+      await wait(100);
+      await wait(toast.timeout ?? 4000);
+      toasts.value[id].exiting = true;
+
+      await wait(400);
+      delete toasts.value[id];
+    });
+
+    return { queue };
   },
 };
 </script>

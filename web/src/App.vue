@@ -7,14 +7,12 @@
 
   .row
     .col-2
-      .sticky-top(style="margin-top: 60%")
-        teleport-target(name="sidebar-left")
+      #sidebar-left.sticky-top(style="margin-top: 60%")
     .col-8
       transition(name="fade", mode="out-in", :key="$router.fullPath")
         router-view.view
     .col-2
-      .sticky-top(style="margin-top: 60%")
-        teleport-target(name="sidebar-right")
+      #sidebar-right.sticky-top(style="margin-top: 60%")
 
   sp-footer
   dialog-portal

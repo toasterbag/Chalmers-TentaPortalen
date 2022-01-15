@@ -1,19 +1,19 @@
 import { App } from "@vue/runtime-core";
 import ToasterComponent from "./toaster.vue";
 
-interface Toast {
-  title?: string,
-  content: string,
-  timeout?: number,
-  progress?: number,
+export interface Toast {
+  title?: string;
+  content: string;
+  timeout?: number;
+  progress?: number;
 }
 
-type ToastListener = (toast: Toast) => void
+export type ToastListener = (toast: Toast) => void;
 
-class Toaster {
+export class Toaster {
   private callbacks: Array<ToastListener> = [];
 
-  constructor() { }
+  constructor() {}
 
   on_toast(fn: ToastListener) {
     this.callbacks.push(fn);
@@ -35,15 +35,13 @@ class Toaster {
   }
 }
 
-
 export default {
   install: (app: App) => {
-    app.config.globalProperties.$toaster = new Toaster();
+    const toaster = new Toaster();
+    app.config.globalProperties.$toaster = toaster;
 
-    const root = new Vue({
-      render: (createElement) => createElement(ToasterComponent),
-    });
+    app.component("toaster", ToasterComponent);
 
-    root.$mount(document.body.appendChild(document.createElement("div")));
+    app.provide("toaster", toaster);
   },
 };

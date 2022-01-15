@@ -1,8 +1,7 @@
 import "./global";
 
-import { createApp } from 'vue'
+import { createApp } from "vue";
 
-import Vue from "vue";
 import App from "./App.vue";
 import Router from "./router";
 import components from "./plugins/components";
@@ -10,16 +9,15 @@ import DialogPlugin from "./plugins/dialog";
 import ToasterPlugin from "./plugins/toaster";
 import { Teleport, TeleportTarget } from "./plugins/teleport";
 
-
-const should_use_production_api = process.env.NODE_ENV == "production" || process.env.NODE_ENV == "staging";
+const should_use_production_api =
+  process.env.NODE_ENV == "production" || process.env.NODE_ENV == "staging";
 
 window.env = {
   ENV: process.env.NODE_ENV,
   PUBLIC_URL: should_use_production_api ? "" : "http://localhost:10006",
-  API_URL:
-    should_use_production_api
-      ? "/api/v1"
-      : "http://localhost:10006/api/v1",
+  API_URL: should_use_production_api
+    ? "/api/v1"
+    : "http://localhost:10006/api/v1",
 };
 
 import { Chart, registerables } from "chart.js";
@@ -58,23 +56,15 @@ Chart.register(...registerables);
 //   },
 // });
 
-
-
-
 // Chart.register(chart_comments);
 // Chart.defaults.font = {
 //   // family: "NunitoNunito",
 // };
 
-
 // Vue.use(VuePreferences);
 
-Vue.use(DialogPlugin);
-Vue.use(ToasterPlugin);
-Vue.component("teleport", Teleport);
-Vue.component("teleport-target", TeleportTarget);
 Vue.use(components);
 
-const app = createApp(App).use(Router).use(DialogPlugin);
+const app = createApp(App).use(Router).use(DialogPlugin).use(ToasterPlugin);
 
-app.mount('#app')
+app.mount("#app");
