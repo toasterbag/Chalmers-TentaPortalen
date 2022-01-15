@@ -127,7 +127,7 @@ export default {
           }
           return true;
         })
-        .sortBy((x) => x[this.sort_key])
+        .sortByKey((x) => x[this.sort_key])
         .order(!this.order_desc);
     },
   },
