@@ -1,5 +1,8 @@
 node_modules
 dist
+.DS_Store
+dist-ssr
+*.local
 
 # local env files
 .env.local

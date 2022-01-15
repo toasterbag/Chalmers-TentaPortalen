@@ -44,8 +44,9 @@ class DialogManager {
 }
 
 export default {
-  install: (Vue, conf) => {
-    Vue.prototype.$dialog = new DialogManager(Vue, conf);
-    Vue.component("dialog-portal", DialogPortal);
+  install: (app, conf) => {
+
+    app.config.globalProperties.$dialog = new DialogManager(app);
+    app.component("dialog-portal", DialogPortal);
   },
 };

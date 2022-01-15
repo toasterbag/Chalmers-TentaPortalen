@@ -1,18 +1,19 @@
 <template lang="pug">
-.sp-toast-container
-  .sp-toast.d-flex.align-items-center(
-    v-for="({ id, toast }, index) in queue",
-    :key="id",
-    :style="{ top: `${index * 64 + 12}px` }",
-    :class="[toast.exiting ? 'exit' : '', toast.background || 'bg-primary', toast.color]"
-  )
-    .fa.pe-2(:class="[toast.icon]")
-    div
-      .fw-bold(v-if="toast.title") {{ toast.title }}
-      .content {{ toast.content }}
+teleport(to="sp-toaster")
+  .sp-toast-container
+    .sp-toast.d-flex.align-items-center(
+      v-for="({ id, toast }, index) in queue",
+      :key="id",
+      :style="{ top: `${index * 64 + 12}px` }",
+      :class="[toast.exiting ? 'exit' : '', toast.background || 'bg-primary', toast.color]"
+    )
+      .fa.pe-2(:class="[toast.icon]")
+      div
+        .fw-bold(v-if="toast.title") {{ toast.title }}
+        .content {{ toast.content }}
 </template>
 
-<script>
+<script lang="ts">
 const wait = (t) => new Promise((resolve) => setTimeout(resolve, t));
 export default {
   name: "sp-toast-portal",
