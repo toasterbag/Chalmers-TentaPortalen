@@ -1,5 +1,12 @@
 <template lang="pug">
 div(v-if="this.ready")
+  teleport(to="sidebar-left")
+    .d-flex.justify-content-start.p-4
+      .sidebar
+        div(v-for="{name, module_id} in modules")
+          router-link(:to="{name: 'course/module', params: { code: $route.params.code, id: module_id}}")
+           span {{module_id}}: {{name}}
+        
   .row.justify-content-between.py-md-0.py-3(v-if="all_exams.isEmpty()")
     .fs-2.text-center This course has no exams
   div(v-else)
@@ -85,6 +92,7 @@ export default {
     owner: undefined,
     all_exams: [],
     without_reexams: [],
+    modules: [],
   }),
 
   computed: {
@@ -167,10 +175,10 @@ export default {
     },
   },
   created() {
-    this.loadCourse();
+    this.load_course();
   },
   methods: {
-    async loadCourse() {
+    async load_course() {
       let res = await Http.get(`course/${this.$route.params.code}`);
 
       this.name = res.name;
@@ -180,6 +188,10 @@ export default {
 
       this.all_exams = await Http.get(
         `course/${this.$route.params.code}/exams`
+      );
+
+      this.modules = await Http.get(
+        `course/${this.$route.params.code}/modules`
       );
 
       this.ready = true;
