@@ -70,11 +70,7 @@ const router = new Router({
       name: "programme-search",
       component: () => import("./views/programme-search.vue"),
     },
-    {
-      path: "/statistics/this-year-so-far",
-      name: "statistics/this-year-so-far",
-      component: () => import("./views/statistics/this-year-so-far.vue"),
-    },
+
 
     {
       path: "/admin",
