@@ -1,0 +1,54 @@
+{
+  "name": "course-portal-web",
+  "version": "2.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "serve:production": "NODE_ENV=production vue-cli-service serve",
+    "build": "vue-cli-service build --modern",
+    "lint": "vue-cli-service lint",
+    "docker:build": "docker build . --tag ${npm_package_name}:latest --tag ${npm_package_name}:${npm_package_version} --target=final"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.3",
+    "bootstrap": "^5.0.0-beta2",
+    "chart.js": "^3.0.0-rc.2",
+    "date-fns": "2.22.1",
+    "vue": "^2.6.14",
+    "vue-preferences": "^3.0.0",
+    "vue-router": "^3.4.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^16.0.0",
+    "@commitlint/config-conventional": "^16.0.0",
+    "@commitlint/prompt-cli": "^16.0.0",
+    "@prettier/plugin-pug": "^1.10.1",
+    "@vue/cli-plugin-babel": "^4.5.0",
+    "@vue/cli-plugin-eslint": "^4.5.0",
+    "@vue/cli-service": "^4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.18.0",
+    "eslint-plugin-vue": "^7.2.0",
+    "prettier": "^2.1.2",
+    "pug": "^3.0.0",
+    "pug-plain-loader": "^1.0.0",
+    "sass": "1.45.0",
+    "sass-loader": "^10.0.4",
+    "style-resources-loader": "^1.4.1",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  }
+}
