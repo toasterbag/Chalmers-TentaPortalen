@@ -23,7 +23,7 @@ export default {
       const res = await Http.post("auth", {
         body: { password: this.password },
       });
-      if (res.ok) {
+      if (res.status == "ok") {
         sessionStorage.setItem("password", this.password);
         this.$router.push({ name: "admin/import" });
       } else {

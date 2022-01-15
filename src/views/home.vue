@@ -1,8 +1,18 @@
 <template lang="pug">
-.brand.d-flex.align-self-center.justify-content-center
-  .font-brand
-    .name CoursePortal
-    .slogan Tentō, ergo sum
+.row
+  .col-6
+    .brand.d-flex.align-self-center.justify-content-start
+      .font-brand
+        .name CoursePortal
+        .slogan Tentō, ergo sum
+  .col-6.pt-4
+    h3 New exam data
+    p.pb-3 
+      span Study period 2 exams and survey data will be available by February 8th.
+    //- h3 This year so far
+    //- p.pb-3
+    //-   span See how the current students compare to previous years
+    //-   router-link(:to="{ name: 'statistics/this-year-so-far' }") &nbsp;here
 </template>
 
 <script>
@@ -14,17 +24,15 @@ export default {
 
 <style lang="scss" scoped>
 .brand {
-  height: 100%;
-  padding-top: 5rem;
   user-select: none;
   color: var(--sp-text);
 
   .name {
-    font-size: 5rem;
+    font-size: 4rem;
   }
 
   .slogan {
-    font-size: 2rem;
+    font-size: 1rem;
   }
 }
 </style>

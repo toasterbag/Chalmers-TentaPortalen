@@ -13,7 +13,7 @@ div(v-if="this.ready")
         :comments="comments",
         :exams="primary_exams"
       )
-  teleport(to="sp-sidebar")
+  teleport(to="sidebar-right")
     .d-flex.justify-content-end.sticky-top.pt-4
       .sidebar
         .form-check.pe-4

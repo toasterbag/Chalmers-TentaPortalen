@@ -33,7 +33,11 @@ class Http {
   }
 
   static async post(path, opts) {
-    return Http.fetch("POST", path, opts);
+    let res = await Http.fetch("POST", path, opts);
+    if (res.ok) {
+      return res.json();
+    }
+    return null;
   }
 
   static async put(path, opts) {

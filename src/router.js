@@ -23,6 +23,11 @@ const router = new Router({
           component: () => import("./views/course/exam-statistics.vue"),
         },
         {
+          path: "module/:id",
+          name: "course/module",
+          component: () => import("./views/course/module.vue"),
+        },
+        {
           path: "materials",
           name: "course/materials",
           component: () => import("./views/course/materials.vue"),
@@ -45,7 +50,7 @@ const router = new Router({
       component: () => import("./views/course-search.vue"),
     },
     {
-      path: "/programme/:code",
+      path: "/programme/:code/:start_year/:end_year",
       component: () => import("./views/programme/index.vue"),
       children: [
         {
@@ -64,6 +69,11 @@ const router = new Router({
       path: "/programmes/search",
       name: "programme-search",
       component: () => import("./views/programme-search.vue"),
+    },
+    {
+      path: "/statistics/this-year-so-far",
+      name: "statistics/this-year-so-far",
+      component: () => import("./views/statistics/this-year-so-far.vue"),
     },
 
     {

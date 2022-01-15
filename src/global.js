@@ -146,18 +146,14 @@ Array.prototype.groupByKey = function (key) {
   }, {});
 };
 
-Array.prototype.groupByKey = function (key) {
-  return this.reduce((map, obj) => {
-    let group_key = obj[key];
-    if (!(group_key in map)) {
-      map[group_key] = [];
-    }
-    map[group_key].push(obj);
-    return map;
-  }, {});
+
+Array.prototype.sortBy = function (compare_fn) {
+  return this.map((e) => e).sort((a, b) => {
+    return compare_fn(a, b)
+  });
 };
 
-Array.prototype.sortBy = function (extractKey) {
+Array.prototype.sortByKey = function (extractKey) {
   return this.map((e) => e).sort((a, b) => {
     const a_key = extractKey(a);
     const b_key = extractKey(b);
