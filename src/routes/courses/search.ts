@@ -2,6 +2,7 @@ import { Context } from "@app/context";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
 import * as z from "zod";
+import { Electivity } from "@prisma/client";
 
 const query_schema = z.object({
   programme: z
@@ -23,6 +24,21 @@ const query_schema = z.object({
     .string()
     .optional()
     .transform((s) => (s === "" ? undefined : s)),
+  electivity: z
+    .string()
+    .optional()
+    .transform((s) => (s === "" ? undefined : s))
+    .transform((s) => {
+      switch (s) {
+        case "Elective":
+          return Electivity.Elective;
+        case "ElectiveCompulsory":
+          return Electivity.ElectiveCompulsory;
+        case "Compulsory":
+          return Electivity.Compulsory;
+      }
+      return undefined;
+    }),
 });
 
 export default {
@@ -39,6 +55,7 @@ export default {
       min_responses,
       max_responses,
       programme_plan,
+      electivity,
     } = query_schema.parse(unparsed_query);
 
     const wheres = [];
@@ -49,6 +66,7 @@ export default {
         },
         where: {
           programme_code: programme_plan,
+          electivity,
         },
       });
       wheres.push({

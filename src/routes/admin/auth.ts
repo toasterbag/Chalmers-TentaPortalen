@@ -6,6 +6,8 @@ export default {
   auth: ["admin"],
 
   handler: async (): Promise<Response> => {
-    return Ok({});
+    return Ok({
+      status: "ok",
+    });
   },
 };
