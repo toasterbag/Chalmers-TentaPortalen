@@ -111,11 +111,7 @@ const router = new Router({
       ],
     },
 
-    {
-      path: "/submit-exams",
-      name: "submit-exams",
-      component: () => import("./views/submit-exams.vue"),
-    },
+
     {
       path: "/login",
       name: "login",

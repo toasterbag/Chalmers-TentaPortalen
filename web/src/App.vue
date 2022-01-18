@@ -172,14 +172,6 @@ body,
   }
 }
 
-.btn {
-  color: var(--sp-background);
-
-  &:hover {
-    color: var(--sp-background);
-  }
-}
-
 .text-size-sm {
   font-size: 0.75rem;
 }

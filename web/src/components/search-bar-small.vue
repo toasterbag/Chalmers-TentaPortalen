@@ -71,8 +71,10 @@ export default {
       );
     },
     show_help() {
-      return this.$refs.search_input === document.activeElement && this.search === "";
-    }
+      return (
+        this.$refs.search_input === document.activeElement && this.search === ""
+      );
+    },
   },
   methods: {
     blur() {
@@ -123,7 +125,6 @@ export default {
 }
 
 .search-box {
-  z-index: var(--sp-search-box-z);
   position: absolute;
   width: 100%;
   border-radius: 8px;

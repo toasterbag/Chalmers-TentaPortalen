@@ -25,7 +25,7 @@ div(v-if="this.ready")
           .col-2.text-end
             .btn.bg-primary.text-white(
               v-if="!(exam.thesis && (exam.solution || exam.thesis.includes_solution))",
-              @click="$dialog.open('upload-exam', { exam })"
+              @click="upload_exam(exam)"
             ) Upload
 
     .row.justify-content-center
@@ -37,7 +37,7 @@ div(v-if="this.ready")
 import Http from "../../plugins/http";
 
 export default {
-  name: "course",
+  name: "CourseMaterialsView",
   data: () => ({
     ready: false,
     exams: [],
@@ -48,10 +48,10 @@ export default {
     },
   },
   created() {
-    this.loadCourse();
+    this.load();
   },
   methods: {
-    async loadCourse() {
+    async load() {
       let res = await Http.get(`course/${this.$route.params.code}/exams`);
 
       this.exams = res
@@ -67,6 +67,10 @@ export default {
         .sort((a, b) => a.date < b.date);
 
       this.ready = true;
+    },
+    async upload_exam(exam) {
+      await this.$dialog.open("upload-exam", { exam });
+      this.load();
     },
   },
 };

@@ -150,7 +150,7 @@ export default {
     position: relative;
 
     ul {
-      z-index: 1000;
+      z-index: var(--z-dropdown);
       top: 0;
       position: absolute;
       width: 100%;

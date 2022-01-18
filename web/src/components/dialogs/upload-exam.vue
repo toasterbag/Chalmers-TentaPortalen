@@ -2,35 +2,39 @@
 .modal-content
   .modal-header.fs-2.fw-light Upload exam
   .modal-body
-    .row
-      .col-md-6
-        .fs-4.fw-light Exam
-        sp-upload-field(v-model="exam_file", text="Click or drop exam here")
-      .col-md-6
-        .fs-4.fw-light Solution
-        sp-upload-field(
-          v-model="solution_file",
-          text="Click or drop solution here"
-        )
-    //- .row.pt-4
-    //-   .col-12
-    //-     .fs-4.fw-light Attachments
-    //-     sp-upload-field(
-    //-       v-model="attachments",
-    //-       text="Click or drop attachments here",
-    //-       :multi="true"
-    //-     )
-    .d-flex.justify-content-end.pt-4
-      .form-check
-        input#includes-solution.form-check-input(
-          type="checkbox",
-          v-model="includes_solution"
-        )
-        label.form-check-label(for="includes-solution")
-          | Solutions are included in the exam
+    .center(v-if="loading")
+      .spinner-border.text-primary(role="status")
+        span.visually-hidden Loading...
+    div(v-else)
+      .row
+        .col-md-6
+          .fs-4.fw-light Exam
+          sp-upload-field(v-model="exam_file", text="Click or drop exam here")
+        .col-md-6
+          .fs-4.fw-light Solution
+          sp-upload-field(
+            v-model="solution_file",
+            text="Click or drop solution here"
+          )
+      //- .row.pt-4
+      //-   .col-12
+      //-     .fs-4.fw-light Attachments
+      //-     sp-upload-field(
+      //-       v-model="attachments",
+      //-       text="Click or drop attachments here",
+      //-       :multi="true"
+      //-     )
+      .d-flex.justify-content-end.pt-4
+        .form-check
+          input#includes-solution.form-check-input(
+            type="checkbox",
+            v-model="includes_solution"
+          )
+          label.form-check-label(for="includes-solution")
+            | Solutions are included in the exam
   .modal-footer
-    .btn.bg-primary(@click="submit") Upload
-    .btn.bg-accent(@click="$dialog.hide()") Close
+    .btn.flat.text-blue(@click="submit") Upload
+    .btn.flat.text-red(@click="$dialog.hide()") Close
 </template>
 
 <script>
@@ -39,6 +43,7 @@ export default {
   name: "upload-exam-dialog",
   props: ["exam"],
   data: () => ({
+    loading: false,
     exam_file: [],
     solution_file: [],
     attachments: [],
@@ -92,6 +97,7 @@ export default {
       });
     },
     async submit() {
+      this.loading = true;
       const responses = [];
       if (this.exam_file[0]) {
         responses.push(this.submit_exam());
@@ -101,7 +107,7 @@ export default {
       }
       let result = await Promise.all(responses);
       let isError = result.reduce((err, next) => err || !next.ok, false);
-
+      await window.wait(1000);
       if (isError) {
         this.$toast({
           style: "error",
@@ -116,7 +122,7 @@ export default {
         Http.log("upload", `${this.exam.course_code} ${this.exam.date}`);
       }
 
-      this.$dialog.hide();
+      this.$emit("submit", undefined);
     },
   },
 };
