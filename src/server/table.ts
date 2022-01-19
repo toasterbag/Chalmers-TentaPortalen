@@ -16,9 +16,10 @@ const ANSI_REGEX = /\x1B\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]/g;
 const strip_formatting = (s: string) => s.replace(ANSI_REGEX, "");
 const width = () => process.stdout.columns - 12;
 const len = (s: string) => strip_formatting(s).length;
+const repeat = (s: string, count: number) => s.repeat(Math.max(count, 0));
 
 const gen_header = (text: string): string => {
-  let header = `${TOP_LEFT}${HORIZONTAL_LINE.repeat(width())}${TOP_RIGHT}`;
+  let header = `${TOP_LEFT}${repeat(HORIZONTAL_LINE, width())}${TOP_RIGHT}`;
   header += "\n";
   header += `│ ${text.padEnd(width() - 2, " ")} │`;
   header += "\n";
@@ -29,14 +30,14 @@ const gen_thead = (cols: Array<{ title: string; len: number }>) => {
   // Print top line
   let row = JUNCTION_RIGHT;
   for (const col of cols.take(cols.length - 1)) {
-    row += HORIZONTAL_LINE.repeat(col.len + 2);
+    row += repeat(HORIZONTAL_LINE, col.len + 2);
     row += JUNCTION_DOWN;
   }
   const last_cell_len =
     width() -
     1 -
     cols.take(cols.length - 1).reduce((total, col) => total + col.len + 2, 0);
-  row += HORIZONTAL_LINE.repeat(last_cell_len);
+  row += repeat(HORIZONTAL_LINE, last_cell_len);
   row += JUNCTION_LEFT;
   row += NEWLINE;
 
@@ -44,22 +45,22 @@ const gen_thead = (cols: Array<{ title: string; len: number }>) => {
   row += VERTICAL_LINE;
   for (const col of cols.take(cols.length - 1)) {
     row += ` ${col.title.toLocaleUpperCase()} `;
-    row += SPACE.repeat(col.len - len(col.title));
+    row += repeat(SPACE, col.len - len(col.title));
     row += VERTICAL_LINE;
   }
 
   row += ` ${cols.last().title.toLocaleUpperCase()} `;
-  row += SPACE.repeat(last_cell_len - len(cols.last().title) - 2);
+  row += repeat(SPACE, last_cell_len - len(cols.last().title) - 2);
   row += VERTICAL_LINE;
   row += NEWLINE;
 
   // Print bottom line
   row += JUNCTION_RIGHT;
   for (const col of cols.take(cols.length - 1)) {
-    row += HORIZONTAL_LINE.repeat(col.len + 2);
+    row += repeat(HORIZONTAL_LINE, col.len + 2);
     row += JUNCTION_CROSS;
   }
-  row += HORIZONTAL_LINE.repeat(last_cell_len);
+  row += repeat(HORIZONTAL_LINE, last_cell_len);
   row += JUNCTION_LEFT;
   row += NEWLINE;
 
@@ -118,7 +119,7 @@ export const print_table = <T>(
   }, {});
   for (const row of data) {
     for (const [key, val] of Object.entries(row)) {
-      col_width[key] = Math.max(col_width[key], len(String(val)));
+      col_width[key] = Math.max(col_width[key], len(String(val)) + 2);
     }
   }
   const column_cells = columns.map((e) => ({ title: e, len: col_width[e] }));
@@ -127,7 +128,7 @@ export const print_table = <T>(
   process.stdout.write(gen_thead(column_cells));
   for (const row of data) {
     const cells = Object.entries(row).map(([k, v]) => ({
-      title: v,
+      title: String(v).trim(),
       len: col_width[k],
     }));
     process.stdout.write(gen_trow(cells));

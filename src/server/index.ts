@@ -72,16 +72,6 @@ class Server {
 
   wrap_endpoint(endpoint: Endpoint) {
     return async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
-      if (endpoint.auth?.includes("admin")) {
-        if (
-          req.headers.authorization !== this.ctx.config.admin_password &&
-          req.body.password !== this.ctx.config.admin_password
-        ) {
-          res.status(401).send();
-          return;
-        }
-      }
-
       const log = this.ctx.log.extend({
         method: req.method,
         path: req.path,
@@ -89,6 +79,17 @@ class Server {
         ip: req.ip,
       });
       log.info("Incoming request");
+
+      if (endpoint.auth?.includes("admin")) {
+        if (
+          req.headers.authorization !== this.ctx.config.admin_password &&
+          req.body.password !== this.ctx.config.admin_password
+        ) {
+          res.status(401).send();
+          log.info("Invalid authentication", { status: 401 });
+          return;
+        }
+      }
 
       try {
         const response = await endpoint.handler(req, this.ctx);
