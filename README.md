@@ -44,13 +44,13 @@ Commit regurarily but strive for all commits to work on their own, though this i
 ### Committing
 This project uses conventional commits to provide uniform commit messages. Instead of using git on your own you are encouraged to use `npx commit` as this helps you to conform to the style guide.
 
-The \<type\> is usually either `feat` if you are adding a new feature or `fix` if you are fixing a bug. Other possible types are: style, refactor, build, perf, ci, docs, test, chore, revert. It is easy to change commit messages so do not worry to much if you don't pick the correct one.
+The `<type>` is usually either `feat` if you are adding a new feature or `fix` if you are fixing a bug. Other possible types are: style, refactor, build, perf, ci, docs, test, chore, revert. It is easy to change commit messages so do not worry to much if you don't pick the correct one.
 
-The \<scope\> is either `web`, `backend`, `import` or `meta` depending on if your are changing the web frontend or backend. If you are writing a new importer, you should specify `import` even though its a part of the backend. `meta` can be regarded as "everything else".'
+The `<scope>` is either `web`, `backend`, `import` or `meta` depending on if your are changing the web frontend or backend. If you are writing a new importer, you should specify `import` even though its a part of the backend. `meta` can be regarded as "everything else".'
 
-\<subject\> is a short summary of the commit. Write in present tense, e.g. change, not changes or changed. Start with lowercase. Do not end with a dot, `.`. The subject should be short.
+`<subject>` is a short summary of the commit. Write in present tense, e.g. change, not changes or changed. Start with lowercase. Do not end with a dot, `.`. The subject should be short.
 
-\<body\> is for writing more information about the commit.
+`<body>` is for writing more information about the commit.
 
-\<footer\> is for mentioning large changes or referencing issues. For example if this commit fixed a bug from issue #43 on Github then you could write `Closes #43` or multiple issues: `Closes #43, #45`. If you have added a new data source you might write that here.
+`<footer>` is for mentioning large changes or referencing issues. For example if this commit fixed a bug from issue #43 on Github then you could write `Closes #43` or multiple issues: `Closes #43, #45`. If you have added a new data source you might write that here.
 

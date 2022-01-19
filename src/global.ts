@@ -31,6 +31,9 @@ declare global {
     inspect(fn: (x: T) => void): Array<T>;
 
     unique(): Array<T>;
+    toSet(): Set<T>;
+    sortBy(fn: (a: T, b: T) => number): Array<T>;
+    groupBy(fn: (a: T) => string): { [key: string]: Array<T> };
     without(filter: Array<T>): Array<T>;
 
     await_map<T, O>(
@@ -45,7 +48,17 @@ declare global {
   interface String {
     capitalize(): string;
   }
+
+  interface Window {
+    global: Window;
+    env: { [key: string]: string };
+  }
+
+  interface Math {
+    roundToTarget: (numbers: Array<number>, target: number) => Array<number>;
+  }
 }
+
 export {};
 
 function* range_iter(start: number, end: number) {
@@ -205,6 +218,27 @@ Array.prototype.unique = function () {
   return this.filter((elem, pos) => {
     return this.indexOf(elem) == pos;
   });
+};
+
+Array.prototype.toSet = function () {
+  return new Set(this);
+};
+
+Array.prototype.sortBy = function (compare_fn) {
+  return this.map((e) => e).sort((a, b) => {
+    return compare_fn(a, b);
+  });
+};
+
+Array.prototype.groupBy = function (fn) {
+  return this.reduce((map, obj) => {
+    const group_key = fn(obj);
+    if (!(group_key in map)) {
+      map[group_key] = [];
+    }
+    map[group_key].push(obj);
+    return map;
+  }, {});
 };
 
 Array.prototype.await_map = async function <T, O>(

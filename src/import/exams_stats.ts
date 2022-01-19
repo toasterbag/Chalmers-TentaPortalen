@@ -1,198 +1,184 @@
 import chalk from "chalk";
-
 import { Context } from "@app/context";
-import { Logger } from "@app/logger";
-import { AcademicYear } from "@app/utils";
-import { format } from "date-fns";
+import { AcademicYear, is_defined } from "@app/utils";
 import type { WorkSheet } from "xlsx";
-
 import XLSX from "xlsx";
+import { ModuleResult } from ".prisma/client";
 
-const Log = new Logger({ label: "Import" });
+type Grade = "TG" | "G" | "U" | "3" | "4" | "5";
 
-const gradeToColumnName = (grade: string) => {
+const grade_to_column_name = (grade: Grade) => {
   switch (grade) {
     case "3":
+      return "three";
+    case "G":
       return "three";
     case "4":
       return "four";
     case "5":
       return "five";
-    case "u":
+    case "U":
       return "failed";
     default:
-      return false;
+      throw Error(`Invalid grade identifier '${grade}'`);
   }
 };
 
-function isValidDate(d: any) {
-  return !isNaN(d) && d instanceof Date;
-}
-
-function _toDate(s: string) {
-  let date = new Date(s);
-  if (!isValidDate(date)) {
-    return false;
-  }
-  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-  date = new Date(date.getTime() - userTimezoneOffset);
-
-  return date;
-}
-
-function _getString(sheet: any, column: string, row: string) {
+function get_cell_data(sheet: any, column: string, row: string) {
   const key = `${column}${row}`;
   if (key in sheet) {
-    return sheet[key].w.toLowerCase();
+    return sheet[key].w;
   }
   return "";
 }
 
-function _parseRow(sheet: any, row: any) {
-  const date = _toDate(_getString(sheet, "H", row));
-  if (!date) return false;
-  const grade = gradeToColumnName(_getString(sheet, "I", row));
-  if (!grade) return false;
+function parse_row(sheet: any, row: any) {
+  let date = get_cell_data(sheet, "H", row);
+  if (date.includes("/")) {
+    const units = date.split("/");
+    date = `20${units[2]}-${units[0].padStart(2, "0")}-${units[1].padStart(
+      2,
+      "0",
+    )}`;
+  }
+
   return {
-    code: _getString(sheet, "A", row).toUpperCase(),
-    name: _getString(sheet, "B", row),
-    grade,
-    owner: _getString(sheet, "D", row),
+    code: get_cell_data(sheet, "A", row),
+    name: get_cell_data(sheet, "B", row),
+    owner: get_cell_data(sheet, "C", row),
+    module_id: get_cell_data(sheet, "E", row),
+    module_name: get_cell_data(sheet, "F", row),
     date,
-    nrOfStudents: _getString(sheet, "J", row),
-    type: _getString(sheet, "F", row),
+    student_count: get_cell_data(sheet, "J", row),
+    grade: get_cell_data(sheet, "I", row),
   };
 }
 
-const parseDatasheet = (src: string) => {
-  const workbook = XLSX.readFile(src);
-  const collection = workbook.Sheets;
+const parse_data_sheet = (sheet: WorkSheet) => {
+  const modules: Record<
+    string,
+    Record<string, Record<string, ModuleResult>>
+  > = {};
 
-  const courses: any = {};
-  // Itterate over sheets in excel doc
+  const row_count = sheet["!ref"]?.split(":")[1].substr(1);
+  if (row_count === undefined) return undefined;
 
-  Object.entries(collection).forEach(([name, sheet]: [string, WorkSheet]) => {
-    if (sheet.A1?.v.toLowerCase() == "kurs") {
-      if (sheet["!ref"] == undefined) {
-        // range: [first column, last column]
-        throw new Error(`Malformed xlsx sheet '${name}'`);
-      }
-      const range = sheet["!ref"].split(":");
-      const numberOfRows = Number(range[1].substr(1));
-
-      for (let row = 1; row < numberOfRows + 1; row++) {
-        const rowData = _parseRow(sheet, row);
-        if (!rowData) continue;
-        // Check if row contains results from an exam (skips projects etc)
-        if (rowData.type === "tentamen") {
-          let course: any = rowData;
-          if (!(course.code in courses)) {
-            course.exams = [];
-            courses[course.code] = course;
-          }
-
-          course = courses[course.code];
-
-          let examIndex = course.exams.findIndex((e: any) => {
-            return e.date.getTime() === rowData.date.getTime();
-          });
-          if (examIndex < 0) {
-            examIndex = course.exams.length;
-            course.exams.push({ date: rowData.date });
-          }
-          course.exams[examIndex][rowData.grade] = rowData.nrOfStudents;
-        }
-      }
+  for (const row_index of range(2, Number(row_count))) {
+    const data = parse_row(sheet, row_index);
+    if (data === undefined) {
+      console.error(`Couldn't parse row ${row_index}`);
+      continue;
+    } else if (
+      // GU courses
+      data.owner === "FARGU" ||
+      // Tillgodoräknat
+      data.grade === "TG" ||
+      // Formal passing grade (Not in general use at Chalmers)
+      data.grade === "D"
+    ) {
+      continue;
     }
-  });
-  return courses;
+
+    if (!(data.code in modules)) {
+      modules[data.code] = {};
+    }
+
+    const by_course = modules[data.code];
+
+    if (!(data.date in by_course)) {
+      by_course[data.date] = {};
+    }
+
+    const by_date = by_course[data.date];
+
+    if (!(data.module_id in by_date)) {
+      by_date[data.module_id] = {
+        academic_year: AcademicYear.from_date(new Date(data.date)).toString(),
+        module_id: data.module_id,
+        course_code: data.code,
+        date: data.date,
+        grading_system: "ThreeFourFive",
+        name: data.module_name,
+        failed: 0,
+        three: 0,
+        four: 0,
+        five: 0,
+      };
+    }
+
+    const module = by_date[data.module_id];
+
+    if (data.grade === "G") {
+      module.grading_system = "PassFail";
+    }
+
+    const grading_key = grade_to_column_name(data.grade);
+    module[grading_key] = Number(data.student_count);
+  }
+  return modules;
 };
 
-// So it seems they changed the format?
-const parseDatasheet2 = (src: string) => {
-  const workbook = XLSX.readFile(src);
-  const collection = workbook.Sheets;
-
-  const courses: any = {};
-  Object.entries(collection).forEach(([name, sheet]: any) => {
-    if (name == "Sheet1") {
-      // range: [first column, last column]
-      const range = sheet["!ref"].split(":");
-      const numberOfRows = range[1].substr(1);
-
-      for (let row = 1; row < numberOfRows + 1; row++) {
-        const rowData = _parseRow(sheet, row);
-        if (!rowData) continue;
-        // Check if row contains results from an exam (skips projects etc)
-        if (rowData.type === "tentamen") {
-          let course: any = rowData;
-          if (!(course.code in courses)) {
-            course.exams = [];
-            courses[course.code] = course;
-          }
-
-          course = courses[course.code];
-
-          let examIndex = course.exams.findIndex((e: any) => {
-            return e.date.getTime() === rowData.date.getTime();
-          });
-          if (examIndex < 0) {
-            examIndex = course.exams.length;
-            course.exams.push({ date: rowData.date });
-          }
-          course.exams[examIndex][rowData.grade] = rowData.nrOfStudents;
-        }
+const parse_xlsx = (src: string) =>
+  Object.values(XLSX.readFile(src).Sheets)
+    .map((sheet: WorkSheet) => {
+      if (sheet.A1?.v.toLowerCase() === "kurs") {
+        return parse_data_sheet(sheet);
       }
-    }
-  });
-  return courses;
-};
+      return undefined;
+    })
+    .filter(is_defined);
 
 const success = (text: string) => chalk.green(`✔ ${text}`);
 
-export default async (context: Context) => {
-  Log.info("Started import..");
-  const temp = context.config.paths.exam_sheet_temp;
+export default async (ctx: Context) => {
+  ctx.log.info("Started import..");
+  const temp = ctx.config.paths.exam_sheet_temp;
 
-  Log.info("Parsing data..");
-  let data = parseDatasheet(temp);
+  ctx.log.info("Parsing data..");
+  let data = parse_xlsx(temp);
 
   data = Object.values(data);
 
-  Log.info("Inserting exams..");
-  const exams: any = data.flatMap((course: any) =>
-    course.exams.map((exam: any) => ({
-      course_code: course.code,
-      date: format(exam.date, "yyyy-MM-dd"),
-      academic_year: AcademicYear.from_date(exam.date).toString(),
-      failed: Number(exam.failed ?? 0),
-      three: Number(exam.three ?? 0),
-      four: Number(exam.four ?? 0),
-      five: Number(exam.five ?? 0),
-    })),
-  );
+  ctx.log.info("Inserting exams..");
+  const results = Object.values(data)
+    .flatMap((x) => Object.values(x))
+    .flatMap((x) => Object.values(x))
+    .flatMap((x) => Object.values(x));
 
-  for (const exam of exams) {
-    Log.warn(`Found exam '${exam.course_code}' (${exam.date}).`);
-  }
+  const exams = results
+    .filter((module) => module.name === "Tentamen")
+    .map((module) => ({
+      course_code: module.course_code,
+      date: module.date,
+      academic_year: module.academic_year,
+      failed: module.failed,
+      three: module.three,
+      four: module.four,
+      five: module.five,
+    }));
 
-  const courses = await context.prisma.course.findMany({
+  const courses = await ctx.prisma.course.findMany({
     select: { course_code: true },
   });
-  const course_codes = new Set(courses.map((e: any) => e.course_code));
+  const course_codes = new Set(courses.map((e) => e.course_code));
 
   for (const exam of exams) {
     if (!course_codes.has(exam.course_code)) {
-      Log.warn(
+      ctx.log.warn(
         `Course code '${exam.course_code}' (${exam.date}) does not exist in the database, skipping.`,
       );
     }
   }
 
-  await context.prisma.exam.createMany({
-    data: exams.filter((exam: any) => course_codes.has(exam.course_code)),
+  await ctx.prisma.exam.createMany({
+    data: exams.filter((exam) => course_codes.has(exam.course_code)),
     skipDuplicates: true,
   });
 
-  Log.info(success("Successfully imported all data!"));
+  await ctx.prisma.moduleResult.createMany({
+    data: results.filter((result) => course_codes.has(result.course_code)),
+    skipDuplicates: true,
+  });
+
+  ctx.log.info(success("Successfully imported all data!"));
 };
