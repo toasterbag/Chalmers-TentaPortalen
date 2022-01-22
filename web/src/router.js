@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import { plausible } from "./plugins/plausible";
 
 Vue.use(Router);
 
@@ -71,7 +72,6 @@ const router = new Router({
       component: () => import("./views/programme-search.vue"),
     },
 
-
     {
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
@@ -110,7 +110,6 @@ const router = new Router({
         },
       ],
     },
-
 
     {
       path: "/login",
@@ -152,6 +151,11 @@ const router = new Router({
       redirect: { name: "home" },
     },
   ],
+});
+
+router.beforeEnter((to, from, next) => {
+  plausible.trackEvent("View", { props: { name: to.name } });
+  next();
 });
 
 export default router;

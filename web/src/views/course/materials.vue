@@ -14,7 +14,10 @@ div(v-if="this.ready")
         .row.align-items-center(v-for="exam in exams", :key="exam.date")
           .col-3 {{ exam.date }}
           .col-2
-            a.text-primary(v-if="exam.thesis", :href="exam.thesis.url") Download
+            a.text-primary(
+              v-if="exam.thesis",
+              @mousedown="track($event, exam)"
+            ) Download
             span(v-else) Missing
             //sp-upload(@input="uploadExam(exam, $event)")
           .col-2
@@ -51,6 +54,14 @@ export default {
     this.load();
   },
   methods: {
+    async track(e, exam) {
+      this.$plausible.trackEvent("Download exam", {
+        props: { date: exam.date, course: exam.course_code },
+      });
+
+      window.open(exam.thesis.url, "_blank");
+    },
+
     async load() {
       let res = await Http.get(`course/${this.$route.params.code}/exams`);
 

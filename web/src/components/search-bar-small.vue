@@ -112,6 +112,7 @@ export default {
       }
       this.items = await Http.get(`search/${term}`);
       this.$forceUpdate();
+      this.$plausible.trackEvent("Search", { props: { term } });
     },
   },
 };

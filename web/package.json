@@ -14,6 +14,7 @@
     "bootstrap": "^5.0.0-beta2",
     "chart.js": "^3.0.0-rc.2",
     "date-fns": "2.22.1",
+    "plausible-tracker": "0.3.4",
     "vue": "^2.6.14",
     "vue-preferences": "^3.0.0",
     "vue-router": "^3.4.7"
