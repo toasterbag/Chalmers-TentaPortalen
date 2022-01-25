@@ -9,7 +9,7 @@
       .fa.fa-exclamation-circle.pe-2
       a(href="https://tenta.davebay.net", target="_blank") This is the beta version, do not expect it to work as intended. Click here to return to the stable version.
   .sp-alert.p-3.d-flex.justify-content-center.align-items-center(
-    v-for="(alert, index) in alerts",
+    v-for="(alert, index) in visible_alerts",
     :class="[alert.style.background, alert.style.color, alert]"
   )
     .fa.pe-2(:class="[alert.style.icon]")
@@ -23,10 +23,31 @@
 
 <script>
 //import Http from "../plugins/http";
-import { preference } from "vue-preferences";
 export default {
   name: "sp-alerts",
   data: () => ({
+    dummy: false,
+    alerts: [
+      //      {
+      //id: 1,
+      //start: new Date(2018, 1),
+      //end: new Date(2022, 1),
+      //style: "info",
+      //message:
+      //"The master programme application is now open at antagning.se and closes April 15th",
+      //link: "https://antagning.se",
+      //  dismissable: true,
+      //},
+      {
+        id: 10,
+        start: new Date(2018, 1),
+        end: new Date(2022, 2, 8),
+        style: "info",
+        message:
+          "Study period 2 exams and survey data will be available by February 8th",
+        dismissable: true,
+      },
+    ],
     isProduction: global.env.ENV === "production",
     styles: {
       info: {
@@ -47,34 +68,34 @@ export default {
     },
   }),
   computed: {
-    seen_alerts: preference("seen_alerts", {
-      defaultValue: [],
-    }),
+    seen_alerts: {
+      get() {
+        this.dummy;
+        let seen = localStorage.getItem("seen_alerts");
+        if (seen === null) {
+          return [];
+        }
+        return JSON.parse(seen);
+      },
+      set(val) {
+        localStorage.setItem("seen_alerts", JSON.stringify(val));
+        this.dummy = !this.dummy;
+      },
+    },
+    visible_alerts() {
+      return this.alerts
+        .filter((a) => !this.seen_alerts.includes(a.id))
+        .map((a) =>
+          Object.assign(a, {
+            style: this.styles[a.style],
+          }),
+        );
+    },
   },
-  async created() {
-    const alerts = [
-//      {
-        //id: 1,
-        //start: new Date(2018, 1),
-        //end: new Date(2022, 1),
-        //style: "info",
-        //message:
-          //"The master programme application is now open at antagning.se and closes April 15th",
-        //link: "https://antagning.se",
-      //  dismissable: true,
-      //},
-    ];
-    this.alerts = alerts
-      .filter((a) => !this.seen_alerts.includes(a.id))
-      .map((a) =>
-        Object.assign(a, {
-          style: this.styles[a.style],
-        })
-      );
-  },
+
   methods: {
     dismiss(index) {
-      const alert = this.alerts.splice(index, 1)[0];
+      const alert = this.alerts[index];
       this.seen_alerts = [...this.seen_alerts, alert.id];
     },
   },
