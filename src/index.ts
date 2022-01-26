@@ -20,6 +20,7 @@ program
   .option("-s, --scrape", "run the scraper")
   .option("-w, --workers", "how many workers to start")
   .option("-e, --export", "export exam data to stdout")
+  .option("-i, --import", "export exam data from stdin")
   .option("--statistic <type> [args...]", "generate statistics based on type")
   .option("--max <n>", "print max n statistics")
   .parse();
@@ -77,15 +78,12 @@ const main = async () => {
     process.exit(0);
   }
 
-  if (options.import) {
-    await import_exams_json();
-    process.exit(0);
-  }
-
   if (options.statistic) {
     await statistic_command();
     process.exit(0);
   }
+
+  await import_exams_json(config.paths.exam_data);
 
   const ctx = await Context.initialize(config);
 

@@ -1,9 +1,28 @@
 import { readFileSync } from "fs";
-import { PrismaClient } from ".prisma/client";
+import { PrismaClient } from "@prisma/client";
 
-export const import_exams_json = async () => {
+export const import_exams_json = async (path: string) => {
   const prisma = new PrismaClient();
-  const data = readFileSync(0, "utf-8");
+  if ((await prisma.examThesis.count()) !== 0) {
+    console.log(
+      "There are already exams in the database, refusing to import exams",
+    );
+    return;
+  }
+
+  if ((await prisma.exam.count()) === 0) {
+    console.log("Skipping importing exam materials, no exams found");
+    return;
+  }
+
+  let data;
+  try {
+    data = readFileSync(path, "utf-8");
+  } catch (e) {
+    console.log("Could not read exam data", e);
+    return;
+  }
+
   const { theses, solutions } = JSON.parse(data);
 
   for (const {
