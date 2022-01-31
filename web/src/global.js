@@ -168,6 +168,14 @@ Array.prototype.order = function (asc = true) {
   return asc ? this : this.map((e) => e).reverse();
 };
 
+Array.prototype.toSet = function() {
+  return new Set(this)
+}
+
+Set.prototype.toArray = function() {
+  return Array.from(this.values())
+}
+
 // Map
 
 Map.prototype.map = function (key) {

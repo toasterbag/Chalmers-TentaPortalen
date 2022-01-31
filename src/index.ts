@@ -11,8 +11,6 @@ import { cpus } from "os";
 import { start_workers } from "./worker/worker";
 import { export_exams } from "./export_exams";
 import { import_exams_json } from "./import/exams";
-import { PrismaClient } from ".prisma/client";
-import { import_folder } from "./utils";
 
 program
   .version(process.env.NPM_PACKAGE_VERSION ?? "Unknown version")
@@ -21,52 +19,45 @@ program
   .option("-w, --workers", "how many workers to start")
   .option("-e, --export", "export exam data to stdout")
   .option("-i, --import", "export exam data from stdin")
-  .option("--statistic <type> [args...]", "generate statistics based on type")
+  .option("-a, --analysis <type> [args...]", "generate analysis based on type")
   .option("--max <n>", "print max n statistics")
   .parse();
 
-const statistic_command = async () => {
-  const options = program.opts();
-
-  const statistics = await import_folder("./statistics");
-  if (options.statistic.first() in statistics) {
-    const prisma = new PrismaClient();
-
-    // prisma.$use(async (params, next) => {
-    //   const before = Date.now();
-
-    //   const result = await next(params);
-
-    //   const after = Date.now();
-
-    //   console.log(
-    //     `Query ${params.model}.${params.action} took ${after - before}ms`,
-    //   );
-
-    //   return result;
-    // });
-
-    await statistics[options.statistic.first()](
-      prisma,
-      ...options.statistic.slice(1),
-    );
-    // if (data.first() === undefined) {
-    //   console.info("No results");
-    //   return;
-    // }
-
-    // const res = data;
-    // if (options.max) {
-    //   res.take(Number(options.max));
-    // }
-    // console.table(res, Object.keys(data.first()));
-  } else {
-    console.info("No such statistic");
-    console.info("Available statistics:");
-    for (const k of Object.keys(statistics)) {
-      console.info(`  ${k}`);
-    }
-  }
+const analysis_command = async () => {
+  // const options = program.opts();
+  // const prisma = new PrismaClient();
+  // await passthrough_for_editi(prisma, 1);
+  // const statistics = await import_folder("./statistics");
+  // if (options.analysis.first() in statistics) {
+  // prisma.$use(async (params, next) => {
+  //   const before = Date.now();
+  //   const result = await next(params);
+  //   const after = Date.now();
+  //   console.log(
+  //     `Query ${params.model}.${params.action} took ${after - before}ms`,
+  //   );
+  //   return result;
+  // });
+  // await statistics[options.statistic.first()](
+  //   prisma,
+  //   ...options.statistic.slice(1),
+  // );
+  // if (data.first() === undefined) {
+  //   console.info("No results");
+  //   return;
+  // }
+  // const res = data;
+  // if (options.max) {
+  //   res.take(Number(options.max));
+  // }
+  // console.table(res, Object.keys(data.first()));
+  // } else {
+  //   console.info("No such statistic");
+  //   console.info("Available statistics:");
+  //   for (const k of Object.keys(statistics)) {
+  //     console.info(`  ${k}`);
+  //   }
+  // }
 };
 
 const main = async () => {
@@ -78,8 +69,8 @@ const main = async () => {
     process.exit(0);
   }
 
-  if (options.statistic) {
-    await statistic_command();
+  if (options.analysis) {
+    await analysis_command();
     process.exit(0);
   }
 

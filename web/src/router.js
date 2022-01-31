@@ -73,6 +73,12 @@ const router = new Router({
     },
 
     {
+      path: "/passthrough/presentation",
+      name: "passthrough-presentation",
+      component: () => import("./views/passthrough/presentation.vue"),
+    },
+
+    {
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
       beforeEnter: (to, from, next) => {
@@ -153,7 +159,7 @@ const router = new Router({
   ],
 });
 
-router.beforeEnter((to, from, next) => {
+router.beforeEach((to, from, next) => {
   plausible.trackEvent("View", { props: { name: to.name } });
   next();
 });
