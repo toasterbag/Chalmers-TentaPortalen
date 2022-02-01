@@ -17,9 +17,11 @@ Depending on your system you will need additional software.
  - [docker-compose](https://docs.docker.com/compose/install/)
 
 ### Running the code
-Start by running `docker-compose up -d redis postgres web` to start the databases and web frontend.
+Start by running `docker-compose up -d redis postgres` to start the databases and web frontend.
 
-Run `./restore.sh` to fetch the latest database dump from the official instance and seed the dev database with live data. Then run `docker-compose up app` to start the app. Any changes to the frontend will reload on the fly (hot-reload) but to see changes on the backend you have to restart it with `docker-compose up app`. To restart the web frontend run `docker-compose up web`.
+Run `./init.sh` to fetch the latest database dump from the official instance and seed the dev database with live data. Then run `docker-compose up app` to start the app. To see changes on the backend you have to restart it with `docker-compose up app`.
+
+The web frontend has to be run on the host for now. `cd` into `./web` and run `yarn serve`. Any changes to the frontend will reload on the fly (hot-reload).
 
 Developing through docker is the only officially supported way. It is expected that all code is tested on the docker setup. This is to ensure that all setups work the same. You are however welcome to suggest changes or develop in a way that suits you.
 
