@@ -79,6 +79,12 @@ const router = new Router({
     },
 
     {
+      path: "/passthrough/masters",
+      name: "passthrough-masters",
+      component: () => import("./views/passthrough/master.vue"),
+    },
+
+    {
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
       beforeEnter: (to, from, next) => {

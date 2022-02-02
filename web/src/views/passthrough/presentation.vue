@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-if="this.ready")
+div
   teleport(to="sidebar-right")
     .d-flex.justify-content-end.sticky-top.pt-4
       .sidebar
@@ -19,37 +19,29 @@ div(v-if="this.ready")
             option(:value="2") 2
             option(:value="3") 3
 
-  h1 Civilingenjör
-  .row.justify-content-between.mb-2.py-md-0.py-3
-    passthrough-chart(
-      :labels="years",
-      :programmes="cing",
-      :comments="comments"
-    )
-  h1 Högskoleingenjör
-  .row.justify-content-between.mb-2.py-md-0.py-3
-    passthrough-chart(
-      :labels="years",
-      :programmes="hing",
-      :comments="comments"
-    )
-  h1 EDIT-I
-  .row.justify-content-between.mb-2.py-md-0.py-3
-    passthrough-chart(
-      :labels="years",
-      :programmes="editi",
-      :comments="comments"
-    )
-  h1 Masterprogram
-  .row.justify-content-between.mb-2.py-md-0.py-3
-    passthrough-chart(
-      :labels="years",
-      :programmes="masters",
-      :comments="comments"
-    )
-.row.justify-content-center.pt-4(v-else)
-  .spinner-border.text-primary(role="status")
-    span.visually-hidden Loading...
+  Spinner(v-if="charts.isEmpty()")
+  div(v-else)
+    .mt-4(v-for="{title, labels, data} of charts")
+      h1 {{ title }}
+      .row.justify-content-between
+        passthrough-chart(
+          :labels="labels",
+          :programmes="data",
+          :comments="comments"
+        )
+      table.table.table-hover.mt-4
+        thead
+          tr
+            td Programme
+            td.text-end(v-for="label in labels.skip(1)") {{ label.replace(/^20(\d\d)\/20(\d\d)/g, '$1/$2') }}
+        tbody
+          tr(
+            v-for="{ label: programmme, data, delta } in data",
+            :class="{ 'bg-primary-30': EDITI.includes(programmme) && title !== 'EDIT-I' }"
+          )
+            td {{ programmme }}
+            td.text-end(v-for="(delta, index) in delta.skip(1)")
+              span(:class="[`text-${delta.color}`]") {{ delta.prefix }}{{ delta.value }}{{ delta.suffix }}
 </template>
 
 <script>
@@ -62,11 +54,18 @@ export default {
     assessment_filter: undefined,
     grade: 1,
     debounce: 0,
-    editi: [],
-    cing: [],
-    hing: [],
-    masters: [],
-    years: [],
+    charts: [],
+    EDITI: [
+      "TKDAT",
+      "TKMED",
+      "TKELT",
+      "TKITE",
+      "TIDAL",
+      "TIEPL",
+      // Samläser med TIDAL så statistiken är samma
+      "TIELL",
+      "TKIEK",
+    ],
   }),
 
   created() {
@@ -97,6 +96,31 @@ export default {
   },
 
   methods: {
+    format_data(n, delta) {
+      let str =
+        n === undefined || n === null
+          ? "N/A"
+          : `${n.mul(100).round().toString()}%`;
+
+      if (delta !== undefined) {
+        str += `(${delta})`;
+      }
+      return str;
+    },
+    calc_delta({ data }) {
+      return data.map((result, i) => {
+        if (data[i - 1] !== undefined) {
+          const delta = (result - data[i - 1]).mul(100).round();
+          return {
+            color: delta > 0 ? "blue" : "red",
+            value: delta,
+            prefix: delta > 0 ? "+" : "",
+            suffix: "%",
+          };
+        }
+        return { color: "text", value: "N/A", prefix: "", suffix: "" };
+      });
+    },
     async load() {
       this.ready = false;
       this.comments = [
@@ -122,8 +146,11 @@ export default {
             programme_category: "TK",
           },
         });
-        this.cing = res.data;
-        this.years = res.labels;
+        this.charts.push({
+          title: "Civilingenjör",
+          data: res.data.map((e) => ({ ...e, delta: this.calc_delta(e) })),
+          labels: res.labels,
+        });
       }
 
       {
@@ -133,7 +160,11 @@ export default {
             programme_category: "TI",
           },
         });
-        this.hing = res.data;
+        this.charts.push({
+          title: "Högskoleingenjör",
+          data: res.data.map((e) => ({ ...e, delta: this.calc_delta(e) })),
+          labels: res.labels,
+        });
       }
 
       {
@@ -143,27 +174,41 @@ export default {
             programme_category: "MP",
           },
         });
-        this.masters = res.data;
+        this.charts.push({
+          title: "Master",
+          data: res.data.map((e) => ({ ...e, delta: this.calc_delta(e) })),
+          labels: res.labels,
+        });
       }
 
       {
         let res = await Http.get(`passthrough/category`, {
           query: {
-            programmes: JSON.stringify([
-              "TKDAT",
-              "TKMED",
-              "TKELT",
-              "TKITE",
-              "TIDAL",
-              "TIEPL",
-              // Samläser med TIDAL så statistiken är samma
-              // "TIELL",
-              "TKIEK",
-            ]),
+            ...query,
+            programmes: JSON.stringify(this.EDITI),
           },
         });
-        this.editi = res.data;
+        this.charts.push({
+          title: "EDIT-I",
+          data: res.data.map((e) => ({ ...e, delta: this.calc_delta(e) })),
+          labels: res.labels,
+        });
       }
+
+      {
+        let res = await Http.get(`passthrough/category`, {
+          query: {
+            ...query,
+            programmes: JSON.stringify(["TAFFS", "TSILO", "TSJKL", "SBVII"]),
+          },
+        });
+        this.charts.push({
+          title: "Övriga",
+          data: res.data.map((e) => ({ ...e, delta: this.calc_delta(e) })),
+          labels: res.labels,
+        });
+      }
+
       this.ready = true;
     },
   },
