@@ -1,9 +1,9 @@
 <template lang="pug">
 .sp-alerts
-  .sp-alert.p-3.bg-error.text-white.mobile-only
-    .d-flex.justify-content-center.align-items-center
-      .fa.fa-mobile.pe-2
-      span This site is not yet mobile friendly, the desktop version is recommended.
+  //- .sp-alert.p-3.bg-error.text-white.mobile-only
+  //-   .d-flex.justify-content-center.align-items-center
+  //-     .fa.fa-mobile.pe-2
+  //-     span This site is not yet mobile friendly, the desktop version is recommended.
   .sp-alert.p-3.bg-error.text-white(v-if="!isProduction")
     .d-flex.justify-content-center.align-items-center
       .fa.fa-exclamation-circle.pe-2
@@ -39,12 +39,11 @@ export default {
       //  dismissable: true,
       //},
       {
-        id: 10,
+        id: 11,
         start: new Date(2018, 1),
-        end: new Date(2022, 2, 8),
+        end: new Date(2022, 3, 1),
         style: "info",
-        message:
-          "Study period 2 exams and survey data will be available by February 8th",
+        message: "Exams and survey data from study period 2 are now available!",
         dismissable: true,
       },
     ],

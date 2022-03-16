@@ -19,15 +19,15 @@
       div(v-if="no_results")
         hr
         .px-4 No results found
-      div(v-if="items.programmes.length > 0")
-        hr
-        .category.px-4.fw-bold Programmes
-        .search-item.px-4.py-1(
-          v-for="{ code, name_en } in items.programmes.take(4)",
-          @click="goto_programme(code)"
-        )
-          .text-primary {{ code }}
-          .text-truncate.text-size-sm {{ name_en }}
+      //- div(v-if="items.programmes.length > 0")
+      //-   hr
+      //-   .category.px-4.fw-bold Programmes
+      //-   .search-item.px-4.py-1(
+      //-     v-for="{ code, name_en } in items.programmes.take(4)",
+      //-     @click="goto_programme(code)"
+      //-   )
+      //-     .text-primary {{ code }}
+      //-     .text-truncate.text-size-sm {{ name_en }}
       div(v-if="items.courses.length > 0")
         hr
         .category.px-4.fw-bold Courses
@@ -36,9 +36,9 @@
           @click="goto_course(course_code)"
         )
           .row
-            .col-2.text-primary.fw-bold {{ course_code }}
-            .col-8.text-truncate {{ name_en }}
-            .col-2.fw-bold {{ owner_code }}
+            .col-3.col-sm-2.text-primary.fw-bold {{ course_code }}
+            .col-9.col-sm-8.text-truncate {{ name_en }}
+            .col-2.fw-bold.desktop-only {{ owner_code }}
 </template>
 
 <script>
@@ -81,6 +81,7 @@ export default {
       setTimeout(() => {
         this.items = undefined;
       }, 200);
+      this.$emit("blur");
     },
     focus() {
       this.$refs.search_input.focus();
@@ -104,6 +105,7 @@ export default {
     },
 
     async fetch_suggestions() {
+      this.$emit("focus");
       const term = this.search.toLowerCase();
 
       if (term.length < 3) {
@@ -122,7 +124,9 @@ export default {
 .search-wrapper {
   position: relative;
   height: 4rem;
-  width: 500px;
+  width: 100%;
+  transition: 0.2s all ease;
+  z-index: var(--z-dropdown);
 }
 
 .search-box {

@@ -1,7 +1,6 @@
 <template lang="pug">
 .navbar.navbar-expand-lg.navbar-light
   .container-fluid
-    //- This is the items on the left
     .collapse.navbar-collapse
       .navbar-nav
         .nav-item
@@ -24,7 +23,7 @@
         .nav-item.feature--analytics
           router-link.nav-link(:to="{ name: 'analytics' }") Analytics
     //- This is the items on the right
-    .nav-item 
+    .nav-item(:style="{ width: '500px' }")
       SearchBarSmall
 </template>
 

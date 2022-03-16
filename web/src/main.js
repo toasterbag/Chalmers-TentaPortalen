@@ -22,10 +22,10 @@ const should_use_production_api =
 
 window.env = {
   ENV: process.env.NODE_ENV,
-  PUBLIC_URL: should_use_production_api ? "" : "http://localhost:10006",
+  PUBLIC_URL: should_use_production_api ? "" : `http://${location.host}:10006`,
   API_URL: should_use_production_api
     ? "/api/v1"
-    : "http://localhost:10006/api/v1",
+    : `http://${location.host.replace(/:.*/, "")}:10006/api/v1`,
 };
 
 import { Chart, registerables } from "chart.js";
@@ -71,6 +71,11 @@ const chart_comments = {
 
     const area = chart.chartArea;
 
+    const isDesktop =
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--is-desktop",
+      ) === "true";
+
     if (
       chart.scales.x._gridLineItems &&
       chart.scales.x._gridLineItems.length >= 2 &&
@@ -103,7 +108,7 @@ const chart_comments = {
         }
         const _index = chart.data.labels.findIndex((e) => e == index);
         const datapoint = chart.scales.x._gridLineItems[_index];
-        if (datapoint !== undefined) {
+        if (datapoint !== undefined && isDesktop) {
           ctx.strokeStyle = color ?? "rgb(91, 142, 125)";
           ctx.lineWidth = 3;
 
@@ -137,6 +142,10 @@ const chart_comments = {
     const ctx = chart.ctx;
 
     const area = chart.chartArea;
+    const isDesktop =
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--is-desktop",
+      ) === "true";
 
     if (
       chart.scales.x._gridLineItems &&
@@ -150,7 +159,7 @@ const chart_comments = {
       for (let { index, comment } of options) {
         const _index = chart.data.labels.findIndex((e) => e == index);
         const datapoint = chart.scales.x._gridLineItems[_index];
-        if (datapoint !== undefined) {
+        if (datapoint !== undefined && isDesktop) {
           ctx.fillStyle = "rgb(91, 142, 125)";
           ctx.font = "16px Nunito";
           const text_metrics = ctx.measureText(comment);
@@ -186,6 +195,10 @@ Chart.register(chart_comments);
 Vue.config.productionTip = false;
 Vue.use(components);
 Vue.use(Plausible);
+
+const vh = window.innerHeight * 0.01;
+document.documentElement.style.setProperty('--vh', `${vh}px`);
+document.documentElement.style.setProperty('--screen-height', `${window.innerHeight}px`);
 
 new Vue({
   router,

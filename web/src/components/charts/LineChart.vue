@@ -6,13 +6,18 @@
 <script>
 import { Chart } from "chart.js";
 export default {
-  name: "passthrough-chart",
+  name: "LineChart",
   props: {
     labels: { required: true },
-    programmes: { required: true },
+    data: { required: true },
     comments: { default: () => [] },
-    exams: { default: () => [] },
-    colorize: { default: false },
+    colorize: { default: true },
+    dots: {
+      default: false,
+    },
+    scales: {
+      default: undefined,
+    },
   },
   mounted() {
     this.render();
@@ -22,36 +27,18 @@ export default {
   },
   data: () => ({
     chart: undefined,
-    colors: {
-      TKDAT: "#e85d04",
-      TKITE: "#0a9396",
-      TKMED: "#43aa8b",
-      TKELT: "#ffba08",
-      TIDAL: "#f72585",
-      TIEPL: "#c77dff",
-      TIELL: "#f72585",
-      TKIEK: "#5a189a",
-      // TKTFY: "#333",
-      // TKTEM: "#333",
-      Average: "#555",
-    },
-    color_list: ["#EF476F", "#FFD166", "#06D6A0", "#118AB2", "#073B4C"],
-    generic_color: (name) => {
-      // if (name.startsWith("TI")) return "#e6394633";
-      if (name.startsWith("TI")) return "#1d355733";
-      else if (name.startsWith("TK")) return "#1d355733";
-      else return "#c9184a55";
-    },
+    color_list: [
+      "#EF476F",
+      "#FFD166",
+      "#06D6A0",
+      "#118AB2",
+      "#073B4C",
+      CSS.getVar("sp-purple"),
+      CSS.getVar("sp-red"),
+      CSS.getVar("sp-yellow"),
+    ],
   }),
   computed: {
-    scales() {
-      return Object.assign({
-        ySurvey: {
-          min: 0,
-          max: 1,
-        },
-      });
-    },
     chart_opts() {
       return {
         plugins: {
@@ -67,24 +54,26 @@ export default {
             intersect: false,
           },
         },
+
         scales: this.scales,
       };
     },
     chart_data() {
-      console.log(this.programmes.map(({ label }) => label));
       return {
         labels: this.labels,
-        datasets: this.programmes.map(({ label, data }, i) => ({
-          label,
-          type: "line",
-          backgroundColor:
-            this.colors[label] ??
-            (this.colorize ? this.color_list[i] : this.generic_color(label)),
-          borderColor:
-            this.colors[label] ??
-            (this.colorize ? this.color_list[i] : this.generic_color(label)),
-          data,
-        })),
+        datasets: this.data.map(({ label, data }, i) => {
+          const line_color = this.colorize ? this.color_list[i] : "#c9184a55";
+          const dot_color = this.dots ? line_color : "transparent";
+          return {
+            label,
+            pointBackgroundColor: dot_color,
+            pointBorderColor: dot_color,
+
+            backgroundColor: line_color,
+            borderColor: line_color,
+            data,
+          };
+        }),
       };
     },
   },

@@ -1,18 +1,21 @@
 <template lang="pug">
-.wrapper(theme="light")
+.app(theme="light")
   sp-alerts
   .row.justify-content-center
-    .col-10
-      Header
+    .col-md-10
+      .desktop-only
+        Header
+      .mobile-only
+        MobileHeader
 
   .row
-    .col-2
+    .col-2.desktop-only
       .sticky-top.m-4(style="margin-top: 2rem")
         teleport-target(name="sidebar-left")
-    .col-8
+    .col-12.col-sm-8.px-4
       transition(name="fade", mode="out-in", :key="$router.fullPath")
         router-view.view
-    .col-2
+    .col-2.desktop-only
       .sticky-top.m-4(style="margin-top: 2rem")
         teleport-target(name="sidebar-right")
 
@@ -21,23 +24,14 @@
 </template>
 
 <script>
-import Http from "./plugins/http";
-
 export default {
   name: "App",
   async created() {
-    let last_reset = localStorage.getItem("time");
-    if (last_reset != new Date().getDay()) {
-      const rand = new TextEncoder().encode(Math.random().toString());
-      const buffer = await crypto.subtle.digest("SHA-256", rand);
-      const hashArray = Array.from(new Uint8Array(buffer));
-      const token = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      localStorage.setItem("token", token);
-      localStorage.setItem("time", new Date().getDay());
-    }
-    Http.log("arrive");
+    const isDesktop =
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--is-desktop",
+      ) === "true";
+    console.log("desktop", isDesktop);
   },
   computed: {
     route_with_searchbar() {
@@ -53,10 +47,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
-@import "~@fortawesome/fontawesome-free/css/all.css";
-
+@import "./styles.scss";
 /*
   1. Use a more-intuitive box-sizing model.
 */
@@ -126,34 +117,26 @@ h6 {
   isolation: isolate;
 }
 
-@import "./styles.scss";
-
 html {
-  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  min-height: var(--screen-height);
   box-sizing: border-box;
 
   background-color: var(--sp-background);
 }
 
-body,
-.wrapper {
+body {
   position: relative;
-  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
   background-color: var(--sp-background);
-  color: rgba(0, 0, 0, 0.85);
   font-family: "Nunito";
 
   .view {
     padding-bottom: 3rem;
+    min-height: 65vh;
   }
-}
-
-.wrapper {
-  padding-bottom: var(--footer-height);
-}
-
-.feature--analytics {
-  display: none !important;
 }
 
 .clickable {

@@ -84,6 +84,19 @@ const router = new Router({
       component: () => import("./views/passthrough/master.vue"),
     },
 
+
+    {
+      path: "/quality/survey",
+      name: "survey-by-category",
+      component: () => import("./views/quality/survey.vue"),
+    },
+
+    {
+      path: "/analytics",
+      name: "analytics",
+      component: () => import("./views/admin/analytics.vue"),
+    },
+
     {
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
@@ -133,11 +146,7 @@ const router = new Router({
       name: "feedback",
       component: () => import("./views/feedback.vue"),
     },
-    {
-      path: "/analytics",
-      name: "analytics",
-      component: () => import("./views/analytics.vue"),
-    },
+
     {
       path: "/passrate-by-period",
       name: "passrate-by-period",

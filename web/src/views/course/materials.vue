@@ -6,26 +6,25 @@ div(v-if="this.ready")
     .row.justify-content-center.tenta-table
       .col-12
         .row.header
-          .col-3 Date
-          .col-2 Exam
-          .col-2 Solutions
-          .col-3 Attachments
+          .col-4.col-sm-3 Date
+          .col-4.col-sm-3 Exam
+          .col-4.col-sm-3 Solutions
+          .desktop-only.col-sm-3 Attachments
 
         .row.align-items-center(v-for="exam in exams", :key="exam.date")
-          .col-3 {{ exam.date }}
-          .col-2
+          .col-4.col-sm-3 {{ exam.date }}
+          .col-4.col-sm-3
             a.text-primary(
               v-if="exam.thesis",
               @mousedown="track($event, exam)"
             ) Download
             span(v-else) Missing
             //sp-upload(@input="uploadExam(exam, $event)")
-          .col-2
+          .col-4.col-sm-3
             a.text-primary(v-if="exam.solution", :href="exam.solution.url") Download
             span(v-else-if="exam.thesis && exam.thesis.includes_solution") Included in thesis
             span(v-else) Missing
-          .col-3
-          .col-2.text-end
+          .col-3.text-end.desktop-only
             .btn.bg-primary.text-white(
               v-if="!(exam.thesis && (exam.solution || exam.thesis.includes_solution))",
               @click="upload_exam(exam)"

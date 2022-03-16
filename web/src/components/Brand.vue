@@ -5,16 +5,12 @@
       .font-brand
         .name CoursePortal
         .slogan Tentō, ergo sum
-    //- h3 This year so far
-    //- p.pb-3
-    //-   span See how the current students compare to previous years
-    //-   router-link(:to="{ name: 'statistics/this-year-so-far' }") &nbsp;here
 </template>
 
 <script>
 //import Http from "../plugins/http";
 export default {
-  name: "Home",
+  name: "Brand",
 };
 </script>
 
@@ -24,10 +20,8 @@ export default {
 .brand {
   user-select: none;
   color: var(--sp-text);
-  height: 30vh;
 
   .name {
-    margin-top: 1rem;
     font-size: 2rem;
   }
 

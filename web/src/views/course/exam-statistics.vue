@@ -166,7 +166,7 @@ export default {
   },
   watch: {
     $route() {
-      this.loadCourse();
+      this.load_course();
     },
     stack_bars(val) {
       if (!val) {
@@ -174,6 +174,7 @@ export default {
       }
     },
   },
+
   created() {
     this.load_course();
   },
