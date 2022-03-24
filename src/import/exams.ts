@@ -28,6 +28,8 @@ export const import_exams_json = async (path: string) => {
   for (const {
     filetype,
     includes_solution,
+    uploaded,
+    uploader,
     exams: [{ course_code, date }],
   } of theses.filter((e: any) => !e.exams.isEmpty())) {
     try {
@@ -35,6 +37,8 @@ export const import_exams_json = async (path: string) => {
         data: {
           filetype,
           includes_solution,
+          uploaded,
+          uploader,
         },
       });
 

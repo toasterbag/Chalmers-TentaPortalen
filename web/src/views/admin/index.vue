@@ -6,7 +6,6 @@
     .col-12
       transition(name="fade", mode="out-in")
         router-view
-  </div>
 </template>
 
 <script>
@@ -76,7 +75,7 @@ export default {
       request.open("PUT", `${global.env.API_URL}/datasheet`);
       request.setRequestHeader(
         "Authorization",
-        sessionStorage.getItem("password")
+        sessionStorage.getItem("password"),
       );
 
       request.upload.addEventListener("progress", (e) => {

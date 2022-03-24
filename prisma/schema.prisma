@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Profile {
+  username         String         @id
+  cid              String
+  hash             String
+  cid_verified     Boolean        @default(false)
+  user_verified    Boolean?
+  thesis_uploads   ExamThesis[]
+  solution_uploads ExamSolution[]
+}
+
 model Course {
   course_code String @id
   owner_code  String
@@ -75,6 +85,7 @@ model ModuleResult {
   module_id      String
   name           String
   grading_system GradingSystem
+  points         Int
 
   failed Int
   three  Int
@@ -82,7 +93,6 @@ model ModuleResult {
   five   Int
 
   course Course @relation(fields: [course_code], references: [course_code])
-
   @@id([course_code, module_id, date])
   @@map("module_results")
 }
@@ -164,12 +174,14 @@ model Exam {
 }
 
 model ExamThesis {
-  id                Int     @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
   filetype          String
-  verified          Boolean @default(false)
-  includes_solution Boolean @default(false)
+  verified          Boolean  @default(false)
+  includes_solution Boolean  @default(false)
   exams             Exam[]
-  uploader          String?
+  uploader_id       String?
+  uploader          Profile? @relation(fields: [uploader_id], references: [username])
+  uploaded          DateTime @default(now())
 
   @@map("exam_theses")
 }
@@ -179,17 +191,21 @@ model ExamSolution {
   filetype String
   verified Boolean @default(false)
   exams    Exam[]
-  uploader String?
+
+  uploader_id String?
+  uploader    Profile? @relation(fields: [uploader_id], references: [username])
+  uploaded    DateTime @default(now())
 
   @@map("exam_solutions")
 }
 
 model ExamAttachment {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
   filetype String
-  verified Boolean @default(false)
+  verified Boolean  @default(false)
   uploader String?
+  uploaded DateTime @default(now())
 
   exams            Exam   @relation(fields: [exam_course_code, exam_date], references: [course_code, date])
   exam_course_code String

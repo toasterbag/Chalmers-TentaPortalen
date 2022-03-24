@@ -1,18 +1,21 @@
 <template lang="pug">
-.wrapper(theme="light")
+.app(theme="light")
   sp-alerts
   .row.justify-content-center
-    .col-10
-      Header
+    .col-md-10
+      .desktop-only
+        Header
+      .mobile-only
+        MobileHeader
 
   .row
-    .col-2
+    .col-2.desktop-only
       .sticky-top.m-4(style="margin-top: 2rem")
         teleport-target(name="sidebar-left")
-    .col-8
+    .col-12.col-sm-8.px-4.view
       transition(name="fade", mode="out-in", :key="$router.fullPath")
-        router-view.view
-    .col-2
+        router-view
+    .col-2.desktop-only
       .sticky-top.m-4(style="margin-top: 2rem")
         teleport-target(name="sidebar-right")
 
@@ -21,24 +24,16 @@
 </template>
 
 <script>
-import Http from "./plugins/http";
-
 export default {
   name: "App",
   async created() {
-    let last_reset = localStorage.getItem("time");
-    if (last_reset != new Date().getDay()) {
-      const rand = new TextEncoder().encode(Math.random().toString());
-      const buffer = await crypto.subtle.digest("SHA-256", rand);
-      const hashArray = Array.from(new Uint8Array(buffer));
-      const token = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      localStorage.setItem("token", token);
-      localStorage.setItem("time", new Date().getDay());
-    }
-    Http.log("arrive");
+    const isDesktop =
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--is-desktop",
+      ) === "true";
+    console.log("desktop", isDesktop);
   },
+  data: () => ({}),
   computed: {
     route_with_searchbar() {
       return [
@@ -53,107 +48,27 @@ export default {
 </script>
 
 <style lang="scss">
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
-@import "~@fortawesome/fontawesome-free/css/all.css";
-
-/*
-  1. Use a more-intuitive box-sizing model.
-*/
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-/*
-  2. Remove default margin
-*/
-* {
-  margin: 0;
-}
-/*
-  3. Allow percentage-based heights in the application
-*/
-html,
-body {
-  height: 100%;
-}
-/*
-  Typographic tweaks!
-  4. Add accessible line-height
-  5. Improve text rendering
-*/
-body {
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-/*
-  6. Improve media defaults
-*/
-img,
-picture,
-video,
-canvas {
-  display: block;
-  max-width: 100%;
-}
-/*
-  7. Remove built-in form typography styles
-*/
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
-/*
-  8. Avoid text overflows
-*/
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
-}
-/*
-  9. Create a root stacking context
-*/
-#root,
-#__next {
-  isolation: isolate;
-}
-
 @import "./styles.scss";
 
 html {
-  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  min-height: var(--screen-height);
   box-sizing: border-box;
 
   background-color: var(--sp-background);
 }
 
-body,
-.wrapper {
+body {
   position: relative;
-  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
   background-color: var(--sp-background);
-  color: rgba(0, 0, 0, 0.85);
-  font-family: "Nunito";
 
   .view {
     padding-bottom: 3rem;
+    min-height: 65vh;
   }
-}
-
-.wrapper {
-  padding-bottom: var(--footer-height);
-}
-
-.feature--analytics {
-  display: none !important;
 }
 
 .clickable {

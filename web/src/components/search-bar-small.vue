@@ -36,9 +36,9 @@
           @click="goto_course(course_code)"
         )
           .row
-            .col-2.text-primary.fw-bold {{ course_code }}
-            .col-8.text-truncate {{ name_en }}
-            .col-2.fw-bold {{ owner_code }}
+            .col-3.col-sm-2.text-primary.fw-bold {{ course_code }}
+            .col-9.col-sm-8.text-truncate {{ name_en }}
+            .col-2.fw-bold.desktop-only {{ owner_code }}
 </template>
 
 <script>
@@ -81,6 +81,7 @@ export default {
       setTimeout(() => {
         this.items = undefined;
       }, 200);
+      this.$emit("blur");
     },
     focus() {
       this.$refs.search_input.focus();
@@ -97,13 +98,14 @@ export default {
     async goto_programme(code) {
       this.search = code;
       this.$router.push({
-        name: "programme/exam-statistics",
+        name: "programme/survey-analysis",
         params: { code },
       });
       this.items = undefined;
     },
 
     async fetch_suggestions() {
+      this.$emit("focus");
       const term = this.search.toLowerCase();
 
       if (term.length < 3) {
@@ -122,7 +124,9 @@ export default {
 .search-wrapper {
   position: relative;
   height: 4rem;
-  width: 500px;
+  width: 100%;
+  transition: 0.2s all ease;
+  z-index: var(--z-dropdown);
 }
 
 .search-box {

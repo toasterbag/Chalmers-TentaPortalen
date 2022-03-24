@@ -57,7 +57,10 @@
         type="number"
       )
 
-  .row.justify-content-center.tenta-table(v-if="this.ready")
+  .row.justify-content-center(v-if="!ready")
+    .spinner-border.text-primary(role="status")
+      span.visually-hidden Loading...
+  .row.justify-content-center.tenta-table(v-else)
     .d-flex.justify-content-between.mb-1
       div Tip: You can click on the headers to change sort order!
       div {{ list.length }} results
@@ -88,6 +91,7 @@
         div No results
 
       .row(
+        v-else,
         v-for="(course, index) in sorted_courses",
         :key="course.course_code + course.start_period + course.end_period"
       )
@@ -138,7 +142,7 @@ export default {
       .fill(1)
       .map((_, i) => getYear(new Date()) - i)
       .map((year) =>
-        date_to_academic_year(new Date(year, getMonth(new Date())))
+        date_to_academic_year(new Date(year, getMonth(new Date()))),
       ),
     sorted_courses: [],
   }),
@@ -237,7 +241,7 @@ export default {
         return;
       }
       const res = await Http.get(`search/${term}`);
-      this.owner_suggestions = res.programmes.take(8).map((e) => e.code);
+      this.owner_suggestions = res.programmes.take(12).map((e) => e.code);
       this.$forceUpdate();
     },
     async update_department_suggestions(term) {

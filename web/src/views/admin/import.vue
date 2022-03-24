@@ -34,7 +34,6 @@
         ) Manually trigger scan
       .pt4(v-else)
         div A scan is currently running..
-  </div>
 </template>
 
 <script>
@@ -68,7 +67,7 @@ export default {
       this.status = {
         exam_statistics: new Date(),
         study_portal: new Date(),
-      }
+      };
       if (this.status) {
         this.ready = true;
       }
@@ -92,7 +91,7 @@ export default {
       request.open("PUT", `${global.env.API_URL}/datasheet`);
       request.setRequestHeader(
         "Authorization",
-        sessionStorage.getItem("password")
+        sessionStorage.getItem("password"),
       );
 
       request.upload.addEventListener("progress", (e) => {

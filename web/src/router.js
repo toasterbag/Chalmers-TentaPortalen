@@ -51,18 +51,13 @@ const router = new Router({
       component: () => import("./views/course-search.vue"),
     },
     {
-      path: "/programme/:code/:start_year/:end_year",
+      path: "/programme/:code",
       component: () => import("./views/programme/index.vue"),
       children: [
         {
-          path: "",
-          name: "programme/exam-statistics",
-          component: () => import("./views/programme/exam-statistics.vue"),
-        },
-        {
           path: "survey",
-          name: "programme/course-survey",
-          component: () => import("./views/programme/survey.vue"),
+          name: "programme/survey-analysis",
+          component: () => import("./views/programme/survey-analysis.vue"),
         },
       ],
     },
@@ -76,6 +71,25 @@ const router = new Router({
       path: "/passthrough/presentation",
       name: "passthrough-presentation",
       component: () => import("./views/passthrough/presentation.vue"),
+    },
+
+    {
+      path: "/passthrough/masters",
+      name: "passthrough-masters",
+      component: () => import("./views/passthrough/master.vue"),
+    },
+
+
+    {
+      path: "/quality/survey",
+      name: "survey-by-programme",
+      component: () => import("./views/quality/survey.vue"),
+    },
+
+    {
+      path: "/analytics",
+      name: "analytics",
+      component: () => import("./views/admin/analytics.vue"),
     },
 
     {
@@ -127,11 +141,7 @@ const router = new Router({
       name: "feedback",
       component: () => import("./views/feedback.vue"),
     },
-    {
-      path: "/analytics",
-      name: "analytics",
-      component: () => import("./views/analytics.vue"),
-    },
+
     {
       path: "/passrate-by-period",
       name: "passrate-by-period",
@@ -151,6 +161,16 @@ const router = new Router({
       path: "/faq",
       name: "faq",
       component: () => import("./views/faq.vue"),
+    },
+    {
+      path: "/glossary",
+      name: "glossary",
+      component: () => import("./views/glossary.vue"),
+    },
+    {
+      path: "/reports/:slug",
+      name: "reports",
+      component: () => import("./views/reports/index.vue"),
     },
     {
       path: "*",

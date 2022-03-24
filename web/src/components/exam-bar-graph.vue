@@ -62,34 +62,34 @@ export default {
             ? [
                 {
                   label: "U",
-                  backgroundColor: CSS.getVar("sp-red"), //"rgba(240,49,24,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-failed"), //"rgba(240,49,24,0.8)",
                   data: this.exams.map((e) => e.failed),
                 },
                 {
                   label: "G",
-                  backgroundColor: CSS.getVar("sp-green"), //"rgba(169,214,63,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-four"), //"rgba(169,214,63,0.8)",
                   data: this.exams.map((e) => e.three),
                 },
               ]
             : [
                 {
                   label: "U",
-                  backgroundColor: CSS.getVar("sp-red"), //"rgba(240,49,24,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-failed"), //"rgba(240,49,24,0.8)",
                   data: this.exams.map((e) => e.failed),
                 },
                 {
                   label: "3",
-                  backgroundColor: CSS.getVar("sp-yellow"), //"rgba(169,214,63,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-three"), //"rgba(169,214,63,0.8)",
                   data: this.exams.map((e) => e.three),
                 },
                 {
                   label: "4",
-                  backgroundColor: CSS.getVar("sp-green"), // "rgba(138,176,41,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-four"), // "rgba(138,176,41,0.8)",
                   data: this.exams.map((e) => e.four),
                 },
                 {
                   label: "5",
-                  backgroundColor: CSS.getVar("sp-blue"), // "rgba(92,126,14,0.8)",
+                  backgroundColor: CSS.getVar("sp-chart-five"), // "rgba(92,126,14,0.8)",
                   data: this.exams.map((e) => e.five),
                 },
               ],

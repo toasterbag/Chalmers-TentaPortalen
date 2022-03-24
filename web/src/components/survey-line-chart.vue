@@ -11,7 +11,7 @@ export default {
   props: {
     labels: { required: true },
     means: { required: true },
-    medians: { required: true },
+    medians: { required: false },
     displayMean: { default: true },
     displayExams: { default: false },
     comments: { default: () => [] },
@@ -26,7 +26,7 @@ export default {
   }),
   computed: {
     exam_dataset() {
-      if (!this.displayExams) return [];
+      if (!this.displayExams || this.exams.isEmpty()) return [];
       return [
         {
           label: "U",
@@ -62,6 +62,19 @@ export default {
         },
       ];
     },
+    median_dataset() {
+      if (this.medians === undefined) return [];
+      return [
+        {
+          label: "Median",
+          type: "line",
+          backgroundColor: CSS.getVar("sp-green"),
+          borderColor: CSS.getVar("sp-green"),
+          data: this.medians,
+          yAxisId: "ySurvey",
+        },
+      ];
+    },
     scales() {
       return Object.assign(
         {
@@ -81,7 +94,7 @@ export default {
                 stacked: true,
               },
             }
-          : {}
+          : {},
       );
     },
     chart_opts() {
@@ -95,7 +108,11 @@ export default {
             //   color: "hsla(357, 46%, 52%, 0.2)",
             // },
           ],
+          tooltip: {
+            intersect: false,
+          },
         },
+
         scales: this.scales,
       };
     },
@@ -111,14 +128,7 @@ export default {
             data: this.means,
             yAxisId: "ySurvey",
           },
-          {
-            label: "Median",
-            type: "line",
-            backgroundColor: CSS.getVar("sp-green"),
-            borderColor: CSS.getVar("sp-green"),
-            data: this.medians,
-            yAxisId: "ySurvey",
-          },
+          ...this.median_dataset,
           ...this.exam_dataset,
         ],
       };

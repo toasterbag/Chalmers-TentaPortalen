@@ -1,14 +1,6 @@
 # Todo
-
-- Use monospaced font in chart
-- Add percent after tooltip
 - Colorblind mode
-  - Texture the bars
-- Add bar graph of visitors
-  - Visitors today ticker
-- Add examiner
 - Make mobile friendly
-
 
 ## Fragile solutions
 This is a list of fragile solutions that should be reconsidered as they may break on edge cases.

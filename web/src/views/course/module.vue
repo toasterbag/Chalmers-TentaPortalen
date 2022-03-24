@@ -103,11 +103,11 @@ export default {
         exam.percent = {};
 
         const percentages = [exam.failed, exam.three, exam.four, exam.five].map(
-          (e) => e.div(exam.total).mul(100)
+          (e) => e.div(exam.total).mul(100),
         );
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
-          100
+          100,
         );
 
         exam.percent.failed = failed;
@@ -126,8 +126,8 @@ export default {
             exams.reduce(
               (a, b) => (a.total > b.total ? a : b),
               { total: 0 },
-              []
-            )
+              [],
+            ),
           )
           .reverse();
 
@@ -173,19 +173,19 @@ export default {
       this.examiner = res.examiner;
 
       this.all_exams = await Http.get(
-        `course/${this.$route.params.code}/module/${this.$route.params.id}`
+        `course/${this.$route.params.code}/module/${this.$route.params.id}`,
       );
 
       this.grading_system = this.all_exams[0].grading_system;
-      this.all_exams = this.all_exams
-        .map((e) => {
-          e.date = e.academic_year;
-          return e;
-        })
-        .sortBy((a, b) => b.academic_year.localeCompare(a.academic_year));
+      // this.all_exams = this.all_exams
+      //   .map((e) => {
+      //     e.date = e.academic_year;
+      //     return e;
+      //   })
+      //   .sortBy((a, b) => b.academic_year.localeCompare(a.academic_year));
 
       this.modules = await Http.get(
-        `course/${this.$route.params.code}/modules`
+        `course/${this.$route.params.code}/modules`,
       );
 
       this.ready = true;

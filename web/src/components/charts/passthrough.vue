@@ -12,8 +12,12 @@ export default {
     programmes: { required: true },
     comments: { default: () => [] },
     exams: { default: () => [] },
+    colorize: { default: false },
   },
   mounted() {
+    this.render();
+  },
+  updated() {
     this.render();
   },
   data: () => ({
@@ -27,10 +31,14 @@ export default {
       TIEPL: "#c77dff",
       TIELL: "#f72585",
       TKIEK: "#5a189a",
-      Average: "#000",
+      // TKTFY: "#333",
+      // TKTEM: "#333",
+      Average: "#555",
     },
+    color_list: ["#EF476F", "#FFD166", "#06D6A0", "#118AB2", "#073B4C"],
     generic_color: (name) => {
-      if (name.startsWith("TI")) return "#e6394633";
+      // if (name.startsWith("TI")) return "#e6394633";
+      if (name.startsWith("TI")) return "#1d355733";
       else if (name.startsWith("TK")) return "#1d355733";
       else return "#c9184a55";
     },
@@ -55,18 +63,26 @@ export default {
             //   color: "hsla(357, 46%, 52%, 0.2)",
             // },
           ],
+          tooltip: {
+            intersect: false,
+          },
         },
         scales: this.scales,
       };
     },
     chart_data() {
+      console.log(this.programmes.map(({ label }) => label));
       return {
         labels: this.labels,
-        datasets: this.programmes.map(({ label, data }) => ({
+        datasets: this.programmes.map(({ label, data }, i) => ({
           label,
           type: "line",
-          backgroundColor: this.colors[label] ?? this.generic_color(label),
-          borderColor: this.colors[label] ?? this.generic_color(label),
+          backgroundColor:
+            this.colors[label] ??
+            (this.colorize ? this.color_list[i] : this.generic_color(label)),
+          borderColor:
+            this.colors[label] ??
+            (this.colorize ? this.color_list[i] : this.generic_color(label)),
           data,
         })),
       };

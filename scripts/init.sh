@@ -1,7 +1,7 @@
 #!/bin/bash
 yarn install
 
-docker-compose app run \
+docker-compose run app \
   npx prisma generate
 
 docker-compose app run \

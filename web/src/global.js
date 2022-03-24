@@ -92,6 +92,10 @@ Array.prototype.take = function (n) {
   return this.slice(0, n);
 };
 
+Array.prototype.skip = function (n) {
+  return this.slice(n);
+};
+
 Array.prototype.isEmpty = function () {
   if (this.length == 0) {
     return true;

@@ -1,6 +1,6 @@
 <template lang="pug">
 .sp-footer
-  router-link.font-brand.brand.align-self-center.flex-fill(
+  router-link.font-brand.brand.align-self-center.flex-fill.desktop-only(
     :to="{ name: 'home' }"
   )
     .fs-2 CoursePortal
@@ -47,42 +47,40 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../variables.scss";
+
 .sp-footer {
-  display: flex;
+  display: block;
   color: var(--sp-text);
-  position: absolute;
+  position: relative;
   width: 100%;
-  height: var(--footer-height);
   bottom: 0px;
   background-color: var(--sp-paper);
   padding: 2rem;
   box-sizing: border-box;
+  z-index: var(--z-bottom);
 
-  .brand {
-    padding: 0 4rem;
-    user-select: none;
+  a:hover {
+    color: var(--sp-blue);
   }
 
   .section {
-    padding: 0 2rem;
-    a:hover {
-      color: var(--sp-accent);
-    }
+    padding: 1rem 2rem;
+  }
+
+  .brand {
+    color: unset;
+    padding: 0 4rem;
+    user-select: none;
   }
 }
 
-@media (max-width: 575.98px) {
-  .wrapper {
-    padding-bottom: 33rem;
-  }
+@include sm {
   .sp-footer {
-    display: block;
-    height: 32rem;
-    .brand {
-      padding: 0rem 2rem;
-    }
+    display: flex;
+
     .section {
-      padding: 1rem 2rem;
+      padding: 0 2rem;
     }
   }
 }
