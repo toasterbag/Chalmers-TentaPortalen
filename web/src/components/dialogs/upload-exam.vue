@@ -1,6 +1,6 @@
 <template lang="pug">
 .modal-content
-  .modal-header.fs-2.fw-light Upload exam
+  .modal-header.fs-2.fw-light Upload exam {{ exam.date }}
   .modal-body
     .center(v-if="loading")
       .spinner-border.text-primary(role="status")
