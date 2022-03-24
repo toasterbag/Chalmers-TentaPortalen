@@ -22,6 +22,7 @@ model Course {
   programme_plan ProgrammePlanEntry[]
 
   alternative_examinations AlternativeExam[]
+  ModuleResults            ModuleResult[]
   @@map("courses")
 }
 
@@ -38,8 +39,10 @@ model CourseInstance {
   examiner_cid String
   examiner     Examiner @relation(fields: [examiner_cid], references: [cid])
 
-  survey             Survey?
-  ProgrammePlanEntry ProgrammePlanEntry[]
+  survey                 Survey?
+  programme_plan_entries ProgrammePlanEntry[]
+  modules                CourseModule[]
+
   @@id([course_code, academic_year, start_period, end_period])
   @@map("course_instances")
 }
@@ -53,10 +56,35 @@ model CourseModule {
   start_period       Int
   end_period         Int
 
-  ModuleDates ModuleDates?
+  course_instance CourseInstance @relation(fields: [course_instance_id], references: [study_portal_id])
+  dates           ModuleDates?
 
   @@id([course_instance_id, module_id])
   @@map("course_modules")
+}
+
+enum GradingSystem {
+  PassFail
+  ThreeFourFive
+}
+
+model ModuleResult {
+  course_code    String
+  date           String
+  academic_year  String
+  module_id      String
+  name           String
+  grading_system GradingSystem
+
+  failed Int
+  three  Int
+  four   Int
+  five   Int
+
+  course Course @relation(fields: [course_code], references: [course_code])
+
+  @@id([course_code, module_id, date])
+  @@map("module_results")
 }
 
 model ModuleDates {
@@ -65,8 +93,8 @@ model ModuleDates {
   module             CourseModule @relation(fields: [course_instance_id, module_id], references: [course_instance_id, module_id])
 
   primary_date   String
-  secondary_date String
-  tertiary_date  String
+  secondary_date String?
+  tertiary_date  String?
 
   @@id([course_instance_id, module_id])
   @@map("course_module_dates")
@@ -110,8 +138,8 @@ model Examiner {
   cid  String @id
   name String
 
-  @@map("examiners")
   CourseInstance CourseInstance[]
+  @@map("examiners")
 }
 
 model Exam {

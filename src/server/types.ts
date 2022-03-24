@@ -49,6 +49,11 @@ class Response {
       res.set(key, val);
     }
     res.status(this.status);
+    if (this.body instanceof Map)
+      this.body = Array.from(this.body.entries()).reduce(
+        (obj, [key, val]) => Object.assign(obj, { [key]: val }),
+        {},
+      );
     res.send(this.body);
   }
 }

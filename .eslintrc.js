@@ -60,7 +60,10 @@ module.exports = {
     // Prisma uses dangling underscores in their aggregation methods
     "no-underscore-dangle": ["off"],
     // Not a problem for node environments
-    "no-multi-str": "off"
+    "no-multi-str": "off",
+    "no-nested-ternary": "off",
+    "no-continue": "off",
+    "no-extend-native": "off"
   },
   ignorePatterns: [".eslintrc.js"],
 };

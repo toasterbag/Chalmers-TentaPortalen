@@ -1,6 +1,6 @@
 import { getYear, getMonth } from "date-fns";
 import { readdir, stat } from "fs-extra";
-import { resolve } from "path";
+import { join, resolve } from "path";
 
 export { Queue } from "./queue";
 
@@ -74,4 +74,10 @@ export function is_error(o: any): o is Error {
 
 export const is_ok = <T>(item: T | Error): item is T => {
   return !(item instanceof Error);
+};
+
+export const import_folder = async (folder: string) => {
+  const files = await find(join(__dirname, "../", folder), ".js");
+  const modules = await Promise.all(files.map((f) => import(f)));
+  return modules.reduce((exp, mod) => Object.assign(exp, mod), {});
 };

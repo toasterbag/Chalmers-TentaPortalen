@@ -1,8 +1,8 @@
 <template lang="pug">
 div(v-if="this.ready")
   teleport(to="sidebar-left")
-    .d-flex.justify-content-start.p-4
-      .sidebar
+    .d-flex.justify-content-start.p-4.ms-4
+      div
         div(v-for="{name, module_id} in modules")
           router-link(:to="{name: 'course/module', params: { code: $route.params.code, id: module_id}}")
            span {{module_id}}: {{name}}
@@ -59,7 +59,7 @@ div(v-if="this.ready")
 
     .tenta-table.p-md-5.py-3
       .row(v-if="has_low_participation")
-        .col-12.text-accent Some exams have low participation ( n < 20 ) and may have rounding errors up to 1%.
+        .col-12.text-accent Some exams have low participation ( n &lt; 20 ) and may have rounding errors up to 1%.
 
       .row.header
         .col-3.col-md-2 Date
@@ -117,11 +117,11 @@ export default {
         exam.percent = {};
 
         const percentages = [exam.failed, exam.three, exam.four, exam.five].map(
-          (e) => e.div(exam.total).mul(100)
+          (e) => e.div(exam.total).mul(100),
         );
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
-          100
+          100,
         );
 
         exam.percent.failed = failed;
@@ -140,8 +140,8 @@ export default {
             exams.reduce(
               (a, b) => (a.total > b.total ? a : b),
               { total: 0 },
-              []
-            )
+              [],
+            ),
           )
           .reverse();
 
@@ -187,11 +187,11 @@ export default {
       this.examiner = res.examiner;
 
       this.all_exams = await Http.get(
-        `course/${this.$route.params.code}/exams`
+        `course/${this.$route.params.code}/exams`,
       );
 
       this.modules = await Http.get(
-        `course/${this.$route.params.code}/modules`
+        `course/${this.$route.params.code}/modules`,
       );
 
       this.ready = true;

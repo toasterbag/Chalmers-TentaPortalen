@@ -77,6 +77,9 @@ body {
   --bg-card: #f0efee;
   --bg-card-raised: #f8f8f8;
   --sp-paper: #e7e7e7;
+
+  --z-toaster: 1000;
+  --z-dropdown: 900;
 }
 
 .p-rel {
@@ -86,4 +89,25 @@ body {
 
 .p-sticky {
   position: sticky;
+}
+
+
+.btn {
+  color: var(--sp-background);
+  text-transform: uppercase;
+
+  &:hover {
+    color: var(--sp-background);
+  }
+}
+
+.v-fill {
+  height: 100%;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

@@ -32,6 +32,7 @@ export interface Config {
     readonly data: string;
     readonly uploads: string;
     readonly exam_sheet_temp: string;
+    readonly exam_data: string;
   };
   readonly redis: {
     readonly host: string;
@@ -47,6 +48,7 @@ const _default = {
     data: undefined,
     uploads: undefined,
     exam_sheet_temp: "/tmp/course_portal_exams.xlsx",
+    exam_data: "./exams.json",
   },
   redis: {
     host: undefined,

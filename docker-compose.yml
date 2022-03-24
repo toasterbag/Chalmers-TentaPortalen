@@ -2,40 +2,42 @@ version: "3.6"
 services:
   postgres:
     image: postgres:13
-    container_name: course-portal.postgres
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: course-portal
+    container_name: course-portal-dev-postgres
+    environment:                                                                                                                    
+      POSTGRES_USER: root                                                                                                          
+      POSTGRES_PASSWORD: password                                                                                
+      POSTGRES_DB: course-portal                                                                                                            
     volumes:
       - type: volume
-        source: postgres-prod
-        target: /var/lib/postgresql/data
-
+        source: postgres
+        target: /var/lib/postgresql/data        
   redis:
     image: redis:6
-    container_name: course-portal.redis
-
-  server:
-    image: course-portal:2.0.0
-    container_name: course-portal.server
-    volumes:
-      - type: bind
-        source: ./data/
-        target: /data
-      - type: bind
-        source: ./config.dev.json
-        target: /app/config.json
-    ports:
-      - 10007:10007
-    environment:
-      DATABASE_URL: postgresql://root:password@postgres/course-portal
+    container_name: course-portal-dev-redis                                                                                                           
 
   web:
-    image: course-portal-web:2.0.0
-    container_name: course-portal.web
+    image: node:16
+    volumes:
+      - ./web:/app
+    working_dir: "/app"
     ports:
-      - 9014:8080
+      - 127.0.0.1:8080:8080
+    command: yarn install && yarn serve
+
+  app:
+    image: node:17-alpine
+    container_name: course-portal-dev-app
+    working_dir: "/app"
+    user: node
+    command: "yarn dev -c ./config.dev.json"
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+    ports:
+      - 10006:10006
+    environment:
+      DATABASE_URL: postgresql://root:password@postgres/course-portal?connect_timeout=300&pool_timeout=300
 
 volumes:
-  postgres-prod: {}
+  postgres: {}

@@ -7,12 +7,22 @@
 
   .row
     .col-2
+<<<<<<< HEAD
       #sidebar-left.sticky-top(style="margin-top: 60%")
+=======
+      .sticky-top.m-4(style="margin-top: 2rem")
+        teleport-target(name="sidebar-left")
+>>>>>>> master
     .col-8
       transition(name="fade", mode="out-in", :key="$router.fullPath")
         router-view.view
     .col-2
+<<<<<<< HEAD
       #sidebar-right.sticky-top(style="margin-top: 60%")
+=======
+      .sticky-top.m-4(style="margin-top: 2rem")
+        teleport-target(name="sidebar-right")
+>>>>>>> master
 
   sp-footer
   dialog-portal
@@ -167,14 +177,6 @@ body,
 @media (min-width: 576px) {
   .mobile-only {
     display: none;
-  }
-}
-
-.btn {
-  color: var(--sp-background);
-
-  &:hover {
-    color: var(--sp-background);
   }
 }
 

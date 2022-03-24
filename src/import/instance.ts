@@ -270,7 +270,7 @@ const scrape_instances_for_id = async (
         ?.split("&")
         .find((s) => s.startsWith("cid="))
         ?.replace("cid=", ""),
-      name: $sv(el).text(),
+      name: $sv(el).text().trim(),
     }))
     .filter(is_examiner);
 

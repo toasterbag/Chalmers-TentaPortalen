@@ -1,4 +1,6 @@
 import VueRouter from "vue-router";
+import Vue from "vue";
+import { plausible } from "./plugins/plausible";
 
 const router = VueRouter.createRouter({
   history: VueRouter.createWebHistory(),
@@ -68,6 +70,11 @@ const router = VueRouter.createRouter({
       component: () => import("./views/programme-search.vue"),
     },
 
+    {
+      path: "/passthrough/presentation",
+      name: "passthrough-presentation",
+      component: () => import("./views/passthrough/presentation.vue"),
+    },
 
     {
       path: "/admin",
@@ -109,11 +116,6 @@ const router = VueRouter.createRouter({
     },
 
     {
-      path: "/submit-exams",
-      name: "submit-exams",
-      component: () => import("./views/submit-exams.vue"),
-    },
-    {
       path: "/login",
       name: "login",
       component: () => import("./views/login.vue"),
@@ -153,6 +155,11 @@ const router = VueRouter.createRouter({
       redirect: { name: "home" },
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  plausible.trackEvent("View", { props: { name: to.name } });
+  next();
 });
 
 export default router;

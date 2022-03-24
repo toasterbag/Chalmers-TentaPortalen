@@ -1,11 +1,13 @@
 <template lang="pug">
 .dialog-portal
   .modal.fade(ref="modal")
-    .modal-dialog.modal-lg.modal-dialog-centered(@keydown.esc="hide")
+    .modal-dialog.modal-lg.modal-dialog-centered(
+      @keydown.esc="resolve(undefined)"
+    )
       component(
         :is="dialog_component",
         v-bind="child_props",
-        @hide="hide",
+        @hide="resolve(undefined)",
         @submit="resolve",
         ref="content"
       )
@@ -53,8 +55,19 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.modal.hidden {
-  display: none;
+<style lang="scss">
+.modal {
+  &.hidden {
+    display: none;
+  }
+
+  .modal-content {
+    border: unset;
+  }
+
+  .modal-body {
+    min-height: 300px;
+    transition: height 0.3s ease;
+  }
 }
 </style>

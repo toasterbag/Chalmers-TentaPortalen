@@ -2,7 +2,7 @@
 .row.justify-content-center
   .row.p-4.justify-content-center
     .col-12.col-md-8.fs-4
-      div We would appreciate any feedback you may have, be it bugs or feature request. You can write to us in both Swedish and English! 😊
+      div We would appreciate any feedback you may have, be it bugs or feature request. You can write to us in both Swedish and English! 😉
   .row.p-4.justify-content-center
     .col-12.col-md-8(v-if="success")
       .fs-3 Thanks for your feedback!

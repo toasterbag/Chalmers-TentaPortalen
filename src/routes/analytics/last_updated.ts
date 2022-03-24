@@ -6,7 +6,12 @@ export default {
   method: Method.GET,
   path: "/updated",
 
-  handler: async (_: Request, { cache }: Context): Promise<Response> => {
-    return Ok({ timestamp: await cache.last_updated.get() });
+  handler: async (_: Request, { prisma }: Context): Promise<Response> => {
+    const last_exam = await prisma.exam.findFirst({
+      orderBy: {
+        date: "desc",
+      },
+    });
+    return Ok({ timestamp: last_exam?.date });
   },
 };

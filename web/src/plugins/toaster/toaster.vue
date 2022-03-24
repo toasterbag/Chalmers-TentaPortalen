@@ -1,4 +1,5 @@
 <template lang="pug">
+<<<<<<< HEAD
 teleport(to="body")
   .sp-toast-container
     .sp-toast.d-flex.align-items-center(
@@ -11,6 +12,19 @@ teleport(to="body")
       div
         .fw-bold(v-if="toast.title") {{ toast.title }}
         .content {{ toast.content }}
+=======
+.sp-toast-container
+  .sp-toast.d-flex.align-items-center(
+    v-for="({ id, toast }, index) in queue",
+    :key="id",
+    :style="{ top: `${index * 64 + 12}px` }",
+    :class="[toast.exiting ? 'exit' : '', toast.background || 'bg-primary', toast.color]"
+  )
+    .icon.fa(:class="[toast.icon]")
+    div
+      .fw-bold(v-if="toast.title") {{ toast.title }}
+      .content {{ toast.content }}
+>>>>>>> master
 </template>
 
 <script lang="ts">
@@ -115,8 +129,8 @@ export default {
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
       0px 24px 38px 3px rgba(0, 0, 0, 0.14),
       0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-    .v-icon {
-      padding: 0px 8px 2px 0px;
+    .icon {
+      padding: 0px 1rem 0px 0px;
       color: #fff;
       vertical-align: middle;
     }

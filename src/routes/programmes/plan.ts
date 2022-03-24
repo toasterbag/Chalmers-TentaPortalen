@@ -4,16 +4,16 @@ import { Request } from "express";
 
 export default {
   method: Method.GET,
-  path: "/programme/:code/:admission_year",
+  path: "/programme/:code/:year_start/:year_end",
 
   handler: async (
     { params }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const { code, admission_year } = params;
+    const { code, year_start, year_end } = params;
     const instance = await prisma.programmeInstance.findFirst({
       where: {
-        admission_year,
+        admission_year: `${year_start}/${year_end}`,
         programme_code: code.toUpperCase(),
       },
     });
@@ -21,6 +21,14 @@ export default {
     const data = await prisma.programmePlanEntry.findMany({
       where: {
         programme_instance_id: instance.instance_id,
+      },
+      include: {
+        course: true,
+        course_instance: {
+          include: {
+            survey: true,
+          },
+        },
       },
     });
 
