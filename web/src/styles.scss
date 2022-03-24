@@ -33,6 +33,7 @@ html {
 
 body {
   font-family: var(--sp-font-sans);
+  color: var(--sp-text);
 }
 
 .fa {
@@ -71,7 +72,8 @@ body {
 
 
 .btn {
-  color: var(--sp-background);
+  background-color: var(--sp-primary);
+  color: var(--sp-white);
   text-transform: uppercase;
 
   &:hover {

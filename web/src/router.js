@@ -51,18 +51,13 @@ const router = new Router({
       component: () => import("./views/course-search.vue"),
     },
     {
-      path: "/programme/:code/:start_year/:end_year",
+      path: "/programme/:code",
       component: () => import("./views/programme/index.vue"),
       children: [
         {
-          path: "",
-          name: "programme/exam-statistics",
-          component: () => import("./views/programme/exam-statistics.vue"),
-        },
-        {
           path: "survey",
-          name: "programme/course-survey",
-          component: () => import("./views/programme/survey.vue"),
+          name: "programme/survey-analysis",
+          component: () => import("./views/programme/survey-analysis.vue"),
         },
       ],
     },
@@ -87,7 +82,7 @@ const router = new Router({
 
     {
       path: "/quality/survey",
-      name: "survey-by-category",
+      name: "survey-by-programme",
       component: () => import("./views/quality/survey.vue"),
     },
 
@@ -166,6 +161,16 @@ const router = new Router({
       path: "/faq",
       name: "faq",
       component: () => import("./views/faq.vue"),
+    },
+    {
+      path: "/glossary",
+      name: "glossary",
+      component: () => import("./views/glossary.vue"),
+    },
+    {
+      path: "/reports/:slug",
+      name: "reports",
+      component: () => import("./views/reports/index.vue"),
     },
     {
       path: "*",

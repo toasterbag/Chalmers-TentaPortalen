@@ -29,8 +29,8 @@ export default {
     chart: undefined,
     color_list: [
       "#EF476F",
-      "#FFD166",
       "#06D6A0",
+      "#FFD166",
       "#118AB2",
       "#073B4C",
       CSS.getVar("sp-purple"),
@@ -61,16 +61,16 @@ export default {
     chart_data() {
       return {
         labels: this.labels,
-        datasets: this.data.map(({ label, data }, i) => {
+        datasets: this.data.map(({ label, data, color }, i) => {
           const line_color = this.colorize ? this.color_list[i] : "#c9184a55";
           const dot_color = this.dots ? line_color : "transparent";
           return {
             label,
-            pointBackgroundColor: dot_color,
-            pointBorderColor: dot_color,
+            pointBackgroundColor: color ?? dot_color,
+            pointBorderColor: color ?? dot_color,
 
-            backgroundColor: line_color,
-            borderColor: line_color,
+            backgroundColor: color ?? line_color,
+            borderColor: color ?? line_color,
             data,
           };
         }),

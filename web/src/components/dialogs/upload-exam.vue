@@ -38,7 +38,6 @@
 </template>
 
 <script>
-import Http from "../../plugins/http";
 export default {
   name: "upload-exam-dialog",
   props: ["exam"],
@@ -119,8 +118,11 @@ export default {
           style: "success",
           content: "Thanks for your contribution!",
         });
-        Http.log("upload", `${this.exam.course_code} ${this.exam.date}`);
       }
+
+      this.$plausible.trackEvent("Upload exam", {
+        props: { course: this.exam.course_code },
+      });
 
       this.$emit("submit", undefined);
     },

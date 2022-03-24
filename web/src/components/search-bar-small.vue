@@ -19,15 +19,15 @@
       div(v-if="no_results")
         hr
         .px-4 No results found
-      //- div(v-if="items.programmes.length > 0")
-      //-   hr
-      //-   .category.px-4.fw-bold Programmes
-      //-   .search-item.px-4.py-1(
-      //-     v-for="{ code, name_en } in items.programmes.take(4)",
-      //-     @click="goto_programme(code)"
-      //-   )
-      //-     .text-primary {{ code }}
-      //-     .text-truncate.text-size-sm {{ name_en }}
+      div(v-if="items.programmes.length > 0")
+        hr
+        .category.px-4.fw-bold Programmes
+        .search-item.px-4.py-1(
+          v-for="{ code, name_en } in items.programmes.take(4)",
+          @click="goto_programme(code)"
+        )
+          .text-primary {{ code }}
+          .text-truncate.text-size-sm {{ name_en }}
       div(v-if="items.courses.length > 0")
         hr
         .category.px-4.fw-bold Courses
@@ -98,7 +98,7 @@ export default {
     async goto_programme(code) {
       this.search = code;
       this.$router.push({
-        name: "programme/exam-statistics",
+        name: "programme/survey-analysis",
         params: { code },
       });
       this.items = undefined;

@@ -8,32 +8,48 @@ export default {
 
   handler: async (
     { params }: Request,
-    { prisma }: Context,
+    { redis_cache }: Context,
   ): Promise<Response> => {
     const owner = params.code;
-    const course_codes = await prisma.course.findMany({
-      distinct: ["course_code"],
-      where: { owner_code: owner },
-      select: { course_code: true },
-    });
-    const data = await prisma.survey.groupBy({
-      _avg: {
-        prerequisite_mean: true,
-        goals_mean: true,
-        structure_mean: true,
-        litterature_mean: true,
-        assessment_mean: true,
-        administration_mean: true,
-        workload_mean: true,
-        working_environment_mean: true,
-        total_impression_mean: true,
-      },
-      where: {
-        course_code: { in: course_codes.map((e) => e.course_code) },
-      },
-      by: ["academic_year"],
-    });
+    // const data = await prisma.survey.groupBy({
+    //   _avg: {
+    //     prerequisite_mean: true,
+    //     goals_mean: true,
+    //     structure_mean: true,
+    //     teaching_mean: true,
+    //     litterature_mean: true,
+    //     assessment_mean: true,
+    //     answer_frequency: true,
+    //     administration_mean: true,
+    //     workload_mean: true,
+    //     working_environment_mean: true,
+    //     total_impression_mean: true,
+    //   },
+    //   _count: {
+    //     _all: true,
+    //   },
+    //   where: {
+    //     course: {
+    //       owner_code: owner,
+    //     },
+    //   },
+    //   by: ["academic_year"],
+    //   orderBy: {
+    //     academic_year: "asc",
+    //   },
+    // });
 
-    return Ok(data);
+    // return Ok(
+    //   data.reduce((agg, next) => {
+    //     return {
+    //       ...agg,
+    //       [next.academic_year]: {
+    //         ...next._avg,
+    //         count: next._count._all,
+    //       },
+    //     };
+    //   }, {}),
+    // );
+    return Ok(await redis_cache.programme_survey_aggregate.get(owner));
   },
 };

@@ -7,6 +7,8 @@ import { program } from "commander";
 import chalk from "chalk";
 import { scrape_everything } from "@app/import/study_portal";
 import UpdatePassratesByPeriod from "@app/jobs/update_passrates";
+import UpdateChalmersSurveyAggregate from "@app/jobs/update_chalmers_survey_aggregates";
+import UpdateProgrammeSurveyAggregate from "@app/jobs/update_programme_survey_aggregates";
 import { cpus } from "os";
 import { start_workers } from "./worker/worker";
 import { export_exams } from "./export_exams";
@@ -78,6 +80,19 @@ const main = async () => {
 
   const ctx = await Context.initialize(config);
 
+  // const res = await passthrough_for_programme(
+  //   ctx.prisma,
+  //   "TKDAT",
+  //   2,
+  //   1,
+  //   "Tentamen",
+  // );
+  // console.log(res);
+  // return;
+  // const avg = await ctx.prisma.survey.findMany({});
+  // console.log(avg.map((e) => e.answer_frequency).average());
+  // return;
+
   // const examiners_by_number_of_courses =
   //   await ctx.prisma.courseInstance.findMany({
   //     select: {
@@ -148,6 +163,8 @@ const main = async () => {
   });
 
   UpdatePassratesByPeriod(ctx).start();
+  UpdateChalmersSurveyAggregate(ctx).start();
+  UpdateProgrammeSurveyAggregate(ctx).start();
 
   start_workers(
     options.config,
@@ -168,7 +185,7 @@ const main = async () => {
   server.mount(http_server);
   http_server.listen({ host: ctx.config.host, port: ctx.config.port }, () => {
     console.info(
-      `Webserver listening on ${chalk.red("localhost")}:${chalk.yellow(
+      `Webserver listening on ${chalk.red(ctx.config.host)}:${chalk.yellow(
         ctx.config.port,
       )}`,
     );

@@ -1,10 +1,8 @@
 <template lang="pug">
-.row
-  .col-12
-    .brand.d-flex.align-self-center.justify-content-center
-      .font-brand
-        .name CoursePortal
-        .slogan Tentō, ergo sum
+.brand
+  .font-brand
+    .name CoursePortal
+    .slogan Tentō, ergo sum
 </template>
 
 <script>
@@ -20,23 +18,24 @@ export default {
 .brand {
   user-select: none;
   color: var(--sp-text);
+  --font-base: 2rem;
 
   .name {
-    font-size: 2rem;
+    font-size: var(--font-base);
   }
 
   .slogan {
-    font-size: 1rem;
+    font-size: calc(var(--font-base) / 3);
   }
 
   @include sm {
+    --font-base: 4rem;
     .name {
-      margin-top: 4rem;
-      font-size: 6rem;
+      font-size: var(--font-base);
     }
 
     .slogan {
-      font-size: 2rem;
+      font-size: calc(var(--font-base) / 3);
     }
   }
 }

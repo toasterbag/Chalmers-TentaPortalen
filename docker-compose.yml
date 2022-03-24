@@ -13,16 +13,6 @@ services:
         target: /var/lib/postgresql/data        
   redis:
     image: redis:6
-    container_name: course-portal-dev-redis                                                                                                           
-
-  web:
-    image: node:16
-    volumes:
-      - ./web:/app
-    working_dir: "/app"
-    ports:
-      - 127.0.0.1:8080:8080
-    command: yarn install && yarn serve
 
   app:
     image: node:17-alpine
@@ -35,7 +25,7 @@ services:
         source: ./
         target: /app
     ports:
-      - 10006:10006
+      - 0.0.0.0:10006:10006
     environment:
       DATABASE_URL: postgresql://root:password@postgres/course-portal?connect_timeout=300&pool_timeout=300
 

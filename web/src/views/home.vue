@@ -1,14 +1,23 @@
 <template lang="pug">
 .row
-  .col-12
-    .brand.d-flex.align-self-center.justify-content-center
-      .font-brand
-        .name CoursePortal
-        .slogan Tentō, ergo sum
-    //- h3 This year so far
-    //- p.pb-3
-    //-   span See how the current students compare to previous years
-    //-   router-link(:to="{ name: 'statistics/this-year-so-far' }") &nbsp;here
+  .col-6.justify-content-start
+    Brand
+  //- .col-5
+  //-   h1.font-header.fw-bold.text-text News
+  //-   router-link(:to="{ name: 'reports/course-impressions' }")
+  //-     .py-2 5 days ago
+  //-     .d-flex.align-items-center
+  //-       h3.font-header.text-text Report: Course impressions
+  //-       .badge.fs-6.text-white.bg-accent.mx-2 Unread
+  //-     p.pb-3
+  //-       span Find out how which students are most satisfied with their courses, how your programme compares to others and much more in this report on what 8 years of course surveys says!
+  //-   router-link(:to="{ name: 'reports/course-impressions' }")
+  //-     .py-2 2 weeks ago
+  //-     .d-flex.align-items-center
+  //-       h3.font-header.text-text Hardest courses
+  //-       .badge.fs-6.text-white.bg-accent.mx-2 Unread
+  //-     p.pb-3
+  //-       span Find out how which students are most satisfied with their courses, how your programme compares to others and much more in this report on what 8 years of course surveys says!
 </template>
 
 <script>
@@ -21,29 +30,6 @@ export default {
 <style lang="scss" scoped>
 @import "../variables.scss";
 
-.brand {
-  user-select: none;
-  color: var(--sp-text);
-  height: 30vh;
-
-  .name {
-    margin-top: 1rem;
-    font-size: 2rem;
-  }
-
-  .slogan {
-    font-size: 1rem;
-  }
-
-  @include sm {
-    .name {
-      margin-top: 4rem;
-      font-size: 6rem;
-    }
-
-    .slogan {
-      font-size: 2rem;
-    }
-  }
+.news {
 }
 </style>
