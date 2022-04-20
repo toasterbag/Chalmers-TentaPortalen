@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import cheerio from "cheerio";
-import { get_user_agent, is_defined } from "@app/utils/index";
+import { getUserAgent, isDefined } from "@app/utils/index";
 import {
   CourseInstance,
   CourseModule,
@@ -110,7 +110,7 @@ const fetch_course_instance_page = async (
         {
           timeout: 30_000 + Math.random() * 5000,
           headers: {
-            "User-Agent": get_user_agent(),
+            "User-Agent": getUserAgent(),
           },
         },
       ),
@@ -119,7 +119,7 @@ const fetch_course_instance_page = async (
         {
           timeout: 30_000 + Math.random() * 5000,
           headers: {
-            "User-Agent": get_user_agent(),
+            "User-Agent": getUserAgent(),
           },
         },
       ),
@@ -346,11 +346,11 @@ const scrape_instances_for_id = async (
 
             // Study period 0 means its a summer course
             const study_periods = [
-              is_defined(summer_points),
-              is_defined(sp1_points),
-              is_defined(sp2_points),
-              is_defined(sp3_points),
-              is_defined(sp4_points),
+              isDefined(summer_points),
+              isDefined(sp1_points),
+              isDefined(sp2_points),
+              isDefined(sp3_points),
+              isDefined(sp4_points),
             ];
             return {
               module: {
@@ -373,7 +373,7 @@ const scrape_instances_for_id = async (
                   : undefined,
             };
           })
-          .filter(is_defined);
+          .filter(isDefined);
 
         return {
           instance: {
@@ -398,7 +398,7 @@ const scrape_instances_for_id = async (
       }
       return undefined;
     })
-    .filter(is_defined);
+    .filter(isDefined);
 
   if (instances.isEmpty()) {
     return new InstanceFetchError("NoInstancesFound", study_portal_id);
@@ -452,7 +452,7 @@ const scrape_instances_for_id = async (
     instances: instances.map((e) => e.instance),
     modules: instances.flatMap((i) => i.modules.map((m) => m.module)),
     module_dates: instances.flatMap((i) =>
-      i.modules.map((m) => m.dates).filter(is_defined),
+      i.modules.map((m) => m.dates).filter(isDefined),
     ),
     course: {
       course_code,

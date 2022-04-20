@@ -1,73 +1,86 @@
 <template lang="pug">
 .dialog-portal
-  .modal.fade(ref="modal")
-    .modal-dialog.modal-lg.modal-dialog-centered(
-      @keydown.esc="resolve(undefined)"
-    )
+  #modal(:class="{ show: isOpen }")
+    .backdrop(@click="hide")
+    .vv-dialog.p-3(@keydown.esc="hide")
       component(
-        :is="dialog_component",
-        v-bind="child_props",
-        @hide="resolve(undefined)",
-        @submit="resolve",
+        :is="component",
+        v-bind="props",
+        @hide="hide",
+        @submit="submit",
         ref="content"
       )
 </template>
 
-<script>
-export default {
-  name: "dialog-portal",
-  data: () => ({
-    isOpen: false,
-    dialog_component: null,
-    child_props: {},
-    modal: null,
-    resolver: () => {},
-  }),
-  props: {
-    dialog: {
-      default: null,
-    },
-  },
-  async mounted() {
-    this.$dialog.register(this);
-    this.modal = new global.bootstrap.Modal(this.$refs.modal);
-  },
-  methods: {
-    open(component, props) {
-      this.hide();
+<script lang="ts">
+import { storeToRefs } from "pinia";
+import { defineComponent } from "vue";
+import { useDialog } from ".";
+export default defineComponent({
+  name: "DialogPortal",
+  setup() {
+    const dialog = useDialog();
+    const { isOpen, props, component } = storeToRefs(useDialog());
 
-      this.dialog_component = component;
-      this.child_props = props;
-      this.modal.show();
-
-      return new Promise((resolve) => (this.resolver = resolve));
-    },
-    hide() {
-      this.modal.hide();
-      this.dialog_component = null;
-    },
-    resolve(e) {
-      this.resolver(e);
-      this.hide();
-      this.resolver = () => {};
-    },
+    return {
+      isOpen,
+      component,
+      props,
+      hide: dialog.hide,
+      submit: dialog.submit,
+    }
   },
-};
+});
 </script>
 
-<style lang="scss">
-.modal {
-  &.hidden {
-    display: none;
+<style lang="scss" scoped>
+@import "../../variables.scss";
+
+#modal {
+  position: relative;
+  pointer-events: none;
+
+  &.show {
+    pointer-events: unset;
+
+    .backdrop {
+      opacity: 1;
+    }
+    .vv-dialog {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
   }
 
-  .modal-content {
-    border: unset;
+  .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+
+    opacity: 0;
+    transition: all 0.2s;
   }
 
-  .modal-body {
-    min-height: 300px;
-    transition: height 0.3s ease;
+  .vv-dialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    min-width: 700px;
+    max-width: 700px;
+    @include below("sm") {
+      min-width: 90vw;
+    }
+
+    z-index: 1050;
+
+    opacity: 0;
+    transform: translate(-50%, -55%);
+    transition-delay: 0.1s;
+    transition: all 0.3s;
   }
 }
 </style>

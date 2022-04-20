@@ -1,47 +1,44 @@
-import { App } from "@vue/runtime-core";
-import ToasterComponent from "./toaster.vue";
+import { defineStore } from 'pinia'
+import { App } from 'vue';
+import ToasterPortal from "./component.vue";
+
+export interface ToastOptions {
+  icon?: string,
+  content: string,
+  timeout?: number,
+}
 
 export interface Toast {
-  title?: string;
-  content: string;
-  timeout?: number;
-  progress?: number;
+  icon?: string,
+  content: string,
+  exiting: boolean,
 }
 
-export type ToastListener = (toast: Toast) => void;
+export const EXIT_TRANSITION_DURATION = 500;
 
-export class Toaster {
-  private callbacks: Array<ToastListener> = [];
-
-  constructor() {}
-
-  on_toast(fn: ToastListener) {
-    this.callbacks.push(fn);
-  }
-  /*
-  {
-    title: String
-    content: String
-    progress: Number
-    timeout: Number
-    icon: String
-  }
-  */
-  toast(toast: Toast) {
-    toast.timeout ??= 4000;
-    for (const fn of this.callbacks) {
-      fn(toast);
-    }
-  }
+interface State {
+  counter: number;
+  toasts: Map<number, Toast>;
 }
+
+export const useToastStore = defineStore("Toast", {
+  state: (): State => ({ counter: 0, toasts: new Map() }),
+  actions: {
+    push({ icon, content, timeout }: ToastOptions) {
+      const id = this.counter++;
+      this.toasts.set(id, { icon, content, exiting: false });
+
+      setTimeout(async () => {
+        this.toasts.set(id, { icon, content, exiting: true });
+        await wait(EXIT_TRANSITION_DURATION);
+        this.toasts.delete(id)
+      }, timeout)
+    },
+  },
+});
 
 export default {
-  install: (app: App) => {
-    const toaster = new Toaster();
-    app.config.globalProperties.$toaster = toaster;
-
-    app.component("toaster", ToasterComponent);
-
-    app.provide("toaster", toaster);
+  install: (app: App): void => {
+    app.component("Toaster", ToasterPortal);
   },
 };

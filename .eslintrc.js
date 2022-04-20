@@ -17,39 +17,6 @@ module.exports = {
     "no-control-regex": "off",
     "import/no-cycle": "off",
     "default-case": "off",
-    "@typescript-eslint/naming-convention": [
-      "error",
-      {
-        selector: 'default',
-        format: ["camelCase", 'snake_case'],
-        leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow',
-      },
-      {
-        selector: 'variable',
-        format: ['snake_case', 'UPPER_CASE'],
-        leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow',
-      },
-      {
-        selector: 'typeLike',
-        format: ['PascalCase'],
-      },
-      {
-        selector: "enumMember",
-        format: ["PascalCase"]
-      },
-      {
-        selector: "function",
-        format: ["PascalCase", "snake_case",]
-      },
-      {
-        selector: ["objectLiteralProperty"],
-        format: ["PascalCase", "snake_case", "camelCase", "UPPER_CASE"],
-        leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow',
-      }
-    ],
     "no-await-in-loop": "off",
     "no-console": ["error", { allow: ["warn", "error", "info"] }],
     "class-methods-use-this": "off",
@@ -63,7 +30,8 @@ module.exports = {
     "no-multi-str": "off",
     "no-nested-ternary": "off",
     "no-continue": "off",
-    "no-extend-native": "off"
+    "no-extend-native": "off",
+    "max-classes-per-file": "off"
   },
   ignorePatterns: [".eslintrc.js"],
 };

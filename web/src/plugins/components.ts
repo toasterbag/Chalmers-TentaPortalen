@@ -1,15 +1,21 @@
-export default {
-  install: (Vue) => {
-    const context = require.context("../components", true, /\.vue$/);
-    const components = context.keys().map(context);
+import { Plugin } from "vue";
 
-    const Components = {};
-    Components.install = function install(Vue) {
-      components.forEach((c) => {
-        Vue.component(c.default.name, c.default);
-      });
-    };
+export default async (): Promise<Plugin> => {
+  const context = import.meta.glob("../components/**/*.vue");
 
-    Vue.use(Components);
-  },
-};
+  const components = await Promise.all(Object.values(context).map(async (f) => {
+    const c = await f();
+    return c.default;
+  }));
+
+  return {
+    install: (app) => {
+      for (const c of components) {
+        if (!("name" in c)) {
+          throw Error("Attempted to register component without name")
+        }
+        app.component(c.name, c);
+      }
+    },
+  }
+}

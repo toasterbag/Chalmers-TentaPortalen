@@ -42,7 +42,6 @@
         ) Manually trigger scan
       .pt4(v-else)
         div A scan is currently running..
-  </div>
 </template>
 
 <script>
@@ -109,7 +108,7 @@ export default {
 
       let request = new XMLHttpRequest();
 
-      request.open("PUT", `${global.env.API_URL}/datasheet`);
+      request.open("PUT", `${window.env.API_URL}/datasheet`);
       request.setRequestHeader(
         "Authorization",
         sessionStorage.getItem("password")

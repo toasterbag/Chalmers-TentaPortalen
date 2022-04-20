@@ -3,7 +3,7 @@ import { build_config, Config } from "@app/config";
 import { scrape_instances_for_id } from "@app/import/instance";
 import { isMainThread, Worker as NodeWorker } from "node:worker_threads";
 import RedisClient, { Redis } from "ioredis";
-import { is_error } from "@app/utils";
+import { isError } from "@app/utils";
 import { fetch_programme_plan } from "@app/import/programmes";
 import { RedisCache } from "@app/redis";
 import { PrismaClient } from "@prisma/client";
@@ -38,7 +38,7 @@ class Worker {
     instance_id: string;
   }) {
     const res = await scrape_instances_for_id(course_code, instance_id);
-    if (is_error(res)) {
+    if (isError(res)) {
       console.error(res);
       return;
     }

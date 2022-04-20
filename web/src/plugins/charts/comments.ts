@@ -1,6 +1,15 @@
-const chart_comments = {
+import { Plugin } from "chart.js";
+
+interface Comment {
+  index: string,
+  comment: string,
+  color?: string,
+}
+
+export const CommentPlugin: Plugin = {
   id: "comments",
-  beforeDraw: function (chart, args, options) {
+  beforeDraw: function (chart: any, args: any, untypedOpts: any) {
+    const options: Array<Comment> = untypedOpts;
     const ctx = chart.ctx;
 
     const area = chart.chartArea;
@@ -8,28 +17,8 @@ const chart_comments = {
     if (chart.scales.x._gridLineItems && chart.scales.x._gridLineItems.length >= 2 && chart.config.type == "line") {
       const max_width = chart.scales.x._gridLineItems[1]?.x1 ?? 2000 - chart.scales.x._gridLineItems[0].x1;
 
-      for (let { index, color, comment, horizontal } of options) {
-        if (horizontal) {
-          const line_width = 3;
-
-          const max = chart.scales.y.ticks.last().value
-          const ratio = index / max;
-          // Centering the line is hard
-          const y = (ratio * (area.height - area.top)) - line_width;
-          console.log(ratio, y)
-
-          ctx.strokeStyle = color ?? "rgb(91, 142, 125)";
-          ctx.lineWidth = line_width;
-
-          ctx.beginPath();
-          ctx.moveTo(area.left, y);
-          ctx.lineTo(area.right, y);
-          ctx.closePath();
-          ctx.stroke();
-
-          return
-        }
-        const _index = chart.data.labels.findIndex(e => e == index)
+      for (let { index, color, comment } of options) {
+        const _index = chart.data.labels.findIndex((e: string) => e == index)
         const datapoint = chart.scales.x._gridLineItems[_index]
         if (datapoint !== undefined) {
           ctx.strokeStyle = color ?? "rgb(91, 142, 125)";
@@ -60,7 +49,7 @@ const chart_comments = {
       }
     }
   },
-  afterDraw: function (chart, args, options) {
+  afterDraw: function (chart: any, args: any, options: any) {
     const ctx = chart.ctx;
 
     const area = chart.chartArea;
@@ -69,7 +58,7 @@ const chart_comments = {
       const max_width = (chart.scales.x._gridLineItems[1]?.x1 ?? 2000) - chart.scales.x._gridLineItems[0].x1;
 
       for (let { index, comment } of options) {
-        const _index = chart.data.labels.findIndex(e => e == index)
+        const _index = chart.data.labels.findIndex((e: string) => e == index)
         const datapoint = chart.scales.x._gridLineItems[_index]
         if (datapoint !== undefined) {
 

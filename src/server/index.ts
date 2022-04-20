@@ -11,8 +11,11 @@ import chalk from "chalk";
 import cors from "cors";
 
 import { Context } from "@app/context";
-import { find, is_defined } from "@app/utils/index";
+import { find, isDefined } from "@app/utils/index";
 import { unlink } from "fs-extra";
+import { UserProfile } from "@app/auth";
+import { isNone, isSome, None, Option } from "@app/std/option";
+
 import { print_table } from "./table";
 import { Method, Response, Endpoint, EndpointHandler, Ok } from "./types";
 
@@ -52,6 +55,7 @@ type ServerArgs = {
   ctx: Context;
   mount_path?: string;
 };
+
 class Server {
   private app: Application;
 
@@ -70,6 +74,15 @@ class Server {
     this.app.use("/public", express.static(this.ctx.config.paths.data));
   }
 
+  async getUserProfile(req: ExpressRequest): Promise<Option<UserProfile>> {
+    if (req.headers.authorization?.startsWith("Token: ")) {
+      return this.ctx.auth.authUserWithToken(
+        req.headers.authorization.replace("Token: ", ""),
+      );
+    }
+    return None;
+  }
+
   wrap_endpoint(endpoint: Endpoint) {
     return async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
       const log = this.ctx.log.extend({
@@ -80,13 +93,17 @@ class Server {
       });
       log.info("Incoming request");
 
-      if (endpoint.auth?.includes("admin")) {
+      const profile = await this.getUserProfile(req);
+
+      // If endpoint has role restriction
+      if (endpoint.auth && endpoint.auth.size > 0) {
         if (
-          req.headers.authorization !== this.ctx.config.admin_password &&
-          req.body.password !== this.ctx.config.admin_password
+          (isSome(profile) &&
+            profile.val.roles.toSet().isSubSet(endpoint.auth)) ||
+          isNone(profile)
         ) {
           res.status(401).send();
-          log.info("Invalid authentication", { status: 401 });
+          log.error("Invalid authentication", { status: 401 });
           return;
         }
       }
@@ -99,11 +116,10 @@ class Server {
         if (e.http_code) {
           console.error(e);
           res.status(e.http_code).send(e.description);
-          log.info(e.description, { status: res.statusCode });
+          log.error(e.description, { status: res.statusCode });
         } else {
-          console.error(e);
-          res.status(500).send(e);
-          log.info("Internal server error", { status: res.statusCode });
+          res.status(500);
+          log.error("Internal server error", { status: res.statusCode });
         }
       }
 
@@ -122,7 +138,10 @@ class Server {
   }
 
   private register_route(endpoint: Endpoint): void {
-    this.endpoints.push(endpoint);
+    this.endpoints.push({
+      ...endpoint,
+      auth: endpoint.auth ? endpoint.auth : new Set(),
+    });
   }
 
   async import_routes(): Promise<void> {
@@ -166,7 +185,7 @@ class Server {
 
             return uploads.array(key);
           })
-          .filter(is_defined);
+          .filter(isDefined);
         callbacks = callbacks.concat(file_callbacks);
       }
 

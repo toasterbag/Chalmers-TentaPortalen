@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "suggestions" ADD COLUMN     "timestamp" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP;

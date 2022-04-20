@@ -21,6 +21,7 @@ export default {
           { name_en: { contains: term, mode: "insensitive" } },
         ],
       },
+      take: 6,
     });
 
     const courses_pending = prisma.course.findMany({
@@ -35,9 +36,12 @@ export default {
       include: {
         exams: false,
       },
+      take: 6,
     });
 
-    const departments_pending = prisma.department.findMany({});
+    const departments_pending = prisma.department.findMany({
+      take: 6,
+    });
 
     const [programmes, courses, departments] = await Promise.all([
       programmes_pending,

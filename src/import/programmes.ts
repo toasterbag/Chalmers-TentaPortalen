@@ -1,7 +1,7 @@
 import fetch, { Response } from "node-fetch";
 import cheerio from "cheerio";
 import { getYear } from "date-fns";
-import { AcademicYear, get_user_agent, is_error } from "@app/utils/index";
+import { AcademicYear, getUserAgent, isError } from "@app/utils/index";
 import { AppError } from "@app/utils/error";
 
 const lang_conf = {
@@ -43,7 +43,7 @@ const get_programme_list = async (
     const res = await fetch(`${base_url}?${query_string}`, {
       timeout: 30_000,
       headers: {
-        "User-Agent": get_user_agent(),
+        "User-Agent": getUserAgent(),
       },
     });
 
@@ -80,7 +80,7 @@ const fetch_programme_plan_page = async (
     const res = await fetch(url, {
       timeout: 30_000,
       headers: {
-        "User-Agent": get_user_agent(),
+        "User-Agent": getUserAgent(),
       },
     });
 
@@ -218,7 +218,7 @@ const scrape_all_programmes = async (
 
 const get_active_programmes = async () => {
   const res = await scrape_all_programmes();
-  if (is_error(res)) {
+  if (isError(res)) {
     console.error(res);
     return [];
   }

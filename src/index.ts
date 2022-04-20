@@ -7,10 +7,18 @@ import { program } from "commander";
 import chalk from "chalk";
 import { scrape_everything } from "@app/import/study_portal";
 import UpdatePassratesByPeriod from "@app/jobs/update_passrates";
+import UpdateChalmersSurveyAggregate from "@app/jobs/update_chalmers_survey_aggregates";
+import UpdateProgrammeSurveyAggregate from "@app/jobs/update_programme_survey_aggregates";
+import UpdateSurveyPerPeriod from "@app/jobs/update_survey_per_period";
+import UpdateDepartmentSurveyAggregate from "@app/jobs/update_survey_per_department";
 import { cpus } from "os";
+import { Exam, Role } from "@prisma/client";
+import { mkdirp, writeFile } from "fs-extra";
 import { start_workers } from "./worker/worker";
 import { export_exams } from "./export_exams";
 import { import_exams_json } from "./import/exams";
+import { AcademicYear } from "./utils";
+import { isSome } from "./std/option";
 
 program
   .version(process.env.NPM_PACKAGE_VERSION ?? "Unknown version")
@@ -77,6 +85,19 @@ const main = async () => {
   await import_exams_json(config.paths.exam_data);
 
   const ctx = await Context.initialize(config);
+
+  // const res = await passthrough_for_programme(
+  //   ctx.prisma,
+  //   "TKDAT",
+  //   2,
+  //   1,
+  //   "Tentamen",
+  // );
+  // console.log(res);
+  // return;
+  // const avg = await ctx.prisma.survey.findMany({});
+  // console.log(avg.map((e) => e.answer_frequency).average());
+  // return;
 
   // const examiners_by_number_of_courses =
   //   await ctx.prisma.courseInstance.findMany({
@@ -147,7 +168,20 @@ const main = async () => {
     mount_path: "/api/v1",
   });
 
+  // const user = await ctx.auth.createUser(
+  //   "pDave",
+  //   "david@davebay.net",
+  //   "67t23d8ygbbqwodf38247bfweb437",
+  // );
+  // if (isSome(user)) {
+  //   await ctx.auth.addRole(user.val, Role.Admin);
+  // }
+
   UpdatePassratesByPeriod(ctx).start();
+  UpdateChalmersSurveyAggregate(ctx).start();
+  UpdateProgrammeSurveyAggregate(ctx).start();
+  UpdateDepartmentSurveyAggregate(ctx).start();
+  UpdateSurveyPerPeriod(ctx).start();
 
   start_workers(
     options.config,
@@ -168,7 +202,7 @@ const main = async () => {
   server.mount(http_server);
   http_server.listen({ host: ctx.config.host, port: ctx.config.port }, () => {
     console.info(
-      `Webserver listening on ${chalk.red("localhost")}:${chalk.yellow(
+      `Webserver listening on ${chalk.red(ctx.config.host)}:${chalk.yellow(
         ctx.config.port,
       )}`,
     );

@@ -1,4 +1,5 @@
 import { Context } from "@app/context";
+import { computePerformanceFields } from "@app/prisma/exam";
 import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
 
@@ -11,12 +12,14 @@ export default {
     { prisma }: Context,
   ): Promise<Response> => {
     const { code, id } = params;
-    const res = await prisma.moduleResult.findMany({
-      where: {
-        course_code: code,
-        module_id: id,
-      },
-    });
+    const res = (
+      await prisma.moduleResult.findMany({
+        where: {
+          course_code: code,
+          module_id: id,
+        },
+      })
+    ).map(computePerformanceFields);
 
     return Ok(res);
   },
