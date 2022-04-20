@@ -12,9 +12,9 @@ import { scrape_survey } from "@app/import/survey";
 import {
   AcademicYear,
   Queue,
-  get_user_agent,
-  is_defined,
-  is_error,
+  getUserAgent,
+  isDefined,
+  isError,
 } from "@app/utils/index";
 import { Context } from "@app/context";
 import { ProgressBar } from "@app/log/progress";
@@ -66,7 +66,7 @@ const get_all_course_ids = async (): Promise<
 
     const res = await fetch(`${base_url}?${query_string}`, {
       headers: {
-        "User-Agent": get_user_agent(),
+        "User-Agent": getUserAgent(),
       },
     });
 
@@ -89,11 +89,11 @@ const get_all_course_ids = async (): Promise<
               }
               return undefined;
             })
-            .filter(is_defined);
+            .filter(isDefined);
         }
         return undefined;
       })
-      .filter(is_defined);
+      .filter(isDefined);
   }, CONCURRENCY);
 
   return instance_ids.flat();
@@ -101,7 +101,7 @@ const get_all_course_ids = async (): Promise<
 
 const import_programmes = async (ctx: Context) => {
   const programmes = await scrape_all_programmes(2010);
-  if (is_error(programmes)) {
+  if (isError(programmes)) {
     console.error(programmes);
     return;
   }

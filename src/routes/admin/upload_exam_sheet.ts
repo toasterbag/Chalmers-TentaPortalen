@@ -4,6 +4,7 @@ import { Request } from "express";
 import { copyFile } from "fs-extra";
 
 import importData from "@app/import/exams_stats";
+import { Role } from "@prisma/client";
 
 export default {
   method: Method.PUT,
@@ -11,7 +12,7 @@ export default {
   uploads: {
     datasheet: "single",
   },
-  auth: ["admin"],
+  auth: [Role.Admin],
 
   handler: async ({ file }: Request, ctx: Context): Promise<Response> => {
     if (file) {

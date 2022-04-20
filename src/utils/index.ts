@@ -11,7 +11,7 @@ export const USER_AGENTS = [
   "Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)",
 ];
 
-export const get_user_agent = () => USER_AGENTS.random();
+export const getUserAgent = () => USER_AGENTS.random();
 
 export class AcademicYear {
   readonly start: number;
@@ -48,10 +48,10 @@ export const find = async (
   ext?: string,
 ): Promise<Array<string>> => {
   const items = await readdir(path);
-  const pending_stats = items
+  const pendingStats = items
     .map((p) => resolve(path, p))
     .map(async (p) => ((await stat(p)).isDirectory() ? find(p) : [p]));
-  const stats = await Promise.all(pending_stats);
+  const stats = await Promise.all(pendingStats);
 
   const res = stats.reduce((a, f) => [...a, ...f], []);
   if (ext) {
@@ -60,23 +60,23 @@ export const find = async (
   return res;
 };
 
-export const is_defined = <T>(item: T | undefined): item is T => {
+export const isDefined = <T>(item: T | undefined): item is T => {
   return item !== undefined;
 };
 
-export const is_not_null = <T>(item: T | null): item is T => {
+export const isNotNull = <T>(item: T | null): item is T => {
   return item !== null;
 };
 
-export function is_error(o: any): o is Error {
+export function isError(o: unknown): o is Error {
   return o instanceof Error;
 }
 
-export const is_ok = <T>(item: T | Error): item is T => {
+export const isOk = <T>(item: T | Error): item is T => {
   return !(item instanceof Error);
 };
 
-export const import_folder = async (folder: string) => {
+export const importFolder = async (folder: string) => {
   const files = await find(join(__dirname, "../", folder), ".js");
   const modules = await Promise.all(files.map((f) => import(f)));
   return modules.reduce((exp, mod) => Object.assign(exp, mod), {});

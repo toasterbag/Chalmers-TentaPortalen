@@ -55,7 +55,7 @@
   .fs-2.fw-light There are no exams waiting to be verified!
 </template>
 
-<script>
+<script lang="">
 import Http from "../../plugins/http";
 
 export default {
@@ -115,7 +115,7 @@ export default {
           this.display.is_thesis = true;
           this.display.course_codes.push(exam.course_code);
           this.display.date = exam.date;
-          this.display.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
+          this.display.url = `${window.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/exam.${exam.thesis.filetype}`;
           this.display.includes_solution = exam.thesis.includes_solution;
           if (
             exam.thesis.filetype === "pdf" ||
@@ -134,7 +134,7 @@ export default {
           this.display.is_thesis = false;
           this.display.course_codes.push(exam.course_code);
           this.display.date = exam.date;
-          this.display.url = `${global.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
+          this.display.url = `${window.env.PUBLIC_URL}/public/courses/${exam.course_code}/${exam.date}/solution.${exam.solution.filetype}`;
           if (
             exam.solution.filetype === "pdf" ||
             exam.solution.filetype === "png" ||

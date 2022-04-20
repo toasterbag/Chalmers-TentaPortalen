@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { Context } from "@app/context";
-import { AcademicYear, is_defined } from "@app/utils";
+import { AcademicYear, isDefined } from "@app/utils";
 import type { WorkSheet } from "xlsx";
 import XLSX from "xlsx";
 import { ModuleResult } from ".prisma/client";
@@ -36,10 +36,13 @@ function parse_row(sheet: any, row: any) {
   let date = get_cell_data(sheet, "H", row);
   if (date.includes("/")) {
     const units = date.split("/");
-    date = `20${units[2]}-${units[0].padStart(2, "0")}-${units[1].padStart(
+    date = `${units[2]}-${units[0].padStart(2, "0")}-${units[1].padStart(
       2,
       "0",
     )}`;
+    if (date.length === 8) {
+      date = `20${date}`;
+    }
   }
 
   return {
@@ -48,6 +51,7 @@ function parse_row(sheet: any, row: any) {
     owner: get_cell_data(sheet, "C", row),
     module_id: get_cell_data(sheet, "E", row),
     module_name: get_cell_data(sheet, "F", row),
+    points: Number(get_cell_data(sheet, "G", row)).mul(10),
     date,
     student_count: get_cell_data(sheet, "J", row),
     grade: get_cell_data(sheet, "I", row),
@@ -103,6 +107,7 @@ const parse_data_sheet = (sheet: WorkSheet) => {
         three: 0,
         four: 0,
         five: 0,
+        points: data.points,
       };
     }
 
@@ -126,7 +131,7 @@ const parse_xlsx = (src: string) =>
       }
       return undefined;
     })
-    .filter(is_defined);
+    .filter(isDefined);
 
 const success = (text: string) => chalk.green(`✔ ${text}`);
 

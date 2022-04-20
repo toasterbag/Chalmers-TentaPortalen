@@ -19,7 +19,7 @@ Depending on your system you will need additional software.
 ### Running the code
 Start by running `docker-compose up -d redis postgres` to start the databases and web frontend.
 
-Run `./init.sh` to fetch the latest database dump from the official instance and seed the dev database with live data. Then run `docker-compose up app` to start the app. To see changes on the backend you have to restart it with `docker-compose up app`.
+Run `./scripts/init.sh` to fetch the latest database dump from the official instance and seed the dev database with live data. Then run `docker-compose up app` to start the app. To see changes on the backend you have to restart it with `docker-compose up app`.
 
 The web frontend has to be run on the host for now. `cd` into `./web` and run `yarn serve`. Any changes to the frontend will reload on the fly (hot-reload).
 

@@ -1,108 +1,61 @@
 <template lang="pug">
-.container
-  div(v-if="this.ready")
-    .row.justify-content-between.mb-2
-      //- tabs(:entries="nav_items")
-      //-   .fs-4
-      //-     span.bold {{ programme.code }}
-      //-     | &nbsp;
-      //-     span {{ programme.name_en }}
-      //-     .fst-italic {{ programme.name_sv }}
+div
+  .row.justify-content-center
+    .col-10.col-md-8
+      .justify-content-between.desktop-only
+        .py-3
+          .fs-4
+            span {{ programme.name_en.trim() }}
+            .fst-italic {{ programme.name_sv }}
+          div
+            .pe-4 Code:&nbsp;
+              span.fw-bold {{ programme.code }}
+            //- div
+            //-   a(
+            //-     target="_blank",
+            //-     :href="coursePortalUrl"
+            //-   )
+            //-     i.fa.fa-home.pe-1
+            //-     | View on the student portal
 
-    .row(v-for="[grade, periods] in this.plan")
-      h2.pb-3 Grade {{ grade }}
-      .row.pb-3(v-for="[period, entries] in periods")
-        .tenta-table.p-3
-          .row.header
-            .col-3.col-md-2 Course code
+      .justify-content-between.mobile-only
+        .py-3
+          .fs-6
+            span {{ programme.name_en }}
+            .fst-italic {{ programme.name_sv }}
+          .py-2
+            .d-flex
+              .pe-2 Code:&nbsp;
+                span.fw-bold {{ programme.code }}
+              //- .pe-2
+              //-   a(
+              //-     target="_blank",
+              //-     :href="coursePortalUrl"
+              //-   )
+              //-     i.fa.fa-home.pe-1
+              //-     | View on the student portal
 
-          .row(v-for="entry in entries", :key="entry.course_code")
-            .col-3 {{ entry.course_code }}
-            .col-1
-              .badge(:class="[electivity_color(entry.electivity)]") {{ entry.electivity }}
 
-    //- .row.justify-content-center
-    //-   .col-12
-    //-     transition(name="fade", mode="out-in")
-    //-       router-view
+  View
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { useRoute } from "vue-router";
 import Http from "../../plugins/http";
 
-export default {
-  name: "programme",
-  data: () => ({
-    ready: false,
-    nav_items: [
-      {
-        title: "Exam statistics",
-        route: "programme/exam-statistics",
-      },
-      {
-        title: "Survey",
-        route: "programme/course-survey",
-      },
-    ],
+export default defineComponent({
+  name: "ProgrammeView",
 
-    plan: {},
-  }),
-
-  created() {
-    this.load_programme();
-  },
-  methods: {
-    electivity_rank(s) {
-      switch (s) {
-        case "Elective":
-          return 1;
-        case "ElectiveCompulsory":
-          return 2;
-        case "Compulsory":
-          return 3;
-      }
-      return 0;
-    },
-    electivity_color(s) {
-      switch (s) {
-        case "Elective":
-          return "bg-green";
-        case "ElectiveCompulsory":
-          return "bg-purple";
-        case "Compulsory":
-          return "bg-blue";
-      }
-      return "bg-red";
-    },
-    async load_programme() {
-      let res = await Http.get(
-        `programme/${this.$route.params.code}/${this.$route.params.start_year}/${this.$route.params.end_year}`
-      );
-      const by_grade = Object.entries(res.groupBy((x) => x.grade));
-      const by_period = by_grade.map(([year, entries]) => [
-        year,
-        Object.entries(entries.groupBy((e) => e.course_instance.start_period)),
-      ]);
-
-      this.plan = by_period.map(([year, periods]) => [
-        year,
-        periods.map(([period, courses]) => [
-          period,
-          courses
-            .filter((x) => x.course_code[3] !== "X")
-            .sortBy((a, b) => {
-              return (
-                this.electivity_rank(b.electivity) -
-                this.electivity_rank(a.electivity)
-              );
-            }),
-        ]),
-      ]);
-
-      this.ready = true;
-    },
-  },
-};
+  async setup() {
+    const route = useRoute();
+    const programme = await Http.get(`programme/${route.params.code}`);
+    // const latest_instance = programme.instances[0].instance_id;
+    return {
+      // coursePortalUrl: `https://student.portal.chalmers.se/sv/chalmersstudier/programinformation/Sidor/SokProgramutbudet.aspx?program_id=${latest_instance}&parsergrp=1`,
+      programme,
+      route,
+    }
+  }
+});
 </script>
-
-<style lang="scss" scoped></style>

@@ -1,0 +1,178 @@
+
+  const crs = [
+    "FTF195",
+    "KBT250",
+    "KLI060",
+    "MVE460",
+    "MVE465",
+    "MVE470",
+    "UCM010",
+    "TIF370",
+    "EDA216",
+    "EMI084",
+    "FFY401",
+    "FSP025",
+    "TDA547",
+    "TMV137",
+    "TMV141",
+    "TMV157",
+    "TMV143",
+    "MCC145",
+    "DAT445",
+    "TMA044",
+    "IDY023",
+    "IDY029",
+    "MVE012",
+    "MVE016",
+    "MVE021",
+    "TDA143",
+    "TEK040",
+    "TIF190",
+    "MVE017",
+    "MVE022",
+    "IDY024",
+    "TDA144",
+    "TEK730",
+    "MVE013",
+    "MVE018",
+    "MVE023",
+    "MVE660",
+    "TEK925",
+    "TEK930",
+    "TEK935",
+    "TEK940",
+    "TEK945",
+    "TEK950",
+    "DAT216",
+    "EDA433",
+    "LSP310",
+    "TDA367",
+    "TDA545",
+    "TDA550",
+    "TMV200",
+    "TMV206",
+    "TDA548",
+    "TDA551",
+    "DAT017",
+    "TDA552",
+    "MMF176",
+    "MTM021",
+    "MTM026",
+    "MVE255",
+    "PPU156",
+    "TME136",
+    "TMV151",
+    "TMV166",
+    "TMV225",
+    "EEN075",
+    "EEN080",
+    "EEN085",
+    "MCC160",
+    "FFM516",
+    "FFM521",
+    "MVE035",
+    "TIF275",
+    "TIN212",
+    "TMA660",
+    "TMA671",
+    "TMA970",
+    "TMA976",
+    "TIN213",
+    "TMA672",
+    "TIN214",
+    "MVE670",
+    "SEE125",
+    "TIF276",
+    "TIF375",
+    "TMA321",
+    "DAT044",
+    "EDA343",
+    "EDA452",
+    "EDA482",
+    "TDA555",
+    "TMV170",
+    "TMV211",
+    "TMV216",
+    "DAT043",
+    "TMV210",
+    "EDA481",
+    "FFM332",
+    "KBB045",
+    "KBT255",
+    "MVE395",
+    "TMA226",
+    "KBT260",
+    "KBT270",
+    "KBT271",
+    "FFY402",
+    "FKA150",
+    "MVE230",
+    "MVE235",
+    "MVE300",
+    "MVE301",
+    "MVE036",
+    "MVE302",
+    "MVE600",
+    "MVE505",
+    "MVE665",
+  ];
+
+  const examsPerCode = crs.map(
+    async (code): Promise<[string, Array<Exam>]> => [
+      code,
+      await ctx.prisma.exam.findMany({
+        where: {
+          course_code: code,
+        },
+        orderBy: { date: "desc" },
+      }),
+    ],
+  );
+
+  const results = await Promise.all(examsPerCode);
+  const test = results
+    .map(([code, exams]) => {
+      const examsByYear = exams
+        .map((exam) => {
+          const total = exam.failed + exam.three + exam.four + exam.five;
+          const percentages = [
+            exam.failed,
+            exam.three,
+            exam.four,
+            exam.five,
+          ].map((e) => e.div(total).mul(100));
+          const [failed, three, four, five] = Math.roundToTarget(
+            percentages,
+            100,
+          );
+
+          return { ...exam, total, percent: { failed, three, four, five } };
+        })
+        .groupBy((e: { date: string }) =>
+          AcademicYear.from_date(new Date(e.date)).toString(),
+        )
+        .filter(([year]) => Number(year.replace(/\/.*/, "")) >= 2015)
+        // .map(([, e]) => e.sortBy((a, b) => b.total - a.total).first());
+        .flatMap(([, e]) => e);
+
+      return [code, examsByYear];
+    })
+    .map(([code, exams]) => {
+      const keys: Array<any> = [
+        "course_code",
+        "date",
+        "academic_year",
+        "failed",
+        "three",
+        "four",
+        "five",
+      ];
+      const exs: any = exams;
+      return exs
+        .map((e: any) => keys.map((k) => String(e[k])).join(","))
+        .join("\n");
+    })
+    .join("\n");
+  const file = "/app/exams.csv";
+
+  await writeFile(file, test);

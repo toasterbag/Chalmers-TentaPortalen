@@ -4,6 +4,7 @@ import {
   RequestHandler,
 } from "express";
 import { Context } from "@app/context";
+import { Role } from "@prisma/client";
 
 enum Method {
   GET = "GET",
@@ -13,8 +14,17 @@ enum Method {
   PATCH = "PATCH",
 }
 
-// type JsonValue = number | boolean | string | Date | JSON | Array<JsonValue>;
-// type Json = { [key: string]: JsonValue };
+// type Query = Record<string, string | number | undefined | boolean>;
+
+export type JsonPrimitive = string | number | boolean;
+
+export type JsonObject = { [Key in string]?: JsonValue };
+
+export type JsonArray = Array<JsonValue>;
+
+export type JsonValue = JsonPrimitive | JsonArray | JsonObject;
+
+export type JsonResponse = JsonArray | JsonObject;
 
 class Response {
   private status: number;
@@ -23,7 +33,7 @@ class Response {
 
   private headers: { [key: string]: string };
 
-  constructor(status: number, body: any = {}) {
+  constructor(status: number, body: JsonResponse = {}) {
     this.status = status;
     this.body = body;
     this.headers = {};
@@ -70,15 +80,36 @@ type ParseRouteParameters<T> = T extends `${string}/:${infer U}/${infer R}`
 
 type EndpointHandler = (req: ExpressRequest, ctx: Context) => Promise<Response>;
 
-interface Endpoint {
+type RequiredEndpointProps = {
   method: Method;
   path: string;
-  query?: any;
-  middleware?: Array<RequestHandler>;
-  uploads?: { [key: string]: "single" | "array" };
-  auth?: Array<string>;
   handler: EndpointHandler;
-}
+};
+
+type OptionalEndpointProps = Partial<{
+  middleware: Array<RequestHandler>;
+  uploads: { [key: string]: "single" | "array" };
+  auth: Set<Role>;
+}>;
+
+// type Endpoint = RequiredEndpointProps & Required<OptionalEndpointProps>;
+type Endpoint = RequiredEndpointProps & OptionalEndpointProps;
+
+// export const defineEndpoint = ({
+//   method,
+//   path,
+//   handler,
+//   middleware,
+//   uploads,
+//   auth,
+// }: RequiredEndpointProps & OptionalEndpointProps): Endpoint => ({
+//   method,
+//   path,
+//   handler,
+//   middleware: middleware ?? [],
+//   uploads: uploads ?? {},
+//   auth: auth ?? new Set(),
+// });
 
 export {
   Ok,

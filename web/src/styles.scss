@@ -1,48 +1,14 @@
 @use "sass:map";
 @use "sass:color";
 @use "sass:math";
+@import "./variables.scss";
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
+@import "@fortawesome/fontawesome-free/css/all.css";
+@import "bootstrap";
 
-@function generate-alphas($palette) {
-  $alpha-colors: ();
-  @each $alpha in $alpha-steps {
-    @each $color, $value in $palette {
-      $fraction: calc(-1 * (1 - ($alpha / 100)));
-      $alpha-colors: map.set($alpha-colors, "#{$color}-#{$alpha}", color.adjust($value, $alpha: $fraction));
-    }
-  }  
-  @return $alpha-colors;
-}
-
-$prefix: "sp";
-
-$alpha-steps: (90, 70, 50, 30, 10);
-
-$theme: (
-    fonts: (
-      "sans": "Nunito",
-      "header": "Montserrat",
-    ),
-    palette: (
-      "primary": hsla(160, 22%, 46%, 1.0),
-      "accent": hsla(357, 46%, 52%, 1.0),
-      "background": hsla(30, 6%, 94%, 1.0),
-      "warning": hsla(50, 83%, 74%, 1.0),
-      "error": hsla(357, 46%, 52%, 1.0),
-
-      "green": hsla(92, 33%, 56%, 1.0),
-      "blue": hsla(160, 22%, 46%,1.0 ),
-      "yellow": hsla(50, 83%, 74%, 1.0),
-      "red": hsla(357, 46%, 52%,1.0),
-      "purple": hsla(255, 25%, 59%,1.0),
-      "text": hsla(210, 6%, 33%, 1.0),
-      "text-muted": hsla(216, 15%, 48%, 1.0),
-    ),
-);
-
-$palette: map.get($theme, "palette");
-$palette: map.merge($palette, generate-alphas($palette));
-
-@each $name, $value in $palette {
+@each $name,
+$value in $palette {
   .text-#{$name} {
     color: var(--#{$prefix}-#{$name}) !important;
   }
@@ -50,24 +16,53 @@ $palette: map.merge($palette, generate-alphas($palette));
   .bg-#{$name} {
     background-color: var(--#{$prefix}-#{$name}) !important;
   }
+
+  .border-#{$name} {
+    border-color: var(--#{$prefix}-#{$name}) !important;
+  }
 }
 
-@each $name, $value in map.get($theme, "fonts") {
+@each $name,
+$value in map.get($theme, "fonts") {
   .font-#{$name} {
     font-family: #{$value};
   }
 }
 
-body {
-  font-family: var(--ex-font-sans);
+html {
+  min-height: var(--screen-height);
+
+  @include above(md) {
+    --is-desktop: true;
+  }
+
+  --is-desktop: false;
+
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom;
+
 }
 
+body {
+  font-family: var(--sp-font-sans);
+  color: var(--sp-text);
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom;
+}
+
+.fa {
+  color: var(--sp-text);
+}
 
 :root {
-  @each $name, $value in $palette {
+
+  @each $name,
+  $value in $palette {
     --#{$prefix}-#{$name}: #{$value};
   }
-  @each $name, $value in map.get($theme, "fonts") {
+
+  @each $name,
+  $value in map.get($theme, "fonts") {
     --#{$prefix}-font-#{$name}: #{$value};
   }
 
@@ -78,8 +73,27 @@ body {
   --bg-card-raised: #f8f8f8;
   --sp-paper: #e7e7e7;
 
+  --z-sidebar: 1100;
   --z-toaster: 1000;
   --z-dropdown: 900;
+  --z-bottom: 1;
+
+  --shadow-color: 0deg 0% 0%;
+  --shadow-elevation-low: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.11),
+  0px 0.7px 0.8px -1.2px hsl(var(--shadow-color) / 0.11),
+  0px 1.7px 1.9px -2.5px hsl(var(--shadow-color) / 0.11);
+  --shadow-elevation-medium: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.11),
+  0px 1.4px 1.6px -0.8px hsl(var(--shadow-color) / 0.11),
+  0px 3.5px 3.9px -1.7px hsl(var(--shadow-color) / 0.11),
+  0.1px 8.5px 9.6px -2.5px hsl(var(--shadow-color) / 0.11);
+  --shadow-elevation-high: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.1),
+  0px 2.5px 2.8px -0.4px hsl(var(--shadow-color) / 0.1),
+  0px 4.6px 5.2px -0.7px hsl(var(--shadow-color) / 0.1),
+  0.1px 7.6px 8.6px -1.1px hsl(var(--shadow-color) / 0.1),
+  0.1px 12.2px 13.7px -1.4px hsl(var(--shadow-color) / 0.1),
+  0.2px 19.1px 21.5px -1.8px hsl(var(--shadow-color) / 0.1),
+  0.2px 29px 32.6px -2.1px hsl(var(--shadow-color) / 0.1),
+  0.4px 42.7px 48px -2.5px hsl(var(--shadow-color) / 0.1);
 }
 
 .p-rel {
@@ -93,11 +107,22 @@ body {
 
 
 .btn {
-  color: var(--sp-background);
+  background-color: var(--sp-primary);
+  color: var(--sp-white);
   text-transform: uppercase;
+  cursor: pointer;
+
+  &.flat {
+    background-color: transparent;
+  }
 
   &:hover {
     color: var(--sp-background);
+  }
+
+  &.disabled {
+    background-color: var(--sp-disabled);
+    cursor: not-allowed;
   }
 }
 
@@ -105,9 +130,34 @@ body {
   height: 100%;
 }
 
+.h-fill {
+  width: 100%;
+}
+
+@include below("xs") {
+  .desktop-only {
+    display: none;
+  }
+}
+
+@include above("xs") {
+  .mobile-only {
+    display: none;
+  }
+}
+
 .center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--sp-font-header);
 }

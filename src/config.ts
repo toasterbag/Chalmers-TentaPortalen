@@ -59,7 +59,7 @@ const _default = {
 };
 
 export const build_config = async (path: string): Promise<Config> => {
-  const file = await readFile(join(process.cwd(), path));
+  const file = await readFile(path);
   const json = JSON.parse(file.toString());
   const config = merge(_default, json);
   assure_no_undefined(config);

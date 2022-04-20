@@ -3,11 +3,12 @@ import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
 
 import { scrape_everything } from "@app/import/study_portal";
+import { Role } from "@prisma/client";
 
 export default {
   method: Method.GET,
   path: "/admin/material/scan",
-  auth: ["admin"],
+  auth: [Role.Admin],
 
   handler: async (_: Request, ctx: Context): Promise<Response> => {
     scrape_everything(ctx);

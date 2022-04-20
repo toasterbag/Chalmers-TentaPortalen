@@ -14,6 +14,10 @@ export class RedisMap {
     return this.redis.hexists(this.index_key, key);
   }
 
+  get(key: string) {
+    return this.redis.hget(this.index_key, key);
+  }
+
   set(key: string, val: string) {
     return this.redis.hset(this.index_key, key, val);
   }

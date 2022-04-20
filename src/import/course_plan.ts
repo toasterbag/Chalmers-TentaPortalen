@@ -1,7 +1,7 @@
 // import fetch, { Response } from "node-fetch";
 // import cheerio from "cheerio";
 // import { Logger } from "@app/logger";
-// import { AcademicYear, get_user_agent } from "@app/utils";
+// import { AcademicYear, getUserAgent } from "@app/utils";
 
 // const url = "";
 // const Log = new Logger({ label: "Import" });
@@ -40,7 +40,7 @@
 //     {
 //       timeout: 30_000 + Math.random() * 5000,
 //       headers: {
-//         "User-Agent": get_user_agent(),
+//         "User-Agent": getUserAgent(),
 //       },
 //     },
 //   );
@@ -64,7 +64,7 @@
 //     {
 //       timeout: 30_000 + Math.random() * 5000,
 //       headers: {
-//         "User-Agent": get_user_agent(),
+//         "User-Agent": getUserAgent(),
 //       },
 //     },
 //   );

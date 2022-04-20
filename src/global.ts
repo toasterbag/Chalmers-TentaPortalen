@@ -33,7 +33,7 @@ declare global {
     unique(): Array<T>;
     toSet(): Set<T>;
     sortBy(fn: (a: T, b: T) => number): Array<T>;
-    groupBy(fn: (a: T) => string): { [key: string]: Array<T> };
+    groupBy<V>(fn: (a: T) => V): Array<[V, Array<T>]>;
     without(filter: Array<T>): Array<T>;
 
     await_map<T, O>(
@@ -47,6 +47,10 @@ declare global {
 
   interface String {
     capitalize(): string;
+  }
+
+  interface Set<T> {
+    isSubSet(other: Set<T>): boolean;
   }
 
   interface Window {
@@ -230,15 +234,17 @@ Array.prototype.sortBy = function (compare_fn) {
   });
 };
 
-Array.prototype.groupBy = function (fn) {
-  return this.reduce((map, obj) => {
-    const group_key = fn(obj);
-    if (!(group_key in map)) {
-      map[group_key] = [];
+Array.prototype.groupBy = function groupBy(fn) {
+  const dict = this.reduce((map, obj) => {
+    const groupKey = fn(obj);
+    if (!map.has(groupKey)) {
+      map.set(groupKey, []);
     }
-    map[group_key].push(obj);
+    const values = map.get(groupKey);
+    values?.push(obj);
     return map;
-  }, {});
+  }, new Map());
+  return Array.from(dict.entries());
 };
 
 Array.prototype.await_map = async function <T, O>(
@@ -312,4 +318,23 @@ String.prototype.capitalize = function () {
   const head = this.slice(0, 1);
   const tail = this.slice(1);
   return head.toLocaleUpperCase() + tail;
+};
+
+Math.roundToTarget = function (numbers, target) {
+  let err = target - numbers.map((x) => x.floor()).sum();
+  return numbers
+    .map((e, i) => [e, i])
+    .sortBy(([a], [b]) => a.frac() - b.frac())
+    .map(([x, _i], i) => [
+      x === 0 ? err++ && 0 : x.floor() + (err > i ? 1 : 0),
+      _i,
+    ])
+    .sortBy(([, a], [, b]) => a - b)
+    .map(([x]) => x);
+};
+
+// Set
+
+Set.prototype.isSubSet = function isSubSet<T>(other: Set<T>): boolean {
+  return Array.from(this.values()).every((x) => other.has(x));
 };

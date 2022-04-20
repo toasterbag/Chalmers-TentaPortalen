@@ -1,19 +1,16 @@
 <template lang="pug">
-.row.justify-content-between
-  tabs.mb-4(:entries="nav_items")
+.row.justify-content-center
+  .col-10.col-md-8
+    tabs.mb-4(:entries="nav_items")
 
-  .row.justify-content-center
-    .col-12
-      transition(name="fade", mode="out-in")
-        router-view
-  </div>
+  View
 </template>
 
-<script>
-import Http from "../../plugins/http";
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
-  name: "Admin",
+export default defineComponent({
+  name: "AdminIndex",
   data: () => ({
     pending_exams: 0,
   }),
@@ -22,7 +19,7 @@ export default {
       return [
         {
           title: "Import",
-          route: "admin/import",
+          route: "Admin/Import",
         },
         {
           title: "Verify exam",
@@ -32,68 +29,7 @@ export default {
       ];
     },
   },
-  async created() {
-    this.refresh();
-    this.timer = setInterval(async () => {
-      //this.refresh();
-    }, 15 * 1000);
-    const { count } = await Http.get("exams/pending");
-    this.pending_exams = count;
-  },
-  destroyed() {
-    clearInterval(this.timer);
-  },
-  methods: {
-    async refresh() {},
-    async trigger_material_scan() {
-      this.status.course_material.running = true;
-      await Http.post("admin/material/scan", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
-    },
-    async trigger_survey_scan() {
-      //this.status.study_portal.running = true;
-      await Http.post("admin/study_portal/scan", {
-        headers: {
-          Authorization: sessionStorage.getItem("password"),
-        },
-      });
-    },
-    async submit() {
-      var formData = new FormData();
-      const file = this.$refs.upload.files[0];
-      if (file.size > 50 * 1000 * 1000) {
-        this.error = "File too big";
-        return;
-      }
-      formData.append("datasheet", file);
-      this.datasheet.filename = file.name;
-
-      let request = new XMLHttpRequest();
-
-      request.open("PUT", `${global.env.API_URL}/datasheet`);
-      request.setRequestHeader(
-        "Authorization",
-        sessionStorage.getItem("password")
-      );
-
-      request.upload.addEventListener("progress", (e) => {
-        const progress = e.loaded.div(e.total).mul(100).round();
-
-        if (this.datasheet.progress === 100) return;
-        this.datasheet.progress = progress;
-      });
-
-      request.addEventListener("load", () => {
-        this.datasheet.progress = true;
-      });
-
-      request.send(formData);
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,70 +1,47 @@
-import "./global";
-
+import "./std/global";
 import { createApp } from "vue";
-
-import App from "./App.vue";
-import Router from "./router";
-import components from "./plugins/components";
-import DialogPlugin from "./plugins/dialog";
-import ToasterPlugin from "./plugins/toaster";
-import { Teleport, TeleportTarget } from "./plugins/teleport";
-
-const should_use_production_api =
-  process.env.NODE_ENV == "production" || process.env.NODE_ENV == "staging";
-
-window.env = {
-  ENV: process.env.NODE_ENV,
-  PUBLIC_URL: should_use_production_api ? "" : "http://localhost:10006",
-  API_URL: should_use_production_api
-    ? "/api/v1"
-    : "http://localhost:10006/api/v1",
-};
-
+import { createPinia } from "pinia";
 import { Chart, registerables } from "chart.js";
+import App from "./App.vue";
+
+import { router } from "./router";
+import loadComponents from "./plugins/components";
+import { createDialogPlugin } from "./plugins/dialog";
+import ToasterPlugin from "./plugins/toaster";
+
+import { CommentPlugin } from "./plugins/charts/comments";
+import { LocalStorePlugin } from "./plugins/preferences";
+
 Chart.register(...registerables);
-
-// Vue.directive("tooltip", {
-//   // When the bound element is inserted into the DOM...
-//   inserted: function (el, { value }) {
-//     el.tooltip = new window.bootstrap.Tooltip(el, value);
-//   },
-//   update: function (el, { value }) {
-//     el.tooltip = new window.bootstrap.Tooltip(el, value);
-//   },
-// });
-
-// Vue.directive("validate", {
-//   inserted: function (el, fns) {
-//     el.addEventListener("input", (e) => {
-//       const val = e.target.value;
-//       if (!fns.every((f) => f(val))) {
-//         el.classList.remove("invalid");
-//       } else {
-//         el.classList.add("invalid");
-//       }
-//     });
-//   },
-//   update: function (el, fns) {
-//     el.addEventListener("input", (e) => {
-//       const val = e.target.value;
-//       if (!fns.every((f) => f(val))) {
-//         el.classList.remove("invalid");
-//       } else {
-//         el.classList.add("invalid");
-//       }
-//     });
-//   },
-// });
+Chart.register(CommentPlugin);
 
 // Chart.register(chart_comments);
 // Chart.defaults.font = {
-//   // family: "NunitoNunito",
+//   // family: "Nunito",
 // };
 
-// Vue.use(VuePreferences);
+const start = async () => {
+  const ComponentPlugin = await loadComponents();
+  const DialogPlugin = await createDialogPlugin();
+  const pinia = createPinia();
+  pinia.use(LocalStorePlugin);
+  const app = createApp(App)
+    .use(router)
+    .use(pinia)
+    .use(ComponentPlugin)
+    .use(DialogPlugin)
+    .use(ToasterPlugin);
 
-Vue.use(components);
+  app.directive("tooltip", {
+    mounted() {
+      // el.tooltip = new window.bootstrap.Tooltip(el, value);
+    },
+    updated() {
+      // el.tooltip = new window.bootstrap.Tooltip(el, value);
+    },
+  });
 
-const app = createApp(App).use(Router).use(DialogPlugin).use(ToasterPlugin);
+  app.mount("#app");
+};
 
-app.mount("#app");
+start();

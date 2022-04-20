@@ -1,75 +1,74 @@
-import VueRouter from "vue-router";
-import Vue from "vue";
-import { plausible } from "./plugins/plausible";
+import { createRouter, createWebHistory, RouteLocationRaw } from "vue-router";
+import { usePlausible } from "./plugins/plausible";
 
-const router = VueRouter.createRouter({
-  history: VueRouter.createWebHistory(),
+export const router = createRouter({
+  history: createWebHistory(),
   // base: process.env.BASE_URL,
 
   routes: [
     {
       path: "/",
-      name: "home",
-      component: () => import("./views/home.vue"),
+      name: "Home",
+      component: () => import("./views/Home.vue"),
     },
     {
       path: "/course/:code",
-      component: () => import("./views/course/index.vue"),
+      props: true,
+      component: () => import("./views/course/Index.vue"),
       children: [
         {
           path: "",
-          name: "course/exam-statistics",
-          component: () => import("./views/course/exam-statistics.vue"),
-        },
-        {
-          path: "module/:id",
-          name: "course/module",
-          component: () => import("./views/course/module.vue"),
+          name: "Course/ExamStatistics",
+          props: true,
+          component: () => import("./views/course/ExamStatistics.vue"),
         },
         {
           path: "materials",
-          name: "course/materials",
-          component: () => import("./views/course/materials.vue"),
+          name: "Course/Materials",
+          props: true,
+          component: () => import("./views/course/Materials.vue"),
         },
         {
           path: "survey-analysis",
-          name: "course/survey-analysis",
-          component: () => import("./views/course/survey-analysis.vue"),
+          name: "Course/SurveyAnalysis",
+          props: true,
+          component: () => import("./views/course/SurveyAnalysis.vue"),
         },
         {
           path: "surveys",
-          name: "course/surveys",
-          component: () => import("./views/course/surveys.vue"),
+          name: "Course/Surveys",
+          props: true,
+          component: () => import("./views/course/Surveys.vue"),
         },
       ],
     },
     {
-      path: "/courses/search",
-      name: "course-search",
-      component: () => import("./views/course-search.vue"),
+      path: "/rankings/course-impressions",
+      name: "CourseImpressionRankings",
+      component: () => import("./views/CourseImpressionRankings.vue"),
     },
     {
-      path: "/programme/:code/:start_year/:end_year",
+      path: "/rankings/course-performance",
+      name: "CoursePerformanceRankings",
+      component: () => import("./views/CoursePerformanceRankings.vue"),
+    },
+    {
+      path: "/rankings/programme",
+      name: "ProgrammeRankings",
+      component: () => import("./views/ProgrammeRankings.vue"),
+    },
+    {
+      path: "/programme/:code",
       component: () => import("./views/programme/index.vue"),
       children: [
         {
-          path: "",
-          name: "programme/exam-statistics",
-          component: () => import("./views/programme/exam-statistics.vue"),
-        },
-        {
           path: "survey",
-          name: "programme/course-survey",
-          component: () => import("./views/programme/survey.vue"),
+          name: "Programme/SurveyAnalysis",
+          props: true,
+          component: () => import("./views/programme/SurveyAnalysis.vue"),
         },
       ],
     },
-    {
-      path: "/programmes/search",
-      name: "programme-search",
-      component: () => import("./views/programme-search.vue"),
-    },
-
     {
       path: "/passthrough/presentation",
       name: "passthrough-presentation",
@@ -77,11 +76,29 @@ const router = VueRouter.createRouter({
     },
 
     {
+      path: "/passthrough/masters",
+      name: "passthrough-masters",
+      component: () => import("./views/passthrough/master.vue"),
+    },
+
+    {
+      path: "/quality/survey",
+      name: "survey-by-programme",
+      component: () => import("./views/quality/survey.vue"),
+    },
+
+    {
+      path: "/analytics",
+      name: "analytics",
+      component: () => import("./views/admin/analytics.vue"),
+    },
+
+    {
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
       beforeEnter: (to, from, next) => {
         if (!sessionStorage.getItem("password")) {
-          next({ name: "login" });
+          next({ name: "SignIn" });
         } else {
           next();
         }
@@ -94,8 +111,8 @@ const router = VueRouter.createRouter({
         },
         {
           path: "import",
-          name: "admin/import",
-          component: () => import("./views/admin/import.vue"),
+          name: "Admin/Import",
+          component: () => import("./views/admin/ImportExams.vue"),
         },
         {
           path: "verify-exams",
@@ -116,50 +133,85 @@ const router = VueRouter.createRouter({
     },
 
     {
-      path: "/login",
-      name: "login",
-      component: () => import("./views/login.vue"),
+      path: "/sign-in",
+      name: "SignIn",
+      component: () => import("./views/SignIn.vue"),
     },
     {
       path: "/feedback",
       name: "feedback",
-      component: () => import("./views/feedback.vue"),
+      component: () => import("./views/Feedback.vue"),
     },
-    {
-      path: "/analytics",
-      name: "analytics",
-      component: () => import("./views/analytics.vue"),
-    },
+
     {
       path: "/passrate-by-period",
-      name: "passrate-by-period",
-      component: () => import("./views/passrate-by-period.vue"),
-    },
-    {
-      path: "/passrate-by-period/:start/:end",
-      name: "passrate-by-period-and-year",
-      component: () => import("./views/passrate-by-period-and-year.vue"),
-    },
-    {
-      path: "/facts",
-      name: "quick-facts",
-      component: () => import("./views/quick-facts.vue"),
+      name: "PassrateByPeriod",
+      component: () => import("./views/PassrateByPeriod.vue"),
     },
     {
       path: "/faq",
-      name: "faq",
-      component: () => import("./views/faq.vue"),
+      name: "FAQ",
+      component: () => import("./views/FAQ.vue"),
     },
     {
-      path: "*",
-      redirect: { name: "home" },
+      path: "/glossary",
+      name: "glossary",
+      component: () => import("./views/glossary.vue"),
+    },
+    {
+      path: "/reports/:slug",
+      name: "reports",
+      component: () => import("./views/reports/index.vue"),
     },
   ],
 });
 
 router.beforeEach((to, from, next) => {
-  plausible.trackEvent("View", { props: { name: to.name } });
+  usePlausible().trackEvent("View", { props: { name: String(to.name) } });
   next();
 });
 
-export default router;
+type Link = {
+  title: string;
+  icon?: string;
+  location?: RouteLocationRaw;
+  children?: Array<Link>;
+};
+
+export const headerLinks: Array<Link> = [
+  {
+    title: "Home",
+    icon: "fa-home",
+    location: { name: "Home" },
+  },
+  {
+    title: "Passrate by exam period",
+    icon: "fa-chart-line",
+    location: { name: "PassrateByPeriod" },
+  },
+
+  {
+    title: "Rankings",
+    icon: "fa-chart-bar",
+    children: [
+      {
+        title: "Course impressions",
+        location: { name: "CourseImpressionRankings" },
+      },
+      {
+        title: "Course performance",
+        location: { name: "CoursePerformanceRankings" },
+      },
+      {
+        title: "Programmes",
+        location: { name: "ProgrammeRankings" },
+      },
+    ],
+  },
+
+  {
+    title: "FAQ",
+    icon: "fa-question",
+    location: { name: "FAQ" },
+  },
+];

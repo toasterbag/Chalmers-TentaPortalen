@@ -1,183 +1,77 @@
 <template lang="pug">
-.wrapper(theme="light")
-  sp-alerts
-  .row.justify-content-center
-    .col-10
-      Header
+.app(theme="light")
+  Alerts
+  .row.justify-content-center(ref="headerElement")
+    .col-md-10
+      .desktop-only
+        Header
+      .mobile-only
+        MobileHeader
 
-  .row
-    .col-2
-<<<<<<< HEAD
-      #sidebar-left.sticky-top(style="margin-top: 60%")
-=======
-      .sticky-top.m-4(style="margin-top: 2rem")
-        teleport-target(name="sidebar-left")
->>>>>>> master
-    .col-8
-      transition(name="fade", mode="out-in", :key="$router.fullPath")
-        router-view.view
-    .col-2
-<<<<<<< HEAD
-      #sidebar-right.sticky-top(style="margin-top: 60%")
-=======
-      .sticky-top.m-4(style="margin-top: 2rem")
-        teleport-target(name="sidebar-right")
->>>>>>> master
+  .view
+    View
+  Footer
 
-  sp-footer
-  dialog-portal
+  DialogPortal
 </template>
 
-<script>
-import Http from "./plugins/http";
-
-export default {
+<script lang="ts">
+import { defineComponent, onMounted, onUnmounted } from "vue";
+import { useDialog } from "./plugins/dialog";
+import { usePlausible } from "./plugins/plausible";
+export default defineComponent({
   name: "App",
-  async created() {
-    let last_reset = localStorage.getItem("time");
-    if (last_reset != new Date().getDay()) {
-      const rand = new TextEncoder().encode(Math.random().toString());
-      const buffer = await crypto.subtle.digest("SHA-256", rand);
-      const hashArray = Array.from(new Uint8Array(buffer));
-      const token = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      localStorage.setItem("token", token);
-      localStorage.setItem("time", new Date().getDay());
-    }
-    Http.log("arrive");
+  setup() {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key == "k") {
+        e.preventDefault();
+        e.stopPropagation();
+        useDialog().open("CommandPalette")
+        usePlausible().trackEvent("Command palette");
+      }
+    };
+
+    onMounted(() => {
+      document.addEventListener("keydown", onKeyDown);
+    });
+
+    onUnmounted(() => {
+      document.removeEventListener("keydown", onKeyDown);
+    });
+
+    return {
+    };
   },
-  computed: {
-    route_with_searchbar() {
-      return [
-        "home",
-        "course/exam-statistics",
-        "course/materials",
-        "course/survey",
-      ].includes(this.$route.name);
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss">
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
-@import "~@fortawesome/fontawesome-free/css/all.css";
-
-/*
-  1. Use a more-intuitive box-sizing model.
-*/
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-/*
-  2. Remove default margin
-*/
-* {
-  margin: 0;
-}
-/*
-  3. Allow percentage-based heights in the application
-*/
-html,
-body {
-  height: 100%;
-}
-/*
-  Typographic tweaks!
-  4. Add accessible line-height
-  5. Improve text rendering
-*/
-body {
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-/*
-  6. Improve media defaults
-*/
-img,
-picture,
-video,
-canvas {
-  display: block;
-  max-width: 100%;
-}
-/*
-  7. Remove built-in form typography styles
-*/
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
-/*
-  8. Avoid text overflows
-*/
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
-}
-/*
-  9. Create a root stacking context
-*/
-#root,
-#__next {
-  isolation: isolate;
-}
-
 @import "./styles.scss";
 
 html {
-  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  min-height: var(--screen-height);
   box-sizing: border-box;
 
   background-color: var(--sp-background);
 }
 
-body,
-.wrapper {
+body {
   position: relative;
-  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
   background-color: var(--sp-background);
-  color: rgba(0, 0, 0, 0.85);
-  font-family: "Nunito";
 
   .view {
     padding-bottom: 3rem;
+    min-height: 75vh;
+    transition: height 0.1s ease-out;
   }
-}
-
-.wrapper {
-  padding-bottom: var(--footer-height);
-}
-
-.feature--analytics {
-  display: none !important;
 }
 
 .clickable {
   cursor: pointer;
-}
-
-@media (max-width: 576px) {
-  .desktop-only {
-    display: none;
-  }
-}
-
-@media (min-width: 576px) {
-  .mobile-only {
-    display: none;
-  }
 }
 
 .text-size-sm {
@@ -186,22 +80,6 @@ body,
 
 .font-brand {
   font-family: "Montserrat", sans-serif;
-}
-
-.bg-primary {
-  background-color: var(--sp-primary) !important;
-}
-
-.bg-accent {
-  background-color: var(--sp-accent);
-}
-
-.bg-warning {
-  background-color: var(--sp-warning) !important;
-}
-
-.bg-error {
-  background-color: var(--sp-error);
 }
 
 a,
@@ -253,7 +131,7 @@ a,
     border-bottom: 1px solid #ddd;
 
     &:hover {
-      background-color: var(--sp-yellow);
+      background-color: var(--sp-overlay);
     }
   }
 }

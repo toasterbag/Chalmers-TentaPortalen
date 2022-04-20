@@ -12,6 +12,16 @@ export default {
   ): Promise<Response> => {
     const { code } = params;
     const data = await prisma.programme.findFirst({
+      select: {
+        code: true,
+        name_en: true,
+        name_sv: true,
+        // instances: {
+        //   orderBy: {
+        //     admission_year: "desc",
+        //   },
+        // },
+      },
       where: {
         code: code.toUpperCase(),
       },

@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import { Config } from "@app/config";
 import { Logger } from "@app/log";
 import RedisClient, { Redis } from "ioredis";
@@ -8,13 +7,17 @@ import { RedisCache } from "@app/redis";
 // Caches
 import * as LastUpdatedCache from "@app/context/cache/last_updated";
 import * as ProgrammesByYearCache from "@app/context/cache/programmes_by_year";
+import { prisma } from "@app/prisma";
+import { AuthenticationProvider } from "@app/auth";
 
 export class Context {
   config: Config;
 
   redis_cache: RedisCache;
 
-  prisma: PrismaClient = new PrismaClient();
+  prisma = prisma;
+
+  auth = new AuthenticationProvider(prisma);
 
   redis: Redis;
 
@@ -28,7 +31,6 @@ export class Context {
   };
 
   private constructor(config: Config) {
-    this.prisma = new PrismaClient();
     Logger.init(this.prisma, {
       disable_console: false,
       meta: {

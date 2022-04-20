@@ -1,14 +1,20 @@
 #!/bin/bash
-yarn install
+docker-compose up -d redis postgres
 
-docker-compose app run \
+docker-compose run --rm app \
+  yarn install
+
+docker-compose run --rm app \
   npx prisma generate
-
-docker-compose app run \
-  npx prisma db push
 
 # Ininitalize Database
 DB_URL="https://tenta.davebay.net/public/dumps/db-latest.sql.gz"
-curl $DB_URL | gzip -d | docker-compose exec -T postgres psql -d course-portal
+curl $DB_URL | gzip -d > "./db.sql" 
+docker-compose cp "./db.sql" postgres:/db.sql
+docker-compose exec postgres psql -d course-portal -f /db.sql
+# rm "./db.sql"
 
-cd "./web" && yarn install
+docker-compose run --rm app \
+  npx prisma db push
+
+#cd "./web" && yarn install

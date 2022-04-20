@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import cheerio from "cheerio";
-import { AcademicYear, get_user_agent } from "@app/utils/index";
+import { AcademicYear, getUserAgent } from "@app/utils/index";
 import { Period } from "@prisma/client";
 
 const map_date_to_study_period = (date: Date) => {
@@ -27,7 +27,7 @@ const scrape_periods_for_year = async (academic_year: string) => {
     `https://student.portal.chalmers.se/sv/chalmersstudier/Sidor/Lasarstider.aspx?year=${academic_year}`,
     {
       headers: {
-        "User-Agent": get_user_agent(),
+        "User-Agent": getUserAgent(),
       },
     },
   );

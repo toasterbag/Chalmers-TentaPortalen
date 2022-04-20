@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import cheerio from "cheerio";
 import { Context } from "@app/context";
-import { get_user_agent } from "@app/utils/index";
+import { getUserAgent } from "@app/utils/index";
 import { CourseInstance, Survey } from "@prisma/client";
 
 type SurveyStatistics =
@@ -64,7 +64,7 @@ const scrape_course_survey = async (
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
       "Accept-Language": "en-US,en;q=0.5",
       "Accept-Encoding": "gzip, deflate, br",
-      "User-Agent": get_user_agent(),
+      "User-Agent": getUserAgent(),
 
       Cookie: "AspxAutoDetectCookieSupport=1;",
     },
@@ -85,7 +85,7 @@ const scrape_course_survey = async (
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
         "Accept-Encoding": "gzip, deflate, br",
-        "User-Agent": get_user_agent(),
+        "User-Agent": getUserAgent(),
 
         Cookie: "AspxAutoDetectCookieSupport=1;",
       },
