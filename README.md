@@ -1,7 +1,7 @@
 # Course portal
 A service to explore course statistics and exams at Chalmers University of Technology (not affiliated).
 
-Official instance at: [https://tenta.davebay.net](https://tenta.davebay.net)
+Official instance at: [https://tenta.chs.se](https://tenta.davebay.net)
 
 ## Development
 ### Setup
