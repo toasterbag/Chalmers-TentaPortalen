@@ -7,7 +7,7 @@ export default {
   path: "/alerts",
 
   handler: async (req: Request, { prisma }: Context): Promise<Response> => {
-    const alerts = await prisma.alerts.findMany({
+    const alerts = await prisma.common.alerts.findMany({
       where: {
         start: {
           gte: new Date(),

@@ -18,7 +18,7 @@ import {
 } from "@app/utils/index";
 import { Context } from "@app/context";
 import { ProgressBar } from "@app/log/progress";
-import { CourseInstance } from "@prisma/client";
+import { CourseInstance } from "@app/prisma/clients/common";
 
 const CONCURRENCY = 16;
 // We COULD go further back but there won't be any exams or surveys at that point
@@ -105,7 +105,7 @@ const import_programmes = async (ctx: Context) => {
     console.error(programmes);
     return;
   }
-  await ctx.prisma.programme.createMany({
+  await ctx.prisma.common.programme.createMany({
     data: programmes,
     skipDuplicates: true,
   });
@@ -113,7 +113,7 @@ const import_programmes = async (ctx: Context) => {
 };
 
 const import_instances = async (ctx: Context) => {
-  const instances = await ctx.prisma.courseInstance.findMany({});
+  const instances = await ctx.prisma.common.courseInstance.findMany({});
   const instances_ids = new Set(instances.map((i) => i.study_portal_id));
   const all_instance_ids = await get_all_course_ids();
   const missing_instances = all_instance_ids.filter(
@@ -124,9 +124,9 @@ const import_instances = async (ctx: Context) => {
     `Got ${all_instance_ids.length} course instances, filtered down to ${missing_instances.length}`,
   );
 
-  await ctx.task_queue.clear_queue();
+  await ctx.tasks.clear_queue();
   for (const { code, id } of missing_instances) {
-    await ctx.task_queue.push_task({
+    await ctx.tasks.push_task({
       kind: "FetchCourseInstance",
       data: { course_code: code, instance_id: id },
     });
@@ -150,19 +150,19 @@ const import_instances = async (ctx: Context) => {
   //     );
   //     return;
   //   }
-  //   await ctx.prisma.department.upsert({
+  //   await ctx.prisma.common.department.upsert({
   //     where: { id: department.id },
   //     create: department,
   //     update: department,
   //   });
 
-  //   await ctx.prisma.course.upsert({
+  //   await ctx.prisma.common.course.upsert({
   //     where: { course_code: course.course_code },
   //     create: course,
   //     update: course,
   //   });
 
-  //   await ctx.prisma.courseInstance.createMany({
+  //   await ctx.prisma.common.courseInstance.createMany({
   //     data: instances,
   //     skipDuplicates: true,
   //   });
@@ -175,12 +175,12 @@ const import_instances = async (ctx: Context) => {
 
 const import_surveys = async (ctx: Context) => {
   // Filter out instances that we already have surveys for
-  let instances = await ctx.prisma.courseInstance.findMany({
+  let instances = await ctx.prisma.common.courseInstance.findMany({
     orderBy: {
       academic_year: "asc",
     },
   });
-  const surveys_in_database = await ctx.prisma.survey.findMany({});
+  const surveys_in_database = await ctx.prisma.common.survey.findMany({});
   instances = instances
     .filter(
       (i) =>
@@ -197,7 +197,7 @@ const import_surveys = async (ctx: Context) => {
   await queue.start(async (instance) => {
     const survey = await scrape_survey(ctx, instance);
     if (survey) {
-      await ctx.prisma.survey.createMany({
+      await ctx.prisma.common.survey.createMany({
         data: [survey],
         skipDuplicates: true,
       });
@@ -216,46 +216,44 @@ const import_surveys = async (ctx: Context) => {
 // I haven't been rate limited yet but I can just feel it coming, run it behind a VPN or something
 const scrape_everything = async (ctx: Context) => {
   ctx.log.info("Started scraping");
-  await ctx.task_queue.clear_queue();
+  await ctx.tasks.clear_queue();
 
   const periods = await scrape_periods();
 
-  await ctx.prisma.period.createMany({
+  await ctx.prisma.common.period.createMany({
     data: periods,
     skipDuplicates: true,
   });
   console.info("Finished scraping exam periods");
 
   await import_programmes(ctx);
-  await ctx.prisma.programme.updateMany({ data: { active: false } });
+  await ctx.prisma.common.programme.updateMany({ data: { active: false } });
   for (const code of await get_active_programmes()) {
-    await ctx.prisma.programme.update({
+    await ctx.prisma.common.programme.update({
       data: { active: true },
       where: { code },
     });
   }
   console.info("Finished scraping programmes");
 
-  for (const programme of await ctx.prisma.programme.findMany({
+  for (const programme of await ctx.prisma.common.programme.findMany({
     distinct: ["code"],
   })) {
-    await ctx.redis_cache.valid_programme_codes.add(programme.code);
+    await ctx.cache.valid_programme_codes.add(programme.code);
   }
 
-  for (const programme of await ctx.prisma.programmeInstance.findMany({
+  for (const programme of await ctx.prisma.common.programmeInstance.findMany({
     select: { instance_id: true },
   })) {
-    await ctx.redis_cache.scraped_programme_instances.add(
-      programme.instance_id,
-    );
+    await ctx.cache.scraped_programme_instances.add(programme.instance_id);
   }
 
   await import_instances(ctx);
-  const target = await ctx.task_queue.queue_len();
+  const target = await ctx.tasks.queue_len();
   const p = new ProgressBar({ prefix: "Scraping course instances", target });
 
   while (true) {
-    const queue_len = target - (await ctx.task_queue.queue_len());
+    const queue_len = target - (await ctx.tasks.queue_len());
     if (queue_len === target) break;
     p.update(queue_len);
     await wait(1000);
@@ -269,19 +267,19 @@ const scrape_everything = async (ctx: Context) => {
 };
 
 export const test_case = async (ctx: Context) => {
-  await ctx.task_queue.clear_queue();
+  await ctx.tasks.clear_queue();
 
   // const periods = await scrape_periods();
-  // await ctx.prisma.period.createMany({
+  // await ctx.prisma.common.period.createMany({
   //   data: periods,
   //   skipDuplicates: true,
   // });
   // console.info("Finished scraping exam periods");
 
   // await import_programmes(ctx);
-  // await ctx.prisma.programme.updateMany({ data: { active: false } });
+  // await ctx.prisma.common.programme.updateMany({ data: { active: false } });
   // for (const code of await get_active_programmes()) {
-  //   await ctx.prisma.programme.update({
+  //   await ctx.prisma.common.programme.update({
   //     data: { active: true },
   //     where: { code },
   //   });
@@ -294,17 +292,17 @@ export const test_case = async (ctx: Context) => {
   ];
   await wait(1000);
   for (const id of instances) {
-    await ctx.task_queue.push_task({
+    await ctx.tasks.push_task({
       kind: "FetchCourseInstance",
       data: { course_code: "TDA555", instance_id: String(id) },
     });
   }
 
-  const target = await ctx.task_queue.queue_len();
+  const target = await ctx.tasks.queue_len();
   const p = new ProgressBar({ prefix: "Scraping course instances", target });
 
   while (true) {
-    const queue_len = target - (await ctx.task_queue.queue_len());
+    const queue_len = target - (await ctx.tasks.queue_len());
     if (queue_len === target) break;
     p.update(queue_len);
     await wait(1000);

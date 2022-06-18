@@ -1,4 +1,4 @@
-import { getYear, getMonth } from "date-fns";
+import { getYear, getMonth, parseISO } from "date-fns";
 import { readdir, stat } from "fs-extra";
 import { join, resolve } from "path";
 
@@ -13,6 +13,20 @@ export const USER_AGENTS = [
 
 export const getUserAgent = () => USER_AGENTS.random();
 
+const isAround = (start: number, end: number) => (date: string | Date) => {
+  const d = date instanceof Date ? date : parseISO(date);
+  const month = getMonth(d);
+  return month >= start && month <= end;
+};
+
+export const aroundExamPeriod = (date: string | Date) => {
+  if (isAround(10, 11)(date)) return 1;
+  if (isAround(1, 1)(date)) return 2;
+  if (isAround(3, 4)(date)) return 3;
+  if (isAround(5, 6)(date)) return 4;
+  return undefined;
+};
+
 export class AcademicYear {
   readonly start: number;
 
@@ -21,6 +35,11 @@ export class AcademicYear {
   constructor(start: number, end: number) {
     this.start = start;
     this.end = end;
+  }
+
+  static currentYear(): AcademicYear {
+    const date = new Date();
+    return AcademicYear.from_date(date);
   }
 
   static from_date(date: Date): AcademicYear {
@@ -81,3 +100,16 @@ export const importFolder = async (folder: string) => {
   const modules = await Promise.all(files.map((f) => import(f)));
   return modules.reduce((exp, mod) => Object.assign(exp, mod), {});
 };
+
+export const toObject = <K extends string | number | symbol>(
+  map: Map<K, any>,
+) => {
+  const obj: any = {};
+  for (const [key, val] of map.entries()) {
+    obj[key] = val;
+  }
+  return obj;
+};
+
+export const first = <T>(vals: [T, ...any]): T => vals[0];
+export const second = <T>(vals: [unknown, T, ...any]): T => vals[1];

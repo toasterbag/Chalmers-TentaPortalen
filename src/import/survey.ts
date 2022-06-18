@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import cheerio from "cheerio";
 import { Context } from "@app/context";
 import { getUserAgent } from "@app/utils/index";
-import { CourseInstance, Survey } from "@prisma/client";
+import { CourseInstance, Survey } from "@app/prisma/clients/common";
 
 type SurveyStatistics =
   | "prerequisite"

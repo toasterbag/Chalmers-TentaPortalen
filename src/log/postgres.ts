@@ -2,7 +2,8 @@ import { LogCallback } from "winston";
 import Transport, {
   TransportStreamOptions as TransportOptions,
 } from "winston-transport";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@app/prisma/clients/restricted";
+import { JsonObject } from "@app/utils/json";
 
 const FLUSH_INTERVAL = 10_000;
 
@@ -10,7 +11,7 @@ interface Entry {
   timestamp: Date;
   level: string;
   msg: string | null;
-  meta: any;
+  meta: JsonObject;
 }
 
 export class PostgresLogger extends Transport {
@@ -30,7 +31,7 @@ export class PostgresLogger extends Transport {
       return;
     }
     await this.prisma.log.createMany({
-      data: this.queue,
+      data: this.queue as any,
     });
     this.queue = [];
   }

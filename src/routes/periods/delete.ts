@@ -20,7 +20,7 @@ export default {
   ): Promise<Response> => {
     const query = query_schema.parse(unparsed_query);
     return Ok(
-      await prisma.period.delete({
+      await prisma.common.period.delete({
         where: {
           type_academic_year_study_period: query,
         },

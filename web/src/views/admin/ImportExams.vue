@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
-  .col-10.col-md-8
+  .col-10.col-lg-8
     .row.justify-content-around
       .col-6
         .fs-4 Tentastatistik

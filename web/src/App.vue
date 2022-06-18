@@ -1,18 +1,20 @@
 <template lang="pug">
 .app(theme="light")
-  Alerts
-  .row.justify-content-center(ref="headerElement")
-    .col-md-10
-      .desktop-only
-        Header
-      .mobile-only
-        MobileHeader
+  .d-flex.flex-column.flexboi
+    Alerts
+    .row.justify-content-center(ref="headerElement")
+      .col-lg-10
+        .hide-below-md
+          Header
+        .hide-above-md
+          MobileHeader
 
-  .view
-    View
-  Footer
+    .view.flex-fill
+      View
+    Footer
 
   DialogPortal
+  Toaster
 </template>
 
 <script lang="ts">
@@ -26,7 +28,7 @@ export default defineComponent({
       if ((e.ctrlKey || e.metaKey) && e.key == "k") {
         e.preventDefault();
         e.stopPropagation();
-        useDialog().open("CommandPalette")
+        useDialog().open("CommandPalette");
         usePlausible().trackEvent("Command palette");
       }
     };
@@ -39,8 +41,7 @@ export default defineComponent({
       document.removeEventListener("keydown", onKeyDown);
     });
 
-    return {
-    };
+    return {};
   },
 });
 </script>
@@ -65,8 +66,12 @@ body {
 
   .view {
     padding-bottom: 3rem;
-    min-height: 75vh;
+    // min-height: 75vh;
     transition: height 0.1s ease-out;
+  }
+
+  .flexboi {
+    min-height: 100vh;
   }
 }
 

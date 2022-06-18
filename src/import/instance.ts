@@ -8,7 +8,7 @@ import {
   Examiner,
   ModuleDates,
   ProgrammePlanEntry,
-} from "@prisma/client";
+} from "@app/prisma/clients/common";
 
 // class Instance {
 //   constructor(obj) {

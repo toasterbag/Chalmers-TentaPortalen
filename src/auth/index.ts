@@ -1,5 +1,10 @@
 import argon2, { verify, argon2id } from "argon2";
-import { PrismaClient, Token, Profile, Role } from "@prisma/client";
+import {
+  PrismaClient,
+  Token,
+  Profile,
+  Role,
+} from "@app/prisma/clients/restricted";
 import { add, isAfter, isBefore } from "date-fns";
 import { isSome, None, Option, Some } from "@app/std/option";
 import { genToken } from "./utils";
@@ -101,7 +106,6 @@ export class AuthenticationProvider {
     passphrase: string,
   ): Promise<Option<UserProfile>> {
     const user = await this.getUser(email);
-    console.log(await this.prisma.profile.findMany());
 
     if (user !== null && (await verify(user.hash, passphrase))) {
       return Some(new UserProfile(user));

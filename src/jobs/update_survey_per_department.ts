@@ -1,12 +1,12 @@
 import { Context } from "@app/context";
-import { Survey } from "@prisma/client";
+import { Survey } from "@app/prisma/clients/common";
 import { CronJob } from "cron";
 
 export default (ctx: Context) => {
   return new CronJob(
     "0 0 0 * * *",
     async function () {
-      const data = await ctx.prisma.survey.findMany({
+      const data = await ctx.prisma.common.survey.findMany({
         include: {
           course: true,
         },
@@ -15,18 +15,13 @@ export default (ctx: Context) => {
       const byDepartment = data
         .groupBy((e) => String(e.course.department_id))
         .map(
-          ([programme_code, surveys]): [
-            string,
-            Array<[string, Array<Survey>]>,
-          ] => {
-            return [
-              programme_code,
-              surveys
-                .groupBy((e) => e.academic_year)
-                .sortBy(([a], [b]) => a.localeCompare(b)),
-            ];
-          },
+          (programme_code, surveys): Array<[string, Array<Survey>]> =>
+            surveys
+              .groupBy((e) => e.academic_year)
+              .pairs()
+              .sortBy(([a], [b]) => a.localeCompare(b)),
         )
+        .pairs()
         .reduce(
           (prog_agg, [programme_code, surveyByYear]) => ({
             ...prog_agg,
@@ -71,7 +66,7 @@ export default (ctx: Context) => {
           {},
         );
       for (const [department, years] of Object.entries(byDepartment)) {
-        await ctx.redis_cache.department_survey_aggregate.set(
+        await ctx.cache.department_survey_aggregate.set(
           department,
           JSON.stringify(years),
         );

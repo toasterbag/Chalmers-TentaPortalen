@@ -8,7 +8,7 @@ export default {
   path: "/analytics/exams",
 
   handler: async (_: Request, { prisma }: Context): Promise<Response> => {
-    const exams_with_thesis = await prisma.exam.count({
+    const exams_with_thesis = await prisma.common.exam.count({
       where: {
         thesis: {
           isNot: null,
@@ -16,9 +16,9 @@ export default {
       },
     });
 
-    const total_exams = await prisma.exam.count({});
+    const total_exams = await prisma.common.exam.count({});
 
-    const upload_metrics = await prisma.examThesis.findMany({
+    const upload_metrics = await prisma.common.examThesis.findMany({
       where: {
         uploaded: {
           gte: sub(startOfToday(), { days: 30 }),

@@ -7,8 +7,7 @@
 @import "@fortawesome/fontawesome-free/css/all.css";
 @import "bootstrap";
 
-@each $name,
-$value in $palette {
+@each $name, $value in $palette {
   .text-#{$name} {
     color: var(--#{$prefix}-#{$name}) !important;
   }
@@ -22,8 +21,7 @@ $value in $palette {
   }
 }
 
-@each $name,
-$value in map.get($theme, "fonts") {
+@each $name, $value in map.get($theme, "fonts") {
   .font-#{$name} {
     font-family: #{$value};
   }
@@ -40,7 +38,6 @@ html {
 
   overscroll-behavior-x: none;
   touch-action: pan-y pinch-zoom;
-
 }
 
 body {
@@ -55,14 +52,11 @@ body {
 }
 
 :root {
-
-  @each $name,
-  $value in $palette {
+  @each $name, $value in $palette {
     --#{$prefix}-#{$name}: #{$value};
   }
 
-  @each $name,
-  $value in map.get($theme, "fonts") {
+  @each $name, $value in map.get($theme, "fonts") {
     --#{$prefix}-font-#{$name}: #{$value};
   }
 
@@ -73,44 +67,43 @@ body {
   --bg-card-raised: #f8f8f8;
   --sp-paper: #e7e7e7;
 
+  --z-toaster: 1200;
   --z-sidebar: 1100;
-  --z-toaster: 1000;
   --z-dropdown: 900;
   --z-bottom: 1;
 
   --shadow-color: 0deg 0% 0%;
   --shadow-elevation-low: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.11),
-  0px 0.7px 0.8px -1.2px hsl(var(--shadow-color) / 0.11),
-  0px 1.7px 1.9px -2.5px hsl(var(--shadow-color) / 0.11);
+    0px 0.7px 0.8px -1.2px hsl(var(--shadow-color) / 0.11),
+    0px 1.7px 1.9px -2.5px hsl(var(--shadow-color) / 0.11);
   --shadow-elevation-medium: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.11),
-  0px 1.4px 1.6px -0.8px hsl(var(--shadow-color) / 0.11),
-  0px 3.5px 3.9px -1.7px hsl(var(--shadow-color) / 0.11),
-  0.1px 8.5px 9.6px -2.5px hsl(var(--shadow-color) / 0.11);
+    0px 1.4px 1.6px -0.8px hsl(var(--shadow-color) / 0.11),
+    0px 3.5px 3.9px -1.7px hsl(var(--shadow-color) / 0.11),
+    0.1px 8.5px 9.6px -2.5px hsl(var(--shadow-color) / 0.11);
   --shadow-elevation-high: 0px 0.4px 0.5px hsl(var(--shadow-color) / 0.1),
-  0px 2.5px 2.8px -0.4px hsl(var(--shadow-color) / 0.1),
-  0px 4.6px 5.2px -0.7px hsl(var(--shadow-color) / 0.1),
-  0.1px 7.6px 8.6px -1.1px hsl(var(--shadow-color) / 0.1),
-  0.1px 12.2px 13.7px -1.4px hsl(var(--shadow-color) / 0.1),
-  0.2px 19.1px 21.5px -1.8px hsl(var(--shadow-color) / 0.1),
-  0.2px 29px 32.6px -2.1px hsl(var(--shadow-color) / 0.1),
-  0.4px 42.7px 48px -2.5px hsl(var(--shadow-color) / 0.1);
+    0px 2.5px 2.8px -0.4px hsl(var(--shadow-color) / 0.1),
+    0px 4.6px 5.2px -0.7px hsl(var(--shadow-color) / 0.1),
+    0.1px 7.6px 8.6px -1.1px hsl(var(--shadow-color) / 0.1),
+    0.1px 12.2px 13.7px -1.4px hsl(var(--shadow-color) / 0.1),
+    0.2px 19.1px 21.5px -1.8px hsl(var(--shadow-color) / 0.1),
+    0.2px 29px 32.6px -2.1px hsl(var(--shadow-color) / 0.1),
+    0.4px 42.7px 48px -2.5px hsl(var(--shadow-color) / 0.1);
 }
 
 .p-rel {
   position: relative;
 }
 
-
 .p-sticky {
   position: sticky;
 }
-
 
 .btn {
   background-color: var(--sp-primary);
   color: var(--sp-white);
   text-transform: uppercase;
   cursor: pointer;
+  display: inline-block;
 
   &.flat {
     background-color: transparent;
@@ -123,6 +116,40 @@ body {
   &.disabled {
     background-color: var(--sp-disabled);
     cursor: not-allowed;
+  }
+
+  @keyframes scale-up {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  &.flat {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 100%;
+      padding-bottom: 100%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0); // Initial state, should hide the effect when not animating
+    }
+
+    &:not(:active)::before {
+      animation: scale-up 0.4s ease-out 0s;
+    }
   }
 }
 
@@ -146,11 +173,45 @@ body {
   }
 }
 
+@each $breakpoint, $value in $breakpoints {
+  @include below($breakpoint) {
+    .hide-below-#{$breakpoint} {
+      display: none;
+    }
+  }
+
+  @include above($breakpoint) {
+    .hide-above-#{$breakpoint} {
+      display: none;
+    }
+  }
+}
+
 .center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.fixed {
+  position: fixed;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.left-0 {
+  left: 0;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.top-0 {
+  top: 0;
 }
 
 h1,

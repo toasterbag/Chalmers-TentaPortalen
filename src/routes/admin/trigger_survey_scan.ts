@@ -3,7 +3,7 @@ import { Method, Response, Ok } from "@app/server";
 import { Request } from "express";
 
 import { scrape_everything } from "@app/import/study_portal";
-import { Role } from "@prisma/client";
+import { Role } from "@app/prisma/clients/common";
 
 export default {
   method: Method.GET,

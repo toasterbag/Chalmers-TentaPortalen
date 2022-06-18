@@ -3,11 +3,12 @@ import { Context } from "@app/context";
 import { AcademicYear, isDefined } from "@app/utils";
 import type { WorkSheet } from "xlsx";
 import XLSX from "xlsx";
-import { ModuleResult } from ".prisma/client";
+import { ModuleResult } from "@app/prisma/clients/common";
+import { range } from "@app/std";
 
 type Grade = "TG" | "G" | "U" | "3" | "4" | "5";
 
-const grade_to_column_name = (grade: Grade) => {
+const gradeToColumnName = (grade: Grade) => {
   switch (grade) {
     case "3":
       return "three";
@@ -24,7 +25,7 @@ const grade_to_column_name = (grade: Grade) => {
   }
 };
 
-function get_cell_data(sheet: any, column: string, row: string) {
+function getCellData(sheet: any, column: string, row: string) {
   const key = `${column}${row}`;
   if (key in sheet) {
     return sheet[key].w;
@@ -32,8 +33,8 @@ function get_cell_data(sheet: any, column: string, row: string) {
   return "";
 }
 
-function parse_row(sheet: any, row: any) {
-  let date = get_cell_data(sheet, "H", row);
+function parseRow(sheet: any, row: any) {
+  let date = getCellData(sheet, "H", row);
   if (date.includes("/")) {
     const units = date.split("/");
     date = `${units[2]}-${units[0].padStart(2, "0")}-${units[1].padStart(
@@ -46,31 +47,31 @@ function parse_row(sheet: any, row: any) {
   }
 
   return {
-    code: get_cell_data(sheet, "A", row),
-    name: get_cell_data(sheet, "B", row),
-    owner: get_cell_data(sheet, "C", row),
-    module_id: get_cell_data(sheet, "E", row),
-    module_name: get_cell_data(sheet, "F", row),
-    points: Number(get_cell_data(sheet, "G", row)).mul(10),
+    code: getCellData(sheet, "A", row),
+    name: getCellData(sheet, "B", row),
+    owner: getCellData(sheet, "C", row),
+    module_id: getCellData(sheet, "E", row),
+    module_name: getCellData(sheet, "F", row),
+    points: Number(getCellData(sheet, "G", row)).mul(10),
     date,
-    student_count: get_cell_data(sheet, "J", row),
-    grade: get_cell_data(sheet, "I", row),
+    student_count: getCellData(sheet, "J", row),
+    grade: getCellData(sheet, "I", row),
   };
 }
 
-const parse_data_sheet = (sheet: WorkSheet) => {
+const parseDataSheet = (sheet: WorkSheet) => {
   const modules: Record<
     string,
     Record<string, Record<string, ModuleResult>>
   > = {};
 
-  const row_count = sheet["!ref"]?.split(":")[1].substr(1);
-  if (row_count === undefined) return undefined;
+  const rowCount = sheet["!ref"]?.split(":")[1].substring(1);
+  if (rowCount === undefined) return undefined;
 
-  for (const row_index of range(2, Number(row_count))) {
-    const data = parse_row(sheet, row_index);
+  for (const rowIndex of range(2, Number(rowCount))) {
+    const data = parseRow(sheet, rowIndex);
     if (data === undefined) {
-      console.error(`Couldn't parse row ${row_index}`);
+      console.error(`Couldn't parse row ${rowIndex}`);
       continue;
     } else if (
       // GU courses
@@ -87,16 +88,16 @@ const parse_data_sheet = (sheet: WorkSheet) => {
       modules[data.code] = {};
     }
 
-    const by_course = modules[data.code];
+    const byCourse = modules[data.code];
 
-    if (!(data.date in by_course)) {
-      by_course[data.date] = {};
+    if (!(data.date in byCourse)) {
+      byCourse[data.date] = {};
     }
 
-    const by_date = by_course[data.date];
+    const byDate = byCourse[data.date];
 
-    if (!(data.module_id in by_date)) {
-      by_date[data.module_id] = {
+    if (!(data.module_id in byDate)) {
+      byDate[data.module_id] = {
         academic_year: AcademicYear.from_date(new Date(data.date)).toString(),
         module_id: data.module_id,
         course_code: data.code,
@@ -111,23 +112,23 @@ const parse_data_sheet = (sheet: WorkSheet) => {
       };
     }
 
-    const module = by_date[data.module_id];
+    const module = byDate[data.module_id];
 
     if (data.grade === "G") {
       module.grading_system = "PassFail";
     }
 
-    const grading_key = grade_to_column_name(data.grade);
-    module[grading_key] = Number(data.student_count);
+    const gradingKey = gradeToColumnName(data.grade);
+    module[gradingKey] = Number(data.student_count);
   }
   return modules;
 };
 
-const parse_xlsx = (src: string) =>
+const parseXlsx = (src: string) =>
   Object.values(XLSX.readFile(src).Sheets)
     .map((sheet: WorkSheet) => {
       if (sheet.A1?.v.toLowerCase() === "kurs") {
-        return parse_data_sheet(sheet);
+        return parseDataSheet(sheet);
       }
       return undefined;
     })
@@ -140,7 +141,7 @@ export default async (ctx: Context) => {
   const temp = ctx.config.paths.exam_sheet_temp;
 
   ctx.log.info("Parsing data..");
-  let data = parse_xlsx(temp);
+  let data = parseXlsx(temp);
 
   data = Object.values(data);
 
@@ -162,26 +163,26 @@ export default async (ctx: Context) => {
       five: module.five,
     }));
 
-  const courses = await ctx.prisma.course.findMany({
+  const courses = await ctx.prisma.common.course.findMany({
     select: { course_code: true },
   });
-  const course_codes = new Set(courses.map((e) => e.course_code));
+  const courseCodes = new Set(courses.map((e) => e.course_code));
 
   for (const exam of exams) {
-    if (!course_codes.has(exam.course_code)) {
+    if (!courseCodes.has(exam.course_code)) {
       ctx.log.warn(
         `Course code '${exam.course_code}' (${exam.date}) does not exist in the database, skipping.`,
       );
     }
   }
 
-  await ctx.prisma.exam.createMany({
-    data: exams.filter((exam) => course_codes.has(exam.course_code)),
+  await ctx.prisma.common.exam.createMany({
+    data: exams.filter((exam) => courseCodes.has(exam.course_code)),
     skipDuplicates: true,
   });
 
-  await ctx.prisma.moduleResult.createMany({
-    data: results.filter((result) => course_codes.has(result.course_code)),
+  await ctx.prisma.common.moduleResult.createMany({
+    data: results.filter((result) => courseCodes.has(result.course_code)),
     skipDuplicates: true,
   });
 

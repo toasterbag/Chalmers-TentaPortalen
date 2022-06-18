@@ -1,5 +1,7 @@
 import "./array";
 import "./number";
+import "./map";
+import "./set";
 
 declare global {
   function wait(t: number): Promise<void>;
@@ -10,7 +12,7 @@ declare global {
     roundToTarget(values: Array<number>, decimals: number): Array<number>;
   }
 }
-export { };
+export {};
 
 window.wait = (t) =>
   new Promise((resolve) => {
@@ -22,7 +24,6 @@ String.prototype.capitalize = function capitalize() {
   const tail = this.slice(1);
   return head.toLocaleUpperCase() + tail;
 };
-
 
 Math.roundToTarget = function (numbers, target) {
   var err = target - numbers.map((x) => x.floor()).sum();

@@ -1,18 +1,16 @@
 import { defineStore } from "pinia";
 import { Ref } from "vue";
+import { Option } from "../../std/option";
 import { Err, Ok, Result } from "../../std/result";
 import Http, { CONFIG } from "../http";
+import { usePlausible } from "../plausible";
 import {
   Course,
   CourseInstance,
   Department,
-  Exam,
-  Module,
-  Profile,
   Programme,
-  Survey,
-} from "./types";
-
+} from "@backend/prisma/clients/common";
+import { Profile, Module, Exam, Survey } from "./types";
 interface State {
   apiUrl: string;
   publicUrl: string;
@@ -50,15 +48,34 @@ type FetchCoursePerformanceRankingsArguments = {
   maxParticipants: number;
 };
 
+type StudentBoard = {
+  division: string;
+  email: string;
+  programmes: Array<string>;
+};
+
 type CourseResponse = Course & {
   department: Department | null;
   owner: Programme;
   instances: Array<CourseInstance>;
+  studentBoard: StudentBoard | undefined;
 };
 
 type FetchExamOptions = {
   onlyPrimaries?: boolean;
 };
+
+type ValidationErrors = Array<{
+  code: string;
+  message: string;
+  path: Array<string>;
+  validation: string;
+}>;
+
+type ErrorResponse = Array<{
+  code: string;
+  message: string;
+}>;
 
 const computeExamURLs = (exam: Exam) => {
   /* eslint-disable no-param-reassign */
@@ -101,19 +118,23 @@ export const useAPI = defineStore("API", {
     isSignedIn: (state) => state.profile !== undefined,
   },
   actions: {
-    async signIn(email: string, password: string) {
+    async signIn(email: string, password: string): Promise<ErrorResponse> {
       const res = await Http.post("/auth", {
         body: {
           email,
           password,
         },
       });
-      if (res) {
+      if (res.email) {
         this.profile = res;
         localStorage.setItem("profile", JSON.stringify(this.profile));
-        return true;
+        return [];
       }
-      return false;
+      return res;
+    },
+    async signOut() {
+      localStorage.removeItem("profile");
+      this.profile = undefined;
     },
     async uploadExamSheet(
       file: File,
@@ -156,8 +177,16 @@ export const useAPI = defineStore("API", {
       return new Ok(undefined);
     },
 
+    async deleteExamThesis(id: number) {
+      await Http.delete(`/exams/thesis/${id}`);
+    },
+
+    async deleteExamSolution(id: number) {
+      await Http.delete(`/exams/solution/${id}`);
+    },
+
     async fetchAllProgrammes() {
-      this.programmes = await Http.get("/programmes/rankings");
+      this.programmes = await Http.get("/programmes");
     },
     async searchProgramme(term: string): Promise<Array<Programme>> {
       if (this.programmes.isEmpty()) {
@@ -173,9 +202,7 @@ export const useAPI = defineStore("API", {
     ): Promise<Array<any>> {
       // TODO type this monstrosity, the server side code is an info-hazard
       return Http.get("/programmes/rankings", {
-        query: {
-          academic_year: query.academicYear,
-        },
+        query,
       });
     },
 
@@ -184,12 +211,8 @@ export const useAPI = defineStore("API", {
     ): Promise<Array<Survey>> {
       return Http.get("/courses/rankings/survey", {
         query: {
-          academic_year: query.academicYear,
-          owner: query.owner,
-          programme_plan: query.programmePlan,
+          ...query,
           electivity: query.electivity === "All" ? undefined : query.electivity,
-          min_responses: query.minResponses,
-          max_responses: query.maxResponses,
         },
       });
     },
@@ -199,12 +222,8 @@ export const useAPI = defineStore("API", {
     ): Promise<Array<Exam>> {
       return Http.get("/courses/rankings/performance", {
         query: {
-          academic_year: query.academicYear,
-          owner: query.owner,
-          programme_plan: query.programmePlan,
+          ...query,
           electivity: query.electivity === "All" ? undefined : query.electivity,
-          min_responses: query.minParticipants,
-          max_responses: query.maxParticipants,
         },
       });
     },
@@ -239,6 +258,50 @@ export const useAPI = defineStore("API", {
 
     async fetchChalmersSurveyAggregate(): Promise<Array<any>> {
       return Http.get("survey/chalmers");
+    },
+    async fetchAnswerFrequencyByDivision(
+      academicYear: string,
+      studyPeriod?: number,
+    ): Promise<Array<{ division: string; answerFrequency: number }>> {
+      return Http.get("survey/by-division", {
+        query: { academicYear, studyPeriod },
+      });
+    },
+
+    async updateExamThesis(
+      id: number,
+      opts: { includesSolution: boolean },
+    ): Promise<{}> {
+      return Http.patch(`/exams/thesis/${id}`, {
+        body: opts,
+      });
+    },
+
+    async search(
+      term: string,
+      maxCourses = 12,
+      maxProgrammes = 4,
+    ): Promise<{
+      courses: Array<Course>;
+      programmes: Array<Programme>;
+    }> {
+      const res = await Http.get(`search`, { query: { term } });
+      const programmes = res.programmes.take(maxProgrammes);
+      const courses = res.courses.take(maxCourses);
+      usePlausible().trackEvent("Search", { props: { term } });
+      return { programmes, courses };
+    },
+
+    async sendFeedback(
+      message: string,
+      email?: string,
+    ): Promise<ValidationErrors> {
+      return Http.post("feedback", {
+        body: {
+          message,
+          email,
+        },
+      });
     },
   },
 });

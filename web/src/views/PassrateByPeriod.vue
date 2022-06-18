@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
-  .col-10.col-md-8.p-4
+  .col-10.col-lg-8.p-4
     .row
       ExamBarChart(
         :exams="periodData",

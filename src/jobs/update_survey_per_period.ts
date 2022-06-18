@@ -1,12 +1,12 @@
 import { Context } from "@app/context";
-import { Survey } from "@prisma/client";
+import { Survey } from "@app/prisma/clients/common";
 import { CronJob } from "cron";
 
 export default (ctx: Context) => {
   return new CronJob(
     "0 0 0 * * *",
     async function () {
-      const data = await ctx.prisma.survey.findMany({
+      const data = await ctx.prisma.common.survey.findMany({
         include: {
           course: true,
         },
@@ -20,18 +20,13 @@ export default (ctx: Context) => {
       const byStudyPeriod = data
         .groupBy((e) => String(e.end_period))
         .map(
-          ([programme_code, surveys]): [
-            string,
-            Array<[string, Array<Survey>]>,
-          ] => {
-            return [
-              programme_code,
-              surveys
-                .groupBy((e) => e.academic_year)
-                .sortBy(([a], [b]) => a.localeCompare(b)),
-            ];
-          },
+          (programme_code, surveys): Array<[string, Array<Survey>]> =>
+            surveys
+              .groupBy((e) => e.academic_year)
+              .pairs()
+              .sortBy(([a], [b]) => a.localeCompare(b)),
         )
+        .pairs()
         .reduce(
           (prog_agg, [programme_code, surveyByYear]) => ({
             ...prog_agg,
@@ -75,7 +70,7 @@ export default (ctx: Context) => {
           }),
           {},
         );
-      await ctx.redis_cache.survey_by_period.set(byStudyPeriod);
+      await ctx.cache.survey_by_period.set(byStudyPeriod);
     },
     null,
     undefined,

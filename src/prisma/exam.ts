@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { Exam, ModuleResult } from "@prisma/client";
+import { Exam, ModuleResult } from "./clients/common";
 
 export type WithPerformanceComputedFields<T> = T & {
   total: number;

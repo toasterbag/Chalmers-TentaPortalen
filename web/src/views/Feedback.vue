@@ -8,17 +8,20 @@
       .mb-3.relative
         label.form-label(for="email") Email (leave empty to be anonymous)
         input#code.form-control(v-model="email")
+        .text-error {{ errors.get('email') }}
       .mb-3.form-floating
+        label(for="message")
         textarea#message.form-control(
           placeholder="Leave a message here",
           v-model="message"
         )
-        label(for="message")
+        .text-error {{ errors.get('message') }}
       .btn.bg-primary(@click="submit") Submit
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { useAPI } from "@plugins/api";
+import { defineComponent, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 import Http from "../plugins/http";
 import { useToastStore } from "../plugins/toaster";
@@ -27,29 +30,38 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const toast = useToastStore();
+    const api = useAPI();
 
     const email = ref("");
     const message = ref("");
+    const errors: Ref<Map<string, string | undefined>> = ref(new Map());
 
     const submit = async () => {
-      if (message.value === "") return;
+      if (message.value === "")
+        return errors.value.set("message", "You can't send an empty message");
 
-      const res = await Http.post(`feedback`, {
-        body: { message: message.value, email: email.value },
-      });
+      const res = await api.sendFeedback(
+        message.value,
+        email.value === "" ? undefined : email.value,
+      );
+      errors.value.clear();
 
-      if (res.ok) {
-        router.push({ name: "Home" });
+      if (!res.isEmpty()) {
+        for (const error of res) {
+          errors.value.set(error.path[0] ?? "message", error.message);
+        }
+      } else {
+        // router.push({ name: "Home" });
         toast.push({ content: "Thanks for your feedback!" });
       }
-    }
+    };
 
     return {
       email,
       message,
-      submit
-    }
+      submit,
+      errors,
+    };
   },
 });
 </script>
-

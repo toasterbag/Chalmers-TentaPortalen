@@ -1,7 +1,7 @@
 import { Context } from "@app/context";
 import { CronJob } from "cron";
 import { isWithinInterval } from "date-fns";
-import { Exam } from "@prisma/client";
+import { Exam } from "@app/prisma/clients/common";
 
 interface ExamStatistics {
   failed: number;
@@ -10,12 +10,12 @@ interface ExamStatistics {
   five: number;
 }
 
-const get_dates = async (
+const getDates = async (
   ctx: Context,
   is_exam: boolean,
   study_period: number,
 ) => {
-  return ctx.prisma.period.findMany({
+  return ctx.prisma.common.period.findMany({
     select: {
       start: true,
       end: true,
@@ -27,7 +27,7 @@ const get_dates = async (
   });
 };
 
-const filter_exams = (dates: Array<Interval>, exams: any): ExamStatistics => {
+const filterExams = (dates: Array<Interval>, exams: any): ExamStatistics => {
   return exams
     .filter((exam: Exam) => {
       for (const { start, end } of dates) {
@@ -52,20 +52,20 @@ export default (ctx: Context) => {
   return new CronJob(
     "0 0 0 * * *",
     async function RenewPassrateByPeriodCache() {
-      const exams = await ctx.prisma.exam.findMany({});
+      const exams = await ctx.prisma.common.exam.findMany({});
       const all = {
-        sp_1_exams: filter_exams(await get_dates(ctx, true, 1), exams),
-        sp_2_exams: filter_exams(await get_dates(ctx, true, 2), exams),
-        sp_3_exams: filter_exams(await get_dates(ctx, true, 3), exams),
-        sp_4_exams: filter_exams(await get_dates(ctx, true, 4), exams),
+        sp_1_exams: filterExams(await getDates(ctx, true, 1), exams),
+        sp_2_exams: filterExams(await getDates(ctx, true, 2), exams),
+        sp_3_exams: filterExams(await getDates(ctx, true, 3), exams),
+        sp_4_exams: filterExams(await getDates(ctx, true, 4), exams),
 
-        august_re_exams: filter_exams(await get_dates(ctx, false, 0), exams),
-        october_re_exams: filter_exams(await get_dates(ctx, false, 1), exams),
-        january_re_exams: filter_exams(await get_dates(ctx, false, 2), exams),
-        easter_re_exams: filter_exams(await get_dates(ctx, false, 3), exams),
-        june_re_exams: filter_exams(await get_dates(ctx, false, 4), exams),
+        august_re_exams: filterExams(await getDates(ctx, false, 0), exams),
+        october_re_exams: filterExams(await getDates(ctx, false, 1), exams),
+        january_re_exams: filterExams(await getDates(ctx, false, 2), exams),
+        easter_re_exams: filterExams(await getDates(ctx, false, 3), exams),
+        june_re_exams: filterExams(await getDates(ctx, false, 4), exams),
       };
-      await ctx.redis_cache.passrate_by_period.set(JSON.stringify(all));
+      await ctx.cache.passrate_by_period.set(JSON.stringify(all));
     },
     null,
     undefined,

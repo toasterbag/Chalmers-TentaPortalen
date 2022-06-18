@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   .row.justify-content-center
-    .col-10.col-md-8
+    .col-10.col-lg-8
       .justify-content-between.desktop-only
         .py-3
           .fs-4

@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
-  .col-10.col-md-8
+  .col-10.col-lg-8
     tabs.mb-4(:entries="nav_items")
 
   View

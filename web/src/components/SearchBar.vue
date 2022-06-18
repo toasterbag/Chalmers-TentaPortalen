@@ -10,7 +10,7 @@
           v-model="search",
           @input="fetchSuggestions",
           @focus="fetchSuggestions",
-          @blur="blur",
+          @blur="blur"
         )
       .desktop-only
         .d-flex.align-items-center
@@ -18,10 +18,10 @@
           div +
           Key K
     .results.text(v-if="items")
-      div.pb-4(v-if="loading")
+      .pb-4(v-if="loading")
         hr
         Spinner
-      div(v-else-if="search != '' && items.courses.isEmpty() && items.programmes.isEmpty()")
+      div(v-else-if="noResults")
         hr
         .px-4 No results found
       div(v-if="items.programmes.length > 0")
@@ -29,7 +29,7 @@
         .category.px-4.fw-bold Programmes
         .search-item.px-4.py-1(
           v-for="{ code, name_en } in items.programmes",
-          @click="gotoProgramme(code)"
+          @click="gotoProgramme(code)",
           :class="{ selected: code == selectedItem }"
         )
           .text-primary {{ code }}
@@ -39,7 +39,7 @@
         .category.px-4.fw-bold Courses
         .search-item.px-4.py-2(
           v-for="{ course_code, name_en, owner_code } in items.courses",
-          @click="gotoCourse(course_code)"
+          @click="gotoCourse(course_code)",
           :class="{ selected: course_code == selectedItem }"
         )
           .row
@@ -49,31 +49,39 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, Ref, ref } from "vue";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  Ref,
+  ref,
+} from "vue";
 import { useRouter } from "vue-router";
-import Http from "../plugins/http";
-import { usePlausible } from "../plugins/plausible";
+import { useAPI } from "../plugins/api";
 
 export default defineComponent({
   name: "SearchBar",
   props: {
     autofocus: {
       default: false,
-    }
+    },
   },
   setup(props, { emit }) {
     const router = useRouter();
+    const api = useAPI();
     const searchInput: Ref<HTMLElement | undefined> = ref(undefined);
     const search = ref("");
+    const focus = ref(false);
     const pages = [
       {
         title: "Quality: Course surveys",
         description: "Overview of all course surveys",
-        route: { name: "survey-by-programme" }
-      }
+        route: { name: "survey-by-programme" },
+      },
     ];
     const defaultItems = { pages: [], programmes: [], courses: [] };
-    const items: Ref<any> = ref(defaultItems)
+    const items: Ref<any> = ref(defaultItems);
     const selectedIndex = ref(0);
     const selectedItem = computed(() => {
       const nProgrammes = items.value.programmes.length;
@@ -81,10 +89,11 @@ export default defineComponent({
       if (selectedIndex.value < nProgrammes) {
         return items.value.programmes[selectedIndex.value].code;
       } else if (selectedIndex.value < nProgrammes + nCourses) {
-        return items.value.courses[selectedIndex.value - nProgrammes].course_code;
+        return items.value.courses[selectedIndex.value - nProgrammes]
+          .course_code;
       }
       return undefined;
-    })
+    });
 
     const gotoProgramme = (code: string) => {
       search.value = "";
@@ -94,7 +103,7 @@ export default defineComponent({
       });
       items.value = defaultItems;
       emit("blur");
-    }
+    };
     const gotoCourse = (code: string) => {
       search.value = "";
       router.push({
@@ -103,21 +112,22 @@ export default defineComponent({
       });
       items.value = defaultItems;
       emit("blur");
-    }
+    };
 
     const blur = () => {
       setTimeout(() => {
         items.value = defaultItems;
       }, 200);
+      focus.value = false;
       emit("blur");
-    }
+    };
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
-        const maxIndex = items.value.programmes.length + items.value.courses.length - 1;
+        const maxIndex =
+          items.value.programmes.length + items.value.courses.length - 1;
         selectedIndex.value = Math.min(maxIndex, selectedIndex.value + 1);
-      }
-      else if (e.key === "ArrowUp") {
+      } else if (e.key === "ArrowUp") {
         selectedIndex.value = Math.max(0, selectedIndex.value - 1);
       } else if (e.key === "Enter" && selectedItem.value !== undefined) {
         const nProgrammes = items.value.programmes.length;
@@ -134,21 +144,23 @@ export default defineComponent({
     onMounted(() => {
       document.addEventListener("keydown", onKeyDown);
       if (props.autofocus) searchInput.value?.focus();
-    })
+    });
 
     onUnmounted(() => {
       document.removeEventListener("keydown", onKeyDown);
-    })
+    });
 
     const maxProgrammes = 4;
     const maxCourses = 8;
 
     const loading = ref(false);
-    let fetchTimer = setTimeout(() => { }, 0);
+    let fetchTimer = setTimeout(() => {}, 0);
     const fetchSuggestions = () => {
+      emit("focus");
+      focus.value = true;
+
       clearTimeout(fetchTimer);
       fetchTimer = setTimeout(async () => {
-        emit("focus");
         const term = search.value.toLowerCase();
 
         if (term.length < 3) {
@@ -156,20 +168,20 @@ export default defineComponent({
           return;
         }
         loading.value = true;
-        const res = await Http.get(`search/${term}`);
-        const pages: Array<any> = []
-        const programmes = res.programmes.take(maxProgrammes);
-        const courses = res.courses.take(maxCourses);
-        items.value = { pages, programmes, courses };
-        usePlausible().trackEvent("Search", { props: { term } });
+        items.value = await api.search(term);
         loading.value = false;
-      }, 400)
-    }
+      }, 400);
+    };
 
-    const noResults = computed(() => Number(search.value.length) <= 3 &&
-      items.value &&
-      items.value.programmes.isEmpty() &&
-      items.value.courses.isEmpty())
+    const noResults = computed(
+      () =>
+        focus.value === true &&
+        search.value.length >= 3 &&
+        loading.value === false &&
+        items.value &&
+        items.value.programmes.isEmpty() &&
+        items.value.courses.isEmpty(),
+    );
 
     return {
       items,
@@ -182,10 +194,11 @@ export default defineComponent({
       selectedItem,
       noResults,
       loading,
+      blur,
       gotoProgramme,
       gotoCourse,
       fetchSuggestions,
-    }
+    };
   },
 });
 </script>

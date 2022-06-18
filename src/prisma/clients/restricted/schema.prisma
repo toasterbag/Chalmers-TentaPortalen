@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma/clients/restricted"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("RESTRICTED_DATABASE_URL")
+}
+
+model Token {
+  value      String   @id
+  issuedAt   DateTime
+  validUntil DateTime
+  user       Profile  @relation(fields: [userEmail], references: [email])
+  userEmail  String
+}
+
+enum Role {
+  Admin
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  email         String   @unique
+  hash          String
+  cidIsVerified Boolean  @default(false)
+  isShadowed    Boolean?
+  roles         Role[]
+  tokens        Token[]
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime
+  level     String
+  msg       String?
+  meta      Json
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  email     String
+  message   String
+}

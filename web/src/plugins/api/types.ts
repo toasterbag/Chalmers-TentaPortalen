@@ -14,7 +14,8 @@ export type Token = {
 export type Profile = {
   username: string;
   email: string;
-  token: Token;
+  // token: Token;
+  token: string;
   roles: Array<string>;
 };
 

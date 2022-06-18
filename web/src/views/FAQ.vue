@@ -16,14 +16,17 @@
       | DNS usually gives away gift cards to students at the D programme who contributes.
       | Reach out to your local education committe if you want them to do the same!
     br
-    div Surveys are continously added and should show up within days of the survey closing.
+    div Surveys are continously added and should show up within days of the survey closing. Normally Sunday in study week 2.
 
     .fs-4.pt-4 Why can't I find the data for the survey question about "Working environment"?
     div This question was only used for two years and provided negligable insight into the course. It has since been removed from the official survey and because it didn't provide enough valuable information I decided to remove the charts as they provided more confused than answers. The data is still available from the API and database dumps &nbsp;
-      a.text-primary(href="https://tenta.davebay.net/public/dumps/db-latest.sql.gz") here.
+      a.text-primary(
+        href="https://tenta.davebay.net/public/dumps/db-latest.sql.gz"
+      ) here.
 </template>
 
-<script lang="ts">import { defineComponent } from "vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "FAQ",

@@ -51,10 +51,12 @@ $theme: (fonts: ("sans": "Nunito",
 $palette: map.get($theme, "palette");
 $palette: map.merge($palette, generate-alphas($palette));
 
-$breakpoints: (xs: 576px,
+$breakpoints: (
+  xs: 576px,
   sm: 768px,
   md: 992px,
-  lg: 1200px);
+  lg: 1200px
+);
 
 @mixin above($breakpoint) {
   @media (min-width: #{map-get($breakpoints, $breakpoint)}) {
@@ -64,30 +66,6 @@ $breakpoints: (xs: 576px,
 
 @mixin below($breakpoint) {
   @media (max-width: #{map-get($breakpoints, $breakpoint)}) {
-    @content;
-  }
-}
-
-@mixin xs {
-  @media (min-width: #{map-get($breakpoints, "xs")}) {
-    @content;
-  }
-}
-
-@mixin sm {
-  @media (min-width: #{map-get($breakpoints, "sm")}) {
-    @content;
-  }
-}
-
-@mixin md {
-  @media (min-width: #{map-get($breakpoints, "md")}) {
-    @content;
-  }
-}
-
-@mixin lg {
-  @media (min-width: #{map-get($breakpoints, "lg")}) {
     @content;
   }
 }

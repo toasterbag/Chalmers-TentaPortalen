@@ -31,7 +31,7 @@ export default {
     const body = common_schema.parse(unparsed_body);
 
     if (body.verified === false) {
-      const thesis = await prisma.examThesis.delete({
+      const thesis = await prisma.common.examThesis.delete({
         where: {
           id: body.thesis_id,
         },
@@ -50,7 +50,7 @@ export default {
       }
     } else {
       const approve = approve_schema.parse(unparsed_body);
-      const thesis = await prisma.examThesis.update({
+      const thesis = await prisma.common.examThesis.update({
         data: {
           includes_solution: approve.includes_solution,
           verified: true,
@@ -61,7 +61,7 @@ export default {
       });
 
       for (const course_code of approve.courses) {
-        await prisma.exam.update({
+        await prisma.common.exam.update({
           data: {
             thesis_id: null,
           },
@@ -73,7 +73,7 @@ export default {
           },
         });
 
-        await prisma.exam.update({
+        await prisma.common.exam.update({
           data: {
             thesis_id: approve.thesis_id,
           },

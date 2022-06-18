@@ -15,6 +15,8 @@
 </template>
 
 <script lang="ts">
+import { useTheme } from "@plugins/theme";
+import { useToastStore } from "@plugins/toaster";
 import { defineComponent, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAPI } from "../plugins/api";
@@ -24,26 +26,30 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const api = useAPI();
+    const toast = useToastStore();
+    const theme = useTheme();
     const email = ref("");
     const password = ref("");
     const error: Ref<string | undefined> = ref(undefined);
 
     const trySignIn = async () => {
       const res = await api.signIn(email.value, password.value);
-      console.log(res)
-      if (res) {
+
+      if (res.isEmpty()) {
         router.push({ name: "Home" });
       } else {
-        error.value = "Invalid username or password";
+        for (const { message } of res) {
+          toast.push({ content: message, color: theme.get("sp-error") });
+        }
       }
-    }
+    };
 
     return {
       email,
       password,
       error,
-      trySignIn
-    }
+      trySignIn,
+    };
   },
 });
 </script>

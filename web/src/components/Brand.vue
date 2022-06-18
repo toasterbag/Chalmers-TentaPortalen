@@ -1,15 +1,25 @@
 <template lang="pug">
 .brand
-  .font-brand
+  .font-brand(:style="style")
     .name CoursePortal
     .slogan Tentō, ergo sum
 </template>
 
-<script lang="ts">import { defineComponent } from "vue"
+<script lang="ts">
+import { defineComponent } from "vue";
 
-//import Http from "../plugins/http";
 export default defineComponent({
   name: "Brand",
+  props: {
+    fontSize: {
+      required: false,
+    },
+  },
+  computed: {
+    style() {
+      return this.fontSize ? { "--font-base": this.fontSize } : {};
+    },
+  },
 });
 </script>
 
@@ -19,7 +29,7 @@ export default defineComponent({
 .brand {
   user-select: none;
   color: var(--sp-text);
-  --font-base: 2.4rem;
+  --font-base: 2.8rem;
 
   .name {
     font-size: var(--font-base);
@@ -29,7 +39,7 @@ export default defineComponent({
     font-size: calc(var(--font-base) / 3);
   }
 
-  @include above(sm) {
+  @include above(md) {
     --font-base: 4rem;
     .name {
       font-size: var(--font-base);

@@ -1,4 +1,4 @@
-import "@app/global";
+import "@app/std/global";
 import { build_config, Config } from "@app/config";
 import { scrape_instances_for_id } from "@app/import/instance";
 import { isMainThread, Worker as NodeWorker } from "node:worker_threads";
@@ -6,24 +6,25 @@ import RedisClient, { Redis } from "ioredis";
 import { isError } from "@app/utils";
 import { fetch_programme_plan } from "@app/import/programmes";
 import { RedisCache } from "@app/redis";
-import { PrismaClient } from "@prisma/client";
+import { range } from "@app/std";
 import { TaskQueue } from "./task_queue";
+import prisma from "../prisma";
 
 class Worker {
-  private prisma = new PrismaClient();
+  private prisma = prisma;
 
   private redis: Redis;
 
   private cache: RedisCache;
 
-  private task_queue: TaskQueue;
+  private tasks: TaskQueue;
 
   constructor(config: Config) {
     this.redis = new RedisClient({
       host: config.redis.host,
     });
     this.cache = new RedisCache(this.redis);
-    this.task_queue = new TaskQueue(this.redis);
+    this.tasks = new TaskQueue(this.redis);
 
     if (isMainThread) {
       throw Error("Can't start worker as main thread");
@@ -62,23 +63,23 @@ class Worker {
       return;
     }
 
-    await this.prisma.examiner.createMany({
+    await this.prisma.common.examiner.createMany({
       data: examiners,
       skipDuplicates: true,
     });
 
-    await this.prisma.department.createMany({
+    await this.prisma.common.department.createMany({
       data: [department],
       skipDuplicates: true,
     });
 
-    await this.prisma.course.upsert({
+    await this.prisma.common.course.upsert({
       where: { course_code: course.course_code },
       create: course,
       update: course,
     });
 
-    await this.prisma.courseInstance.createMany({
+    await this.prisma.common.courseInstance.createMany({
       data: instances,
       skipDuplicates: true,
     });
@@ -96,7 +97,7 @@ class Worker {
       }
     }
     try {
-      await this.prisma.programmePlanEntry.createMany({
+      await this.prisma.common.programmePlanEntry.createMany({
         data: programme_plan_entries,
         skipDuplicates: true,
       });
@@ -104,12 +105,12 @@ class Worker {
       console.log(programme_plan_entries);
     }
 
-    await this.prisma.courseModule.createMany({
+    await this.prisma.common.courseModule.createMany({
       data: modules,
       skipDuplicates: true,
     });
 
-    await this.prisma.moduleDates.createMany({
+    await this.prisma.common.moduleDates.createMany({
       data: module_dates,
       skipDuplicates: true,
     });
@@ -121,7 +122,7 @@ class Worker {
 
   async fetch_programme_instance(instance_id: string, programme_code: string) {
     const { admission_year } = await fetch_programme_plan(instance_id);
-    await this.prisma.programmeInstance.createMany({
+    await this.prisma.common.programmeInstance.createMany({
       data: [{ admission_year, instance_id, programme_code }],
       skipDuplicates: true,
     });
@@ -129,7 +130,7 @@ class Worker {
   }
 
   async next() {
-    const task = await this.task_queue.pop_queue();
+    const task = await this.tasks.pop_queue();
     if (task) {
       const { kind, data } = task;
       switch (kind) {

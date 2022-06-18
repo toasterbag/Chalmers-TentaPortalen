@@ -20,7 +20,7 @@ export default {
     { prisma }: Context,
   ): Promise<Response> => {
     const body = body_schema.parse(unparsed_body);
-    await prisma.alerts.create({
+    await prisma.common.alerts.create({
       data: {
         start: body.start,
         end: body.end,

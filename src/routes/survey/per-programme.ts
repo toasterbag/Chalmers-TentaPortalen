@@ -8,9 +8,9 @@ export default {
 
   handler: async (
     req: Request,
-    { redis_cache }: Context,
+    { cache }: Context,
   ): Promise<Response> => {
-    const res = await redis_cache.programme_survey_aggregate.all();
+    const res = await cache.programme_survey_aggregate.all();
     for (const key of Object.keys(res)) {
       res[key] = JSON.parse(res[key]);
     }

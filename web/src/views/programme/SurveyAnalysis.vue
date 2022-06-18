@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.justify-content-center
-  .col-10.col-md-8
+  .col-10.col-lg-8
     .fs-2 Programme survey data
     div ⚠️ Years with fewer than 5 courses are removed to keep results relevant
     div ⚠️ Current year is updated as more results are published

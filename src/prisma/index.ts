@@ -1,3 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient as CommonClient } from "./clients/common";
+import { PrismaClient as RestrictedClient } from "./clients/restricted";
 
-export const prisma = new PrismaClient();
+export default {
+  common: new CommonClient(),
+  restricted: new RestrictedClient(),
+};

@@ -3,6 +3,7 @@ import cheerio from "cheerio";
 import { getYear } from "date-fns";
 import { AcademicYear, getUserAgent, isError } from "@app/utils/index";
 import { AppError } from "@app/utils/error";
+import { range } from "@app/std";
 
 const lang_conf = {
   sv: {

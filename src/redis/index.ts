@@ -11,6 +11,7 @@ const CHALMERS_SURVEY_AGGREGATE = "CHALMERS_SURVEY_AGGREGATE";
 const PROGRAMME_SURVEY_AGGREGATE = "PROGRAMME_SURVEY_AGGREGATE";
 const DEPARTMENT_SURVEY_AGGREGATE = "DEPARTMENT_SURVEY_AGGREGATE";
 const SURVEY_BY_PERIOD = "SURVEY_BY_PERIOD";
+const SURVEY_ANSWERS_BY_DIVISION = "SURVEY_ANSWERS_BY_DIVISION";
 
 type SurveyAggregate = {
   answer_frequency: number;
@@ -43,7 +44,33 @@ export class RedisCache {
     };
   }>;
 
-  public readonly programme_survey_aggregate: RedisMap;
+  public readonly programme_survey_aggregate: RedisObject<{
+    // Programme code
+    [key in string]: {
+      // Academic year
+      [key2 in string]: {
+        count: number;
+        answer_frequency: number;
+        total_impression_mean: number;
+        prerequisite_mean: number;
+        goals_mean: number;
+        structure_mean: number;
+        teaching_mean: number;
+        assessment_mean: number;
+        litterature_mean: number;
+        administration_mean: number;
+        workload_mean: number;
+      };
+    };
+  }>;
+
+  public readonly surveyAnswersByDivision: RedisObject<{
+    // Division
+    [key in string]: {
+      // Academic year
+      [key2 in string]: number;
+    };
+  }>;
 
   public readonly department_survey_aggregate: RedisMap;
 
@@ -62,7 +89,7 @@ export class RedisCache {
       CHALMERS_SURVEY_AGGREGATE,
     );
 
-    this.programme_survey_aggregate = new RedisMap(
+    this.programme_survey_aggregate = new RedisObject(
       redis,
       PROGRAMME_SURVEY_AGGREGATE,
     );
@@ -73,5 +100,10 @@ export class RedisCache {
     );
 
     this.survey_by_period = new RedisObject(redis, SURVEY_BY_PERIOD);
+
+    this.surveyAnswersByDivision = new RedisObject(
+      redis,
+      SURVEY_ANSWERS_BY_DIVISION,
+    );
   }
 }

@@ -14,7 +14,15 @@
     ],
     "types": [
       "vite/client"
-    ]
+    ],
+    "paths": {
+      "@plugins/*": [
+        "./src/plugins/*"
+      ],
+      "@backend/*": [
+        "../src/*"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts",

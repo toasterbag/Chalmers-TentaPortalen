@@ -1,12 +1,28 @@
 import {
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-  RequestHandler,
-} from "express";
-import { Context } from "@app/context";
-import { Role } from "@prisma/client";
+  z,
+  ZodArray,
+  ZodBoolean,
+  ZodDate,
+  ZodDefault,
+  ZodEffects,
+  ZodEnum,
+  ZodNumber,
+  ZodObject,
+  ZodOptional,
+  ZodString,
+  ZodType,
+  ZodTypeAny,
+} from "zod";
+import { Response as ExpressResponse, RequestHandler } from "express";
+import { Logger } from "src/log";
+import { None, NoneType, Option, Some } from "@app/std/option";
+import { Role } from "@app/prisma/clients/restricted";
+import { UserProfile } from "@app/auth";
+import { JsonArray, JsonObject } from "@app/utils/json";
+import { toObject } from "@app/utils";
+import { ErrorCode } from "./codes";
 
-enum Method {
+export enum Method {
   GET = "GET",
   POST = "POST",
   PUT = "PUT",
@@ -14,108 +30,203 @@ enum Method {
   PATCH = "PATCH",
 }
 
-// type Query = Record<string, string | number | undefined | boolean>;
-
-export type JsonPrimitive = string | number | boolean;
-
-export type JsonObject = { [Key in string]?: JsonValue };
-
-export type JsonArray = Array<JsonValue>;
-
-export type JsonValue = JsonPrimitive | JsonArray | JsonObject;
-
-export type JsonResponse = JsonArray | JsonObject;
-
-class Response {
+// string is allowed so that we don't have to force parsing and restringifying when sending cache responses
+type JsonResponse = JsonArray | JsonObject | string;
+type ErrorResponse = Array<{
+  code: string;
+  message: string;
+}>;
+export class Response {
   private status: number;
 
-  private body: unknown;
+  private body: JsonResponse | undefined;
 
-  private headers: { [key: string]: string };
-
-  constructor(status: number, body: JsonResponse = {}) {
+  private constructor(status: number) {
     this.status = status;
-    this.body = body;
-    this.headers = {};
   }
 
-  set_status(status: number): this {
-    this.status = status;
-    return this;
-  }
-
-  set_content_type(val: string): this {
-    this.headers["Content-Type"] = val;
-    return this;
-  }
-
-  set_body(obj: unknown): this {
+  withJson(obj: JsonResponse): this {
     this.body = obj;
     return this;
   }
 
   send(res: ExpressResponse): void {
-    for (const [key, val] of Object.entries(this.headers)) {
-      res.set(key, val);
-    }
     res.status(this.status);
-    if (this.body instanceof Map)
-      this.body = Array.from(this.body.entries()).reduce(
-        (obj, [key, val]) => Object.assign(obj, { [key]: val }),
-        {},
-      );
-    res.send(this.body);
+    if (this.body !== undefined) res.json(this.body);
+    else res.send();
+  }
+
+  static Ok<K extends string | number | symbol>(
+    data: JsonResponse | Map<K, any>,
+  ): Response {
+    const res = new Response(200);
+    if (data instanceof Map) {
+      return res.withJson(toObject(data));
+    }
+    return res.withJson(data);
+  }
+
+  static Err(code: ErrorCode, data: ErrorResponse): Response {
+    const res = new Response(code);
+    if (data) {
+      res.withJson(data);
+    }
+    return res;
   }
 }
 
-function Ok(body: unknown = {}): Response {
-  return new Response(200).set_body(body);
-}
+export const { Ok, Err } = Response;
 
-type ParseRouteParameters<T> = T extends `${string}/:${infer U}/${infer R}`
-  ? { [P in U | keyof ParseRouteParameters<`/${R}`>]: string }
-  : T extends `${string}/:${infer U}`
-  ? { [P in U]: string }
-  : unknown;
+// This is a lot of type programming, these are most likely not covering all cases
+type ZodPrimitive = ZodString | ZodBoolean | ZodNumber | ZodDate | ZodEnum<any>;
 
-type EndpointHandler = (req: ExpressRequest, ctx: Context) => Promise<Response>;
+type ZodTransforms<T extends ZodTypeAny> = ZodEffects<
+  T | ZodOptionals<T>,
+  z.infer<T> | undefined,
+  z.infer<any> | undefined
+>;
 
-type RequiredEndpointProps = {
-  method: Method;
-  path: string;
-  handler: EndpointHandler;
-};
+type ZodOptionals<T extends ZodPrimitive> = ZodDefault<T> | ZodOptional<T>;
 
-type OptionalEndpointProps = Partial<{
-  middleware: Array<RequestHandler>;
-  uploads: { [key: string]: "single" | "array" };
-  auth: Set<Role>;
+export type QueryPrimitive = ZodString | ZodEnum<any>;
+
+type QueryType =
+  | QueryPrimitive
+  | ZodTransforms<QueryPrimitive>
+  | ZodOptionals<QueryPrimitive>;
+
+type QuerySchema = ZodObject<{ [Key in string]: QueryType }>;
+
+type BodyPrimitive = ZodString | ZodBoolean | ZodNumber;
+
+type BodyType =
+  | BodyPrimitive
+  | ZodTransforms<BodyPrimitive>
+  | ZodOptionals<BodyPrimitive>;
+
+// There seems to be a bug which is disallowing recursive types for ZodObject.
+// The current workaround is that we don't allow nested objects,
+// this shouldn't a big issue
+type BodySchema = ZodObject<any> | ZodArray<BodySchema | BodyType>;
+
+type ParameterPrimitive = ZodString | ZodEnum<any>;
+type ParameterSchema = ZodObject<{
+  [Key in string]: ParameterPrimitive | ZodTransforms<ParameterPrimitive>;
 }>;
 
-// type Endpoint = RequiredEndpointProps & Required<OptionalEndpointProps>;
-type Endpoint = RequiredEndpointProps & OptionalEndpointProps;
+// export type Upload = {
+//   fieldname: string;
+//   originalname: string;
+//   encoding: string;
+//   mimetype: string;
+//   destination: string;
+//   filename: string;
+//   path: string;
+//   size: number;
+// };
 
-// export const defineEndpoint = ({
-//   method,
-//   path,
-//   handler,
-//   middleware,
-//   uploads,
-//   auth,
-// }: RequiredEndpointProps & OptionalEndpointProps): Endpoint => ({
-//   method,
-//   path,
-//   handler,
-//   middleware: middleware ?? [],
-//   uploads: uploads ?? {},
-//   auth: auth ?? new Set(),
-// });
+// export enum FileCount {
+//   Single = "single",
+//   Multi = "array",
+// }
 
-export {
-  Ok,
-  Response,
-  Method,
-  Endpoint,
-  EndpointHandler,
-  ParseRouteParameters,
+export type File = Express.Multer.File;
+
+type FileValidator = (files: File) => Option<Response>;
+
+export const RequireValidator = (file: File) => {
+  if (!file)
+    return Some(
+      Err(ErrorCode.BadRequest, [
+        { code: "Missing file", message: "No file uploaded" },
+      ]),
+    );
+  return None;
 };
+
+type FilesSpec = {
+  [key in string]: number;
+};
+
+export type EndpointSchema = {
+  path: string;
+  method: Method;
+  params?: ParameterSchema;
+  query?: QuerySchema;
+  body?: BodySchema;
+  middleware?: Array<RequestHandler>;
+  files?: FilesSpec;
+  auth: Option<Set<Role>>;
+};
+
+// export type Params<T> = T extends `${string}/:${infer U}/${infer R}`
+//   ? { [P in U | keyof Params<`/${R}`>]: string }
+//   : T extends `${string}/:${infer U}`
+//   ? { [P in U]: string }
+//   : never;
+
+export type Params<T extends EndpointSchema> = T["params"] extends ZodType<any>
+  ? z.infer<T["params"]>
+  : undefined;
+
+export type Query<T extends EndpointSchema> = T["query"] extends ZodType<any>
+  ? z.infer<T["query"]>
+  : undefined;
+
+export type Body<T extends EndpointSchema> = T["body"] extends ZodType<any>
+  ? z.infer<T["body"]>
+  : undefined;
+
+export type FilesKey = "files";
+// export type Files<T extends EndpointSchema> = T[FilesKey] extends FilesSpec
+//   ? FilesMap<T[FilesKey]>
+//   : undefined;
+
+// type FilesMap<T extends FilesSpec> = {
+//   [Property in keyof T]: T[Property] extends FileCount.Single
+//     ? Upload
+//     : Array<Upload>;
+// };
+
+export type Files<T extends EndpointSchema> = T[FilesKey] extends FilesSpec
+  ? FilesMap<T[FilesKey]>
+  : undefined;
+
+type FilesMap<T extends FilesSpec> = {
+  [Property in keyof T]: File;
+};
+
+export type HasAuth<T extends EndpointSchema> = T["auth"] extends NoneType
+  ? undefined
+  : UserProfile;
+
+export type Request<S extends EndpointSchema> = {
+  log: Logger;
+  params: Params<S>;
+  query: Query<S>;
+  body: Body<S>;
+  files: Files<S>;
+  profile: UserProfile | undefined;
+};
+
+export type EndpointHandler<S extends EndpointSchema, C> = (
+  req: Request<S>,
+  context: C,
+) => Promise<Response>;
+
+export type GenericEndpointHandler<C> = EndpointHandler<any, C>;
+
+export class Endpoint<Schema extends EndpointSchema, C> {
+  schema: Schema;
+
+  handler: EndpointHandler<Schema, C>;
+
+  constructor(schema: Schema, handler: EndpointHandler<Schema, C>) {
+    this.schema = schema;
+    this.handler = handler;
+  }
+}
+
+// export type EndpointTree<Context> = {
+//   [key in string]: Endpoint<any, Context> | EndpointTree<Context>;
+// };

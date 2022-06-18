@@ -1,5 +1,6 @@
-import winston, { Logger as WinstonLogger, transport } from "winston";
-import { PrismaClient } from "@prisma/client";
+import winston, { Logger as WinstonLogger, transport, format } from "winston";
+import { PrismaClient } from "@app/prisma/clients/restricted";
+import { JsonObject } from "@app/utils/json";
 import { PostgresLogger } from "./postgres";
 
 interface LogConfig {
@@ -8,13 +9,12 @@ interface LogConfig {
 }
 
 interface LogMeta {
-  env: string;
+  mode: string;
   version: string;
   node_version: string;
 }
 
-type Metadata = { [key: string]: string | number | boolean | Date };
-
+type Metadata = JsonObject;
 export class Logger {
   private static logger: WinstonLogger;
 
@@ -27,7 +27,11 @@ export class Logger {
 
     const transports: Array<transport> = [new PostgresLogger(prisma)];
     if (!config.disable_console)
-      transports.push(new winston.transports.Console());
+      transports.push(
+        new winston.transports.Console({
+          format: format.json({ space: 2 }),
+        }),
+      );
 
     Logger.logger = winston.createLogger({
       transports,
@@ -52,7 +56,7 @@ export class Logger {
     Logger.logger.log({
       level: "error",
       message,
-      metadata: { ...this.metadata, ...meta },
+      metadata: { ...this.metadata, ...meta, timestamp: new Date() },
     });
   }
 
@@ -60,7 +64,7 @@ export class Logger {
     Logger.logger.log({
       level: "warn",
       message,
-      metadata: { ...this.metadata, ...meta },
+      metadata: { ...this.metadata, ...meta, timestamp: new Date() },
     });
   }
 
@@ -68,7 +72,7 @@ export class Logger {
     Logger.logger.log({
       level: "info",
       message,
-      metadata: { ...this.metadata, ...meta },
+      metadata: { ...this.metadata, ...meta, timestamp: new Date() },
     });
   }
 
@@ -76,7 +80,9 @@ export class Logger {
     Logger.logger.log({
       level: "debug",
       message,
-      metadata: { ...this.metadata, ...meta },
+      metadata: { ...this.metadata, ...meta, timestamp: new Date() },
     });
   }
 }
+
+export type LoggerType = typeof Logger;

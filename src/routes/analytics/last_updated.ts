@@ -7,7 +7,7 @@ export default {
   path: "/updated",
 
   handler: async (_: Request, { prisma }: Context): Promise<Response> => {
-    const last_exam = await prisma.exam.findFirst({
+    const last_exam = await prisma.common.exam.findFirst({
       orderBy: {
         date: "desc",
       },

@@ -3,7 +3,7 @@ interface BaseOption {
   isNone(): boolean;
 }
 
-class SomeType<T> implements BaseOption {
+export class SomeType<T> implements BaseOption {
   public readonly val: T;
 
   constructor(val: T) {
@@ -19,7 +19,7 @@ class SomeType<T> implements BaseOption {
   }
 }
 
-class NoneType implements BaseOption {
+export class NoneType implements BaseOption {
   isSome(): boolean {
     return false;
   }

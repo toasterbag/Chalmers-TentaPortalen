@@ -5,17 +5,14 @@
     @click="openMenu"
   )
     .fa.fa-bars.fa-lg
-  SearchBar(
-    @focus="searchBarFocused = true",
-    @blur="searchBarFocused = false"
-  )
+  SearchBar(@focus="searchBarFocused = true", @blur="searchBarFocused = false")
 
   .sidebar-container(:class="{ open: menuIsOpen }")
     .outside(@click.prevent.stop="closeMenu", :style="overlayStyle")
     .sidebar.p-2(ref="sidebar", :style="sidebarStyle")
       .fs-6.text-text
         .py-3.ps-3
-          Brand
+          Brand(fontSize="2.4rem")
         //- .p-2
         //-   .fa-solid.fs-1.fa-xmark
         .py-1.h-fill(v-for="{ title, location, children, icon } in links")
@@ -33,8 +30,8 @@
               )
               span.fw-bold {{ title }}
             .px-3.fw-normal
-              .py-2(v-for="{ title, location, icon } in children")
-                router-link(:to="location")
+              div(v-for="{ title, location, icon } in children")
+                router-link.py-2(:to="location")
                   .fa-solid(
                     :class="icon",
                     :style="{ width: '3rem', textAlign: 'center' }"
@@ -46,7 +43,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, Ref, ref, watch } from "vue";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  Ref,
+  ref,
+  watch,
+} from "vue";
 import { useRoute } from "vue-router";
 import { headerLinks } from "../router";
 
@@ -61,7 +66,7 @@ export default defineComponent({
   name: "MobileHeader",
   setup() {
     const route = useRoute();
-    const sidebar: Ref<HTMLElement | undefined> = ref(undefined)
+    const sidebar: Ref<HTMLElement | undefined> = ref(undefined);
     const searchBarFocused = ref(false);
     const sidebarLeft = ref("-100%");
     const overlayOpacity = ref(0);
@@ -71,24 +76,27 @@ export default defineComponent({
     const dragY = ref(0);
     const sidebarWidth = ref(0);
 
-    const sidebarStyle = computed(() => ({ transform: `translateX(${sidebarLeft.value})`, transitionDuration: sidebarTransition.value }))
+    const sidebarStyle = computed(() => ({
+      transform: `translateX(${sidebarLeft.value})`,
+      transitionDuration: sidebarTransition.value,
+    }));
     const overlayStyle = computed(() => ({
       backgroundColor: `rgba(0, 0, 0, ${overlayOpacity.value})`,
-    }))
+    }));
 
     const openMenu = () => {
       menuIsOpen.value = true;
       sidebarLeft.value = "0";
       sidebarTransition.value = EASE;
       overlayOpacity.value = 0.5;
-    }
+    };
 
     const closeMenu = () => {
       menuIsOpen.value = false;
       sidebarLeft.value = "-100%";
       sidebarTransition.value = EASE;
       overlayOpacity.value = 0;
-    }
+    };
 
     const handleGestureMove = (e: TouchEvent | MouseEvent) => {
       const x = isTouchEvent(e) ? e.targetTouches[0]?.clientX : e.clientX;
@@ -106,14 +114,16 @@ export default defineComponent({
         return false;
       }
 
-      const bound = (e: number) => (e).min(sidebarWidth.value).max(0)
+      const bound = (e: number) => e.min(sidebarWidth.value).max(0);
 
       if (menuIsOpen.value) {
         sidebarLeft.value = `-${sidebarWidth.value - bound(x)}px`;
-        overlayOpacity.value = (((sidebarWidth.value - bound(x)) / sidebarWidth.value)) * 0.5;
+        overlayOpacity.value =
+          ((sidebarWidth.value - bound(x)) / sidebarWidth.value) * 0.5;
       } else {
         sidebarLeft.value = `-${sidebarWidth.value - bound(x)}px`;
-        overlayOpacity.value = (1 - ((sidebarWidth.value - bound(x)) / sidebarWidth.value)) * 0.5;
+        overlayOpacity.value =
+          (1 - (sidebarWidth.value - bound(x)) / sidebarWidth.value) * 0.5;
       }
       return true;
     };
@@ -154,16 +164,16 @@ export default defineComponent({
       }
 
       if (menuIsOpen.value) {
-        openMenu()
+        openMenu();
       } else {
         closeMenu();
       }
       dragStart.value = undefined;
-    }
+    };
 
     watch(route, () => {
-      closeMenu()
-    })
+      closeMenu();
+    });
 
     onMounted(() => {
       if (sidebar.value !== undefined) {
@@ -172,16 +182,16 @@ export default defineComponent({
         document.addEventListener("pointerup", handleGestureEnd, true);
         document.addEventListener("pointercancel", handleGestureEnd, true);
       } else {
-        throw Error("Sidebar not loaded")
+        throw Error("Sidebar not loaded");
       }
-    })
+    });
 
     onUnmounted(() => {
       document.removeEventListener("pointerdown", handleGestureStart, true);
       document.removeEventListener("pointerup", handleGestureEnd, true);
       document.removeEventListener("pointercancel", handleGestureEnd, true);
       // document.removeEventListener("pointermove", this.handleGestureMove, true);
-    })
+    });
 
     return {
       sidebar,
@@ -192,7 +202,7 @@ export default defineComponent({
       overlayStyle,
       openMenu,
       closeMenu,
-    }
+    };
   },
 });
 </script>
@@ -223,6 +233,7 @@ export default defineComponent({
     transition: transform ease-out;
     height: 100%;
     width: 80%;
+    max-width: 300px;
     top: 0;
     // left: -80%;
     background: var(--sp-background);

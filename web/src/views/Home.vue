@@ -1,6 +1,6 @@
 <template lang="pug">
 .row
-  .col-12.col-md-6 
+  .col-12.col-md-12 
     .d-flex.justify-content-center
       Brand
   //- .col-5

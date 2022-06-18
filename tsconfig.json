@@ -19,10 +19,19 @@
     "paths": {
       "@app/*": [
         "./src/*"
+      ],
+      "@routes/*": [
+        "./src/routes2/*"
+      ],
+      "@models/*": [
+        "./src/prisma/*"
       ]
     }
   },
   "include": [
     "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/routes/**/*.ts"
   ]
 }

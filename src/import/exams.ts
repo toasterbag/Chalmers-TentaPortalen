@@ -1,16 +1,15 @@
 import { readFileSync } from "fs";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@app/prisma";
 
 export const import_exams_json = async (path: string) => {
-  const prisma = new PrismaClient();
-  if ((await prisma.examThesis.count()) !== 0) {
+  if ((await prisma.common.examThesis.count()) !== 0) {
     console.log(
       "There are already exams in the database, refusing to import exams",
     );
     return;
   }
 
-  if ((await prisma.exam.count()) === 0) {
+  if ((await prisma.common.exam.count()) === 0) {
     console.log("Skipping importing exam materials, no exams found");
     return;
   }
@@ -33,7 +32,7 @@ export const import_exams_json = async (path: string) => {
     exams: [{ course_code, date }],
   } of theses.filter((e: any) => !e.exams.isEmpty())) {
     try {
-      const { id } = await prisma.examThesis.create({
+      const { id } = await prisma.common.examThesis.create({
         data: {
           filetype,
           includes_solution,
@@ -42,7 +41,7 @@ export const import_exams_json = async (path: string) => {
         },
       });
 
-      await prisma.exam.update({
+      await prisma.common.exam.update({
         data: {
           thesis_id: id,
         },
@@ -64,13 +63,13 @@ export const import_exams_json = async (path: string) => {
     exams: [{ course_code, date }],
   } of solutions.filter((e: any) => !e.exams.isEmpty())) {
     try {
-      const { id } = await prisma.examSolution.create({
+      const { id } = await prisma.common.examSolution.create({
         data: {
           filetype,
         },
       });
 
-      await prisma.exam.update({
+      await prisma.common.exam.update({
         data: {
           solution_id: id,
         },

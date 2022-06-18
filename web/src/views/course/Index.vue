@@ -1,24 +1,27 @@
 <template lang="pug">
 div
   .row.d-flex.justify-content-center
-    .col-10.col-md-8
+    .col-10.col-lg-8
       .row.justify-content-between.desktop-only
         .py-3
           .fs-4
-            span.bold {{ course.course_code }}
-            | &nbsp;
             span {{ course.name_en }}
             .fst-italic {{ course.name_sv }}
-          div
-            span.pe-4 Owner:&nbsp;
-              span.fw-bold {{ course.owner_code }}
-            span.pe-2
+          .pb-2
+            .pe-2
               a(
                 target="_blank",
                 :href="`https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${course.instances[0].study_portal_id}&parsergrp=3`"
               )
                 i.fa.fa-home.pe-1
                 | View on the student portal
+          div
+            span.pe-4 Course code:&nbsp;
+              span.fw-bold {{ course.course_code }}
+            span.pe-4 Owner:&nbsp;
+              span.fw-bold {{ course.owner_code }}
+            span.flex.pe-2(v-if="course.studentBoard") Student board:&nbsp;
+              span.fw-bold {{ course.studentBoard.email }}
 
       .row.justify-content-between.mobile-only
         .py-3
@@ -31,6 +34,8 @@ div
                 span.fw-bold {{ course.course_code }}
               .pe-2 Owner:&nbsp;
                 span.fw-bold {{ course.owner_code }}
+            div(v-if="course.studentBoard") Study board:&nbsp;
+              span.fw-bold {{ course.studentBoard }}
             .py-2
               a(
                 target="_blank",
@@ -57,7 +62,7 @@ export default defineComponent({
     code: {
       required: true,
       type: String,
-    }
+    },
   },
   async setup(props) {
     const api = useAPI();
@@ -83,7 +88,7 @@ export default defineComponent({
     const course = await api.fetchCourse(props.code);
     return { route, course, links };
   },
-  components: { RouterView }
+  components: { RouterView },
 });
 </script>
 

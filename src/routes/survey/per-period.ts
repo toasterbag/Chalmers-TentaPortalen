@@ -8,8 +8,8 @@ export default {
 
   handler: async (
     req: Request,
-    { redis_cache }: Context,
+    { cache }: Context,
   ): Promise<Response> => {
-    return Ok(await redis_cache.survey_by_period.get());
+    return Ok(await cache.survey_by_period.get());
   },
 };

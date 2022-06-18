@@ -7,6 +7,6 @@ export default {
   path: "/periods",
 
   handler: async (_: Request, { prisma }: Context): Promise<Response> => {
-    return Ok(await prisma.period.findMany({}));
+    return Ok(await prisma.common.period.findMany({}));
   },
 };

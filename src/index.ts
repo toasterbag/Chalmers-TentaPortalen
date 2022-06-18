@@ -1,10 +1,8 @@
-import "./global";
+import "@app/std/global";
 import { build_config } from "@app/config";
 import { Context } from "@app/context";
 import Server from "@app/server";
-import http from "http";
 import { program } from "commander";
-import chalk from "chalk";
 import { scrape_everything } from "@app/import/study_portal";
 import UpdatePassratesByPeriod from "@app/jobs/update_passrates";
 import UpdateChalmersSurveyAggregate from "@app/jobs/update_chalmers_survey_aggregates";
@@ -12,13 +10,13 @@ import UpdateProgrammeSurveyAggregate from "@app/jobs/update_programme_survey_ag
 import UpdateSurveyPerPeriod from "@app/jobs/update_survey_per_period";
 import UpdateDepartmentSurveyAggregate from "@app/jobs/update_survey_per_department";
 import { cpus } from "os";
-import { Exam, Role } from "@prisma/client";
-import { mkdirp, writeFile } from "fs-extra";
 import { start_workers } from "./worker/worker";
 import { export_exams } from "./export_exams";
 import { import_exams_json } from "./import/exams";
-import { AcademicYear } from "./utils";
+import prisma from "./prisma";
+import { Logger } from "./log";
 import { isSome } from "./std/option";
+import { Role } from "./prisma/clients/restricted";
 
 program
   .version(process.env.NPM_PACKAGE_VERSION ?? "Unknown version")
@@ -31,42 +29,42 @@ program
   .option("--max <n>", "print max n statistics")
   .parse();
 
-const analysis_command = async () => {
-  // const options = program.opts();
-  // const prisma = new PrismaClient();
-  // await passthrough_for_editi(prisma, 1);
-  // const statistics = await import_folder("./statistics");
-  // if (options.analysis.first() in statistics) {
-  // prisma.$use(async (params, next) => {
-  //   const before = Date.now();
-  //   const result = await next(params);
-  //   const after = Date.now();
-  //   console.log(
-  //     `Query ${params.model}.${params.action} took ${after - before}ms`,
-  //   );
-  //   return result;
-  // });
-  // await statistics[options.statistic.first()](
-  //   prisma,
-  //   ...options.statistic.slice(1),
-  // );
-  // if (data.first() === undefined) {
-  //   console.info("No results");
-  //   return;
-  // }
-  // const res = data;
-  // if (options.max) {
-  //   res.take(Number(options.max));
-  // }
-  // console.table(res, Object.keys(data.first()));
-  // } else {
-  //   console.info("No such statistic");
-  //   console.info("Available statistics:");
-  //   for (const k of Object.keys(statistics)) {
-  //     console.info(`  ${k}`);
-  //   }
-  // }
-};
+// const analysis_command = async () => {
+// const options = program.opts();
+// const prisma = new PrismaClient();
+// await passthrough_for_editi(prisma, 1);
+// const statistics = await import_folder("./statistics");
+// if (options.analysis.first() in statistics) {
+// prisma.common.$use(async (params, next) => {
+//   const before = Date.now();
+//   const result = await next(params);
+//   const after = Date.now();
+//   console.log(
+//     `Query ${params.model}.${params.action} took ${after - before}ms`,
+//   );
+//   return result;
+// });
+// await statistics[options.statistic.first()](
+//   prisma,
+//   ...options.statistic.slice(1),
+// );
+// if (data.first() === undefined) {
+//   console.info("No results");
+//   return;
+// }
+// const res = data;
+// if (options.max) {
+//   res.take(Number(options.max));
+// }
+// console.table(res, Object.keys(data.first()));
+// } else {
+//   console.info("No such statistic");
+//   console.info("Available statistics:");
+//   for (const k of Object.keys(statistics)) {
+//     console.info(`  ${k}`);
+//   }
+// }
+// };
 
 const main = async () => {
   const options = program.opts();
@@ -77,14 +75,24 @@ const main = async () => {
     process.exit(0);
   }
 
-  if (options.analysis) {
-    await analysis_command();
-    process.exit(0);
-  }
+  // if (options.analysis) {
+  //   await analysis_command();
+  //   process.exit(0);
+  // }
 
   await import_exams_json(config.paths.exam_data);
 
-  const ctx = await Context.initialize(config);
+  Logger.init(prisma.restricted, {
+    disable_console: false,
+    meta: {
+      mode: process.env.NODE_ENV ?? "?",
+      version: process.env.npm_package_version ?? "?",
+      node_version: process.env.NODE_VERSION ?? "?",
+    },
+  });
+
+  const logger = new Logger();
+  const ctx = new Context(config, logger);
 
   // const res = await passthrough_for_programme(
   //   ctx.prisma,
@@ -95,12 +103,12 @@ const main = async () => {
   // );
   // console.log(res);
   // return;
-  // const avg = await ctx.prisma.survey.findMany({});
+  // const avg = await ctx.prisma.common.survey.findMany({});
   // console.log(avg.map((e) => e.answer_frequency).average());
   // return;
 
   // const examiners_by_number_of_courses =
-  //   await ctx.prisma.courseInstance.findMany({
+  //   await ctx.prisma.common.courseInstance.findMany({
   //     select: {
   //       course_code: true,
   //       examiner: true,
@@ -130,7 +138,7 @@ const main = async () => {
   // console.log(res.take(10));
 
   // const t1 = (
-  //   await ctx.prisma.survey.findMany({
+  //   await ctx.prisma.common.survey.findMany({
   //     include: {
   //       instance: {
   //         include: {
@@ -165,17 +173,22 @@ const main = async () => {
 
   const server = new Server({
     ctx,
-    mount_path: "/api/v1",
+    logger,
+    root: "/api/v2/",
   });
 
-  // const user = await ctx.auth.createUser(
-  //   "pDave",
-  //   "david@davebay.net",
-  //   "67t23d8ygbbqwodf38247bfweb437",
-  // );
-  // if (isSome(user)) {
-  //   await ctx.auth.addRole(user.val, Role.Admin);
-  // }
+  try {
+    const user = await ctx.auth.createUser(
+      "pDave",
+      "david@davebay.net",
+      "123qweasd",
+    );
+    if (isSome(user)) {
+      await ctx.auth.addRole(user.val, Role.Admin);
+    }
+  } catch (e) {
+    console.error(e);
+  }
 
   UpdatePassratesByPeriod(ctx).start();
   UpdateChalmersSurveyAggregate(ctx).start();
@@ -196,17 +209,9 @@ const main = async () => {
 
   // All routes found in .ts files in ./routes and its' subdirectories
   // are dynamically imported.
-  await server.import_routes();
+  // await server.import_routes();
 
-  const http_server = http.createServer();
-  server.mount(http_server);
-  http_server.listen({ host: ctx.config.host, port: ctx.config.port }, () => {
-    console.info(
-      `Webserver listening on ${chalk.red(ctx.config.host)}:${chalk.yellow(
-        ctx.config.port,
-      )}`,
-    );
-  });
+  await server.listen(config.host, config.port);
 };
 
 main().catch((e) => console.error(e));

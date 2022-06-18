@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import cheerio from "cheerio";
 import { AcademicYear, getUserAgent } from "@app/utils/index";
-import { Period } from "@prisma/client";
+import { Period } from "@app/prisma/clients/common";
 
 const map_date_to_study_period = (date: Date) => {
   if (date.getMonth() === 7) {

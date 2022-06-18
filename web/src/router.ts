@@ -1,3 +1,5 @@
+import { useAPI } from "@plugins/api";
+import { Profile } from "@plugins/api/types";
 import { createRouter, createWebHistory, RouteLocationRaw } from "vue-router";
 import { usePlausible } from "./plugins/plausible";
 
@@ -45,17 +47,22 @@ export const router = createRouter({
     {
       path: "/rankings/course-impressions",
       name: "CourseImpressionRankings",
-      component: () => import("./views/CourseImpressionRankings.vue"),
+      component: () => import("./views/rankings/CourseImpressionRankings.vue"),
     },
     {
       path: "/rankings/course-performance",
       name: "CoursePerformanceRankings",
-      component: () => import("./views/CoursePerformanceRankings.vue"),
+      component: () => import("./views/rankings/CoursePerformanceRankings.vue"),
     },
     {
       path: "/rankings/programme",
       name: "ProgrammeRankings",
-      component: () => import("./views/ProgrammeRankings.vue"),
+      component: () => import("./views/rankings/ProgrammeRankings.vue"),
+    },
+    {
+      path: "/rankings/answer-frequency",
+      name: "AnswerFrequencyRankings",
+      component: () => import("./views/rankings/AnswerFrequency.vue"),
     },
     {
       path: "/programme/:code",
@@ -97,11 +104,11 @@ export const router = createRouter({
       path: "/admin",
       component: () => import("./views/admin/index.vue"),
       beforeEnter: (to, from, next) => {
-        if (!sessionStorage.getItem("password")) {
-          next({ name: "SignIn" });
-        } else {
-          next();
+        const api = useAPI();
+        if (api.profile && api.profile.roles.includes("Admin")) {
+          return next();
         }
+        next({ name: "SignIn" });
       },
       children: [
         {
@@ -113,6 +120,11 @@ export const router = createRouter({
           path: "import",
           name: "Admin/Import",
           component: () => import("./views/admin/ImportExams.vue"),
+        },
+        {
+          path: "upload",
+          name: "Admin/Upload",
+          component: () => import("./views/admin/UploadExam.vue"),
         },
         {
           path: "verify-exams",
@@ -154,9 +166,14 @@ export const router = createRouter({
       component: () => import("./views/FAQ.vue"),
     },
     {
-      path: "/glossary",
-      name: "glossary",
-      component: () => import("./views/glossary.vue"),
+      path: "/dictionary",
+      name: "Dictionary",
+      component: () => import("./views/Dictionary.vue"),
+    },
+    {
+      path: "/contact",
+      name: "AdressBook",
+      component: () => import("./views/AdressBook.vue"),
     },
     {
       path: "/reports/:slug",
@@ -205,6 +222,10 @@ export const headerLinks: Array<Link> = [
       {
         title: "Programmes",
         location: { name: "ProgrammeRankings" },
+      },
+      {
+        title: "Answer Frequency",
+        location: { name: "AnswerFrequencyRankings" },
       },
     ],
   },

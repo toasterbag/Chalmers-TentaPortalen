@@ -26,7 +26,7 @@ export default {
         },
       ],
     };
-    const exams = await prisma.exam.findMany({
+    const exams = await prisma.common.exam.findMany({
       where,
       include: {
         thesis: true,
@@ -34,7 +34,7 @@ export default {
       },
     });
 
-    const count = await prisma.exam.count({
+    const count = await prisma.common.exam.count({
       where,
     });
 

@@ -2,22 +2,20 @@ version: "3.6"
 services:
   postgres:
     image: postgres:13
-    # container_name: course-portal.postgres
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: course-portal
+      POSTGRES_DB: root
     volumes:
       - type: volume
         source: postgres
         target: /var/lib/postgresql/data
+
   redis:
-    # container_name: course-portal.app
     image: redis:6
 
   app:
     image: node:17-alpine
-    # container_name: course-portal.app
     working_dir: "/app"
     user: node
     command: "yarn dev -c /app/config.dev.json"
@@ -31,7 +29,8 @@ services:
     ports:
       - 0.0.0.0:10006:10006
     environment:
-      DATABASE_URL: postgresql://root:password@postgres/course-portal?connect_timeout=30&pool_timeout=30
+      COMMON_DATABASE_URL: postgresql://root:password@postgres/course-portal-common?connect_timeout=300&pool_timeout=300
+      RESTRICTED_DATABASE_URL: postgresql://root:password@postgres/course-portal-restricted?connect_timeout=300&pool_timeout=300
 
 volumes:
   postgres: {}

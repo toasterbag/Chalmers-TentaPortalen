@@ -7,7 +7,7 @@ const HOURLY = 1000 * 60 * 60;
 
 const updater = async (ctx: Context) =>
   new Date(
-    (await ctx.prisma.exam.findFirst({ orderBy: { date: "desc" } }))?.date ??
+    (await ctx.prisma.common.exam.findFirst({ orderBy: { date: "desc" } }))?.date ??
       "2020-01-01",
   );
 

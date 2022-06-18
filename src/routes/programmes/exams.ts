@@ -11,7 +11,7 @@ export default {
     { prisma }: Context,
   ): Promise<Response> => {
     const { code } = params;
-    const data = await prisma.$queryRaw`
+    const data = await prisma.common.$queryRaw`
     SELECT 
       academic_year, 
       SUM(failed) as failed,

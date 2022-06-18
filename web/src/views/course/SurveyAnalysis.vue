@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.d-flex.justify-content-center
-  .col-12.col-md-8
+  .col-12.col-lg-8
     .justify-content-center.border-bottom
       .py-3.p-2
         .d-flex.align-items-center(id="1")

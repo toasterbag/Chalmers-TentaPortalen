@@ -20,71 +20,27 @@
       router-link(:to="{ name: 'SignIn' }")
         .btn Sign in
     .nav-item(v-else)
-      .btn.bg-accent Sign out
-    //- .nav-item.pe-3
-    //-   router-link(:to="{ name: 'home' }") Sign in
-    //- .nav-item
-    //-   router-link(:to="{ name: 'home' }")
-    //-     .btn.bg-primary.text-white Sign up
+      .btn.bg-accent(@click="signOut") Sign out
 </template>
 
 <script lang="ts">
 import { storeToRefs } from "pinia";
 import { defineComponent } from "vue";
 import { useAPI } from "../plugins/api";
+import { headerLinks } from "../router";
 
 export default defineComponent({
   name: "Header",
   setup() {
-    const { isSignedIn } = storeToRefs(useAPI());
+    const api = useAPI();
+    const { isSignedIn } = storeToRefs(api);
+    const links = headerLinks;
 
     return {
       isSignedIn,
-      links: [
-        {
-          title: "Home",
-          icon: "fa-home",
-          location: { name: "Home" },
-        },
-        {
-          title: "Passrate by exam period",
-          icon: "fa-chart-line",
-          location: { name: "PassrateByPeriod" },
-        },
-
-        {
-          title: "Rankings",
-          icon: "fa-chart-bar",
-          children: [
-            {
-              title: "Course impressions",
-              location: { name: "CourseImpressionRankings" },
-            },
-            {
-              title: "Course performance",
-              location: { name: "CoursePerformanceRankings" }
-            },
-            {
-              title: "Programmes",
-              location: { name: "ProgrammeRankings" },
-            },
-          ],
-        },
-
-        {
-          title: "FAQ",
-          icon: "fa-question",
-          location: { name: "FAQ" },
-          // children: [
-          //   {
-          //     title: "Glossary",
-          //     icon: "fa-book",
-          //     location: { name: "glossary" },
-          //   },
-          // ],
-        },
-      ],
-    }
+      signOut: api.signOut,
+      links,
+    };
   },
 });
 </script>

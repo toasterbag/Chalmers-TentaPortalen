@@ -1,13 +1,13 @@
 <template lang="pug">
-.fixed.right-4.top-4
-  .toast.bg-primary.text-white(
+.toaster
+  .message.text-white(
     v-for="([id, toast], index) in queue",
     :key="id",
-    :style="{ top: `${index * 64 + 12}px` }",
+    :style="{ top: `${index * 64 + 12}px`, backgroundColor: toast.color ?? 'var(--sp-primary)' }",
     :class="{ exit: toast.exiting }"
   )
     .fa.pr-2(:class="[toast.icon]")
-    span {{ toast.content }}
+    span.fw-bold {{ toast.content }}
 </template>
 
 <script lang="ts">
@@ -18,7 +18,7 @@ export default defineComponent({
   name: "Toaster",
   setup() {
     const store = useToastStore();
-    const queue = computed(() => Array.from(store.toasts.entries()));
+    const queue = computed(() => Array.from(store.toasts.entries()).reverse());
     return {
       queue,
     };
@@ -27,36 +27,45 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.toast {
-  border-radius: 2px;
-  position: absolute;
-  right: 12px;
-  transition: all 0.3s;
+.toaster {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
   width: 320px;
-  padding: 16px;
-  background: var(--vv-primary);
-  animation: slide-in;
-  animation-duration: 0.3s;
-  animation-iteration-count: 1;
-  vertical-align: middle;
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
-    0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-  .v-icon {
-    padding: 0px 8px 2px 0px;
-    color: #fff;
+  z-index: var(--z-toaster);
+
+  .message {
+    border-radius: 2px;
+    position: absolute;
+    right: 12px;
+    transition: all 0.3s;
+    width: 320px;
+    padding: 16px;
+    // background: var(--vv-primary);
+    animation: slide-in;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
     vertical-align: middle;
-  }
+    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+      0px 24px 38px 3px rgba(0, 0, 0, 0.14),
+      0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+    .v-icon {
+      padding: 0px 8px 2px 0px;
+      color: #fff;
+      vertical-align: middle;
+    }
 
-  .title {
-    font-size: 16px !important;
-    color: #fff;
-  }
+    .title {
+      font-size: 16px !important;
+      color: #fff;
+    }
 
-  .content {
-    vertical-align: middle;
+    .content {
+      vertical-align: middle;
 
-    color: #fff;
-    //color: rgba(255, 255, 255, 0.8);
+      color: #fff;
+      //color: rgba(255, 255, 255, 0.8);
+    }
   }
 }
 

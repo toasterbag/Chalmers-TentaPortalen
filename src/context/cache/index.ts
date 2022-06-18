@@ -1,7 +1,3 @@
-import { Logger } from "@app/logger";
-
-const CacheLogger = new Logger({ label: "Cache" });
-
 const NS_PER_MS = 1e6;
 
 type CacheUpdateFn<T> = () => Promise<T>;
@@ -74,11 +70,11 @@ export class Cache<T> {
     this._value = await this.updater();
     this.timestamp = new Date();
     const diff = process.hrtime(start);
-    CacheLogger.info(
-      `Updating '${this.title}' took ${diff[0]}.${diff[1]
-        .div(NS_PER_MS)
-        .round()}s`,
-    );
+    // CacheLogger.info(
+    //   `Updating '${this.title}' took ${diff[0]}.${diff[1]
+    //     .div(NS_PER_MS)
+    //     .round()}s`,
+    // );
   }
 
   /// Gets when the cache was last updated.

@@ -6,7 +6,7 @@ export type CacheType = Cache<Array<string>>;
 const HOURLY = 1000 * 60 * 60;
 
 const updater = async (ctx: Context) =>
-  (await ctx.prisma.course.findMany({ select: { course_code: true } })).map(
+  (await ctx.prisma.common.course.findMany({ select: { course_code: true } })).map(
     (e) => e.course_code,
   );
 

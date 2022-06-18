@@ -5,7 +5,7 @@ export default (ctx: Context) => {
   return new CronJob(
     "0 0 0 * * *",
     async function () {
-      const data = await ctx.prisma.survey.groupBy({
+      const data = await ctx.prisma.common.survey.groupBy({
         _avg: {
           prerequisite_mean: true,
           goals_mean: true,
@@ -37,7 +37,7 @@ export default (ctx: Context) => {
           },
         };
       }, {});
-      await ctx.redis_cache.chalmers_survey_aggregate.set(aggregate);
+      await ctx.cache.chalmers_survey_aggregate.set(aggregate);
     },
     null,
     undefined,

@@ -22,7 +22,7 @@ export default {
   ): Promise<Response> => {
     const body = body_schema.parse(unparsed_body);
     return Ok(
-      await prisma.period.create({
+      await prisma.common.period.create({
         data: body,
       }),
     );

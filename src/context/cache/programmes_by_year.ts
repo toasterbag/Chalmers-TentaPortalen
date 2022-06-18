@@ -1,16 +1,16 @@
 import { Context } from "@app/context";
 import { Cache } from "@app/context/cache";
-import { Programme } from "@prisma/client";
+import { Programme } from "@app/prisma/clients/common";
 
 export type CacheType = Cache<{ [id: string]: Programme }>;
 
 const updater = async ({ prisma }: Context) => {
   const programmes = (
-    await prisma.programme.findMany({ select: { code: true } })
+    await prisma.common.programme.findMany({ select: { code: true } })
   ).map((e) => e.code);
   const data: any = {};
   for (const owner of programmes) {
-    const res: any = await prisma.$queryRaw`
+    const res: any = await prisma.common.$queryRaw`
     SELECT
       s.academic_year,
       SUM(s.respondents) as respondents,

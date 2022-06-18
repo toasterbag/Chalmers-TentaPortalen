@@ -11,7 +11,7 @@ export default {
     { prisma }: Context,
   ): Promise<Response> => {
     const { code } = params;
-    const dates = await prisma.courseModule.findMany({
+    const dates = await prisma.common.courseModule.findMany({
       where: {
         kind: "Tentamen",
         dates: {
@@ -30,7 +30,7 @@ export default {
       },
     });
 
-    const primary_exams = await prisma.exam.findMany({
+    const primary_exams = await prisma.common.exam.findMany({
       where: {
         course_code: code.toUpperCase(),
         date: { in: dates.map((mod) => mod.dates?.primary_date ?? "") },

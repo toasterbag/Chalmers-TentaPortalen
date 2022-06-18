@@ -17,6 +17,7 @@
             v-model="solutionFile",
             text="Click or drop solution here"
           )
+
       //- .row.pt-4
       //-   .col-12
       //-     .fs-4.fw-light Attachments
@@ -33,23 +34,25 @@
           )
           label.form-check-label(for="includes-solution")
             | Solutions are included in the exam
+
   .modal-footer
     .btn.bg-blue(@click="submit") Upload
     .btn.bg-red(@click="$emit('hide')") Close
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref, toRefs, PropType } from "vue";
+import { defineComponent, Ref, ref, toRefs, PropType, watch } from "vue";
 import { CONFIG } from "../../plugins/http";
 import { usePlausible } from "../../plugins/plausible";
 import { useToastStore } from "../../plugins/toaster";
 import { Exam } from "../../plugins/api/types";
+
 export default defineComponent({
-  name: "UploadExam",
+  name: "UploadExamDialog",
   props: {
     exam: {
       type: Object as PropType<Exam>,
-      required: true
+      required: true,
     },
   },
   setup(props, { emit }) {
@@ -57,10 +60,27 @@ export default defineComponent({
     const plausible = usePlausible();
     const { exam } = toRefs(props);
     const error = ref("");
+    const loading = ref(false);
+
     const includesSolution = ref(false);
     const examFile: Ref<Blob | undefined> = ref(undefined);
     const solutionFile: Ref<Blob | undefined> = ref(undefined);
-    const loading = ref(false);
+
+    watch(examFile, async () => {
+      if (examFile.value !== undefined) {
+        const formData = new FormData();
+        if (examFile.value && examFile.value.size > 200 * 1000 * 1000) {
+          error.value = "File too big";
+          return;
+        }
+        formData.append("thesis", examFile.value);
+
+        const res = await fetch(`${CONFIG.API_URL}/exams/thesis/parse`, {
+          method: "POST",
+          body: formData,
+        });
+      }
+    });
 
     const submitExam = () => {
       if (examFile.value !== undefined) {
@@ -72,9 +92,9 @@ export default defineComponent({
         formData.append("thesis", examFile.value);
 
         const query = {
-          course_code: exam.value.course_code,
+          code: exam.value.course_code,
           date: exam.value.date,
-          includes_solution: includesSolution.value,
+          withSolution: includesSolution.value,
         };
 
         let queryString = Object.entries(query)
@@ -86,8 +106,8 @@ export default defineComponent({
           body: formData,
         });
       }
-      return Promise.resolve(undefined)
-    }
+      return Promise.resolve(undefined);
+    };
 
     const submitSolution = () => {
       if (solutionFile.value !== undefined) {
@@ -99,8 +119,9 @@ export default defineComponent({
         formData.append("solution", solutionFile.value);
 
         const query = {
-          course_code: exam.value.course_code,
+          code: exam.value.course_code,
           date: exam.value.date,
+          withSolution: false,
         };
 
         let queryString = Object.entries(query)
@@ -112,8 +133,8 @@ export default defineComponent({
           body: formData,
         });
       }
-      return Promise.resolve(undefined)
-    }
+      return Promise.resolve(undefined);
+    };
 
     const submit = async () => {
       loading.value = true;
@@ -122,7 +143,10 @@ export default defineComponent({
       responses.push(submitSolution());
 
       let result = await Promise.all(responses);
-      let isError = result.reduce((err, next) => err || next === undefined || !next.ok, false);
+      let isError = result.reduce(
+        (err, next) => err || next === undefined || !next.ok,
+        false,
+      );
       await window.wait(1000);
       if (isError) {
         toast.push({
@@ -149,8 +173,8 @@ export default defineComponent({
       loading,
       examFile,
       solutionFile,
-      includesSolution
-    }
+      includesSolution,
+    };
   },
 });
 </script>

@@ -1,8 +1,7 @@
-import { PrismaClient } from ".prisma/client";
+import prisma from "@app/prisma";
 
 export const export_exams = async () => {
-  const prisma = new PrismaClient();
-  const theses = await prisma.examThesis.findMany({
+  const theses = await prisma.common.examThesis.findMany({
     include: {
       exams: {
         select: {
@@ -13,7 +12,7 @@ export const export_exams = async () => {
     },
   });
 
-  const solutions = await prisma.examSolution.findMany({
+  const solutions = await prisma.common.examSolution.findMany({
     include: {
       exams: {
         select: {
@@ -24,7 +23,7 @@ export const export_exams = async () => {
     },
   });
 
-  const attachments = await prisma.examAttachment.findMany({
+  const attachments = await prisma.common.examAttachment.findMany({
     include: {
       exams: {
         select: {

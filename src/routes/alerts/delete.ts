@@ -11,7 +11,7 @@ export default {
     { params }: Request,
     { prisma }: Context,
   ): Promise<Response> => {
-    const alerts = await prisma.alerts.delete({
+    const alerts = await prisma.common.alerts.delete({
       where: {
         id: Number(params.id),
       },

@@ -1,6 +1,6 @@
 <template lang="pug">
 .row.d-flex.justify-content-center
-  .col-10.col-md-8
+  .col-10.col-lg-8
     .row.justify-content-between.py-3(v-if="surveys.isEmpty()")
       .fs-2.text-center Found no surveys for this course
     .row(v-else)
