@@ -1,7 +1,7 @@
 <template lang="pug">
 .container
   div(v-if="this.ready")
-    .row.justify-content-between.mb-2
+    .row.justify-between.mb-2
       //- tabs(:entries="nav_items")
       //-   .fs-4
       //-     span.bold {{ programme.code }}
@@ -21,7 +21,7 @@
             .col-1
               .badge(:class="[electivity_color(entry.electivity)]") {{ entry.electivity }}
 
-    //- .row.justify-content-center
+    //- .row.justify-center
     //-   .col-12
     //-     transition(name="fade", mode="out-in")
     //-       router-view
@@ -76,7 +76,7 @@ export default {
     },
     async load_programme() {
       let res = await Http.get(
-        `programme/${this.$route.params.code}/${this.$route.params.start_year}/${this.$route.params.end_year}`
+        `programme/${this.$route.params.code}/${this.$route.params.start_year}/${this.$route.params.end_year}`,
       );
       const by_grade = Object.entries(res.groupBy((x) => x.grade));
       const by_period = by_grade.map(([year, entries]) => [

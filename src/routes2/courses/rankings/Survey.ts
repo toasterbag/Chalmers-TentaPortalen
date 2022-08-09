@@ -91,6 +91,14 @@ const handler: Handler = async (
     orderBy: {
       total_impression_mean: "asc",
     },
+    include: {
+      course: {
+        select: {
+          name_en: true,
+          name_sv: true,
+        },
+      },
+    },
   });
 
   return Ok(data);

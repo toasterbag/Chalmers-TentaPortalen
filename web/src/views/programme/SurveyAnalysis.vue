@@ -1,29 +1,28 @@
 <template lang="pug">
-.row.justify-content-center
-  .col-10.col-lg-8
-    .fs-2 Programme survey data
+.flex.flex-col.gap-8
+  div
+    h3 Programme survey data
     div ⚠️ Years with fewer than 5 courses are removed to keep results relevant
     div ⚠️ Current year is updated as more results are published
 
-    .row.justify-content-center.border-bottom.py-4
-      .col-12
-        .fs-3 Answer frequency
-        .text-muted How many responded to the survey? (percentage)
-        LineChart(
-          :labels="labels",
-          :data="answerFrequency",
-          :scales="{ yAxis: { min: 0, max: 100 } }"
-        )
+  .p-4.bg-base-200.rounded
+    .col-12
+      h3 Answer frequency
+      .text-muted How many responded to the survey? (percentage)
+      LineChart(
+        :labels="labels",
+        :data="answerFrequency",
+        :scales="{ yAxis: { min: 0, max: 100 } }"
+      )
 
-    .row.justify-content-center.border-bottom.py-4(v-for="chart in charts")
-      .col-12
-        .fs-3 {{ chart.title }}
-        .text-muted {{ chart.subtitle }}
-        LineChart(
-          :labels="labels",
-          :data="chart.data",
-          :scales="{ yAxis: { min: 1, max: 5 } }"
-        )
+  .p-4.bg-base-200.rounded(v-for="chart in charts")
+    h3 {{ chart.title }}
+    .text-muted {{ chart.subtitle }}
+    LineChart(
+      :labels="labels",
+      :data="chart.data",
+      :scales="{ yAxis: { min: 1, max: 5 } }"
+    )
 </template>
 
 <script lang="ts">
@@ -37,7 +36,7 @@ export default defineComponent({
     code: {
       required: true,
       type: String,
-    }
+    },
   },
   async setup(props) {
     const api = useAPI();
@@ -59,24 +58,28 @@ export default defineComponent({
 
     const programmeAverage = Object.values(programmeByYear);
 
-    const chalmersAverage = Object.values(await api.fetchChalmersSurveyAggregate());
-
-    const labels = computed(() => Object.keys(programmeByYear).map((year) => year.replace(/20(\d{2})\/20(\d{2})/g, "$1/$2")));
-
-    const answerFrequency = computed(() =>
-      [
-        {
-          label: `${props.code} average`,
-          data: programmeAverage.map((e: any) => e.answer_frequency),
-          color: theme.get("sp-purple"),
-        },
-        {
-          label: "Chalmers average",
-          data: chalmersAverage.map((e: any) => e.answer_frequency),
-          color: "#006C5C",
-        },
-      ]
+    const chalmersAverage = Object.values(
+      await api.fetchChalmersSurveyAggregate(),
     );
+
+    const labels = computed(() =>
+      Object.keys(programmeByYear).map((year) =>
+        year.replace(/20(\d{2})\/20(\d{2})/g, "$1/$2"),
+      ),
+    );
+
+    const answerFrequency = computed(() => [
+      {
+        label: `${props.code} average`,
+        data: programmeAverage.map((e: any) => e.answer_frequency),
+        color: theme.get("tp-purple"),
+      },
+      {
+        label: "Chalmers average",
+        data: chalmersAverage.map((e: any) => e.answer_frequency),
+        color: "#006C5C",
+      },
+    ]);
 
     const charts = computed(() =>
       [
@@ -148,7 +151,7 @@ export default defineComponent({
           {
             label: props.code,
             data: programmeAverage.map((s) => s[mean_key]),
-            color: theme.get("sp-purple"),
+            color: theme.get("tp-purple"),
           },
           {
             label: "Chalmers",
@@ -156,11 +159,14 @@ export default defineComponent({
             color: "#006C5C",
           },
         ],
-      })));
+      })),
+    );
 
     return {
-      charts, labels, answerFrequency
-    }
+      charts,
+      labels,
+      answerFrequency,
+    };
   },
 });
 </script>

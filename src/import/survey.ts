@@ -347,7 +347,10 @@ const scrape_survey = async (
   context: Context,
   instance: CourseInstance,
 ): Promise<Survey | undefined> => {
+  // They forgot to renew their cert... Quick fix for now (INSECURE THOUGH!!!)
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
   const res = await scrape_course_survey(instance);
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "1";
 
   if (res === SurveyImportError.NoSurveyAvailable) {
     console.warn(

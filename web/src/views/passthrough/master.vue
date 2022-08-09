@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   teleport(to="#sidebar-right")
-    .d-flex.justify-content-end.sticky-top.pt-4
+    .flex.justify-content-end.sticky-top.pt-4
       .sidebar
         div 
           b Examinationsform
@@ -20,7 +20,7 @@ div
 
   .mt-4
     h1 Data
-    .row.justify-content-between(v-if="!TKDAT.isEmpty()")
+    .row.justify-between(v-if="!TKDAT.isEmpty()")
       passthrough-chart(
         :labels="years",
         :programmes="TKDAT",
@@ -31,7 +31,7 @@ div
 
   .mt-4
     h1 IT
-    .row.justify-content-between(v-if="!TKITE.isEmpty()")
+    .row.justify-between(v-if="!TKITE.isEmpty()")
       passthrough-chart(
         :labels="years",
         :programmes="TKITE",
@@ -42,7 +42,7 @@ div
 
   .mt-4
     h1 Industriell ekonomi
-    .row.justify-content-between(v-if="!TKIEK.isEmpty()")
+    .row.justify-between(v-if="!TKIEK.isEmpty()")
       passthrough-chart(
         :labels="years",
         :programmes="TKIEK",
@@ -53,7 +53,7 @@ div
 
   .mt-4
     h1 Elektro
-    .row.justify-content-between(v-if="!TKELT.isEmpty()")
+    .row.justify-between(v-if="!TKELT.isEmpty()")
       passthrough-chart(
         :labels="years",
         :programmes="TKELT",

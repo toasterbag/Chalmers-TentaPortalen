@@ -1,39 +1,13 @@
-<template lang="pug">
-.row.justify-content-center
-  .col-12.col-md-8
-    .pb-4
-      .fs-3 Address Book
-      div
-        | Here are some useful email addresses if you need to contact study boards or student representatives
-    .pb-4
-      .fs-4 Boards of Education
-      table.table
-        thead
-          tr
-            td Name
-            td Email
-        tbody.table-striped
-          tr(v-for="{ name, email, programmes } in boards")
-            td {{ name }}
-            td {{ email.join('') }}
-            //- td {{ programmes.join(', ') }}
-    .pb-4
-      .fs-4 Education area representatives
-      table.table
-        thead
-          tr
-            td Name
-            td Email
-        tbody.table-striped
-          tr(v-for="{ name, email } in uor")
-            td {{ name }}
-            td {{ email.join('') }}
-</template>
-
 <script lang="ts">
+import { useLocalization } from "@plugins/localization";
+import { storeToRefs } from "pinia";
+
 export default {
-  name: "glossary",
+  name: "Contact",
   setup() {
+    const l = useLocalization();
+    const { tl } = storeToRefs(l);
+    document.title = l.title(tl.value.pages.contact.title);
     const boards = [
       {
         name: "DNS",
@@ -140,13 +114,65 @@ export default {
       },
     ].sortBy((a, b) => a.name.localeCompare(b.name));
 
+    const otherContacts = [
+      {
+        name: "Educational Officer",
+        email: ["uo", "@chalmersstudentkar.se"],
+      },
+      {
+        name: "Deputy educational Officer",
+        email: ["vuo", "@chalmersstudentkar.se"],
+      },
+    ];
+
     return {
       boards,
       uor,
       irr,
+      otherContacts,
+      tl,
     };
   },
 };
 </script>
 
-<style lang="scss" scoped></style>
+<template lang="pug">
+.view-margin.flex.flex-col.gap-8
+  div
+    h1 {{ tl.pages.contact.heading }}
+    div {{ tl.pages.contact.caption }}
+  div
+    h2 {{ tl.terms.academic_council }}
+    table.tp-table
+      thead
+        tr
+          td Name
+          td Email
+      tbody
+        tr(v-for="{ name, email, programmes } in boards")
+          td {{ name }}
+          td {{ email.join("") }}
+          //- td {{ programmes.join(', ') }}
+  //- div
+  //-   h2 Education area representatives
+  //-   table.tp-table
+  //-     thead
+  //-       tr
+  //-         td Name
+  //-         td Email
+  //-     tbody
+  //-       tr(v-for="{ name, email } in uor")
+  //-         td {{ name }}
+  //-         td {{ email.join("") }}
+  //- div
+  //-   h2 Other
+  //-   table.tp-table
+  //-     thead
+  //-       tr
+  //-         td Name
+  //-         td Email
+  //-     tbody
+  //-       tr(v-for="{ name, email } in otherContacts")
+  //-         td {{ name }}
+  //-         td {{ email.join("") }}
+</template>

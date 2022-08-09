@@ -1,6 +1,6 @@
 <template lang="pug">
-.py-4.px-3.d-flex.justify-content-between.align-items-center
-  .menu-icon.clickable(
+.py-4.px-3.flex.justify-between.items-center
+  .menu-icon.cursor-pointer(
     :class="{ hidden: searchBarFocused }",
     @click="openMenu"
   )
@@ -9,40 +9,44 @@
 
   .sidebar-container(:class="{ open: menuIsOpen }")
     .outside(@click.prevent.stop="closeMenu", :style="overlayStyle")
-    .sidebar.p-2(ref="sidebar", :style="sidebarStyle")
-      .fs-6.text-text
-        .py-3.ps-3
-          Brand(fontSize="2.4rem")
-        //- .p-2
-        //-   .fa-solid.fs-1.fa-xmark
-        .py-1.h-fill(v-for="{ title, location, children, icon } in links")
-          router-link.py-2(v-if="location !== undefined", :to="location")
+    .sidebar.p-2.bg-base-100(ref="sidebar", :style="sidebarStyle")
+      .py-3.pl-3
+        Brand(size="2.2rem")
+
+      .py-1(v-for="{ title, location, children, icon } in links")
+        Link.py-2(v-if="location !== undefined", :to="location")
+          .fa-solid(
+            :class="icon",
+            :style="{ width: '3rem', textAlign: 'center' }"
+          )
+          span {{ title }}
+        div(v-else)
+          div
             .fa-solid(
               :class="icon",
               :style="{ width: '3rem', textAlign: 'center' }"
             )
-            span {{ title }}
-          div(v-else)
-            div
-              .fa-solid(
-                :class="icon",
-                :style="{ width: '3rem', textAlign: 'center' }"
-              )
-              span.fw-bold {{ title }}
-            .px-3.fw-normal
-              div(v-for="{ title, location, icon } in children")
-                router-link.py-2(:to="location")
-                  .fa-solid(
-                    :class="icon",
-                    :style="{ width: '3rem', textAlign: 'center' }"
-                  )
-                  span {{ title }}
+            span.font-bold {{ title }}
+          .px-3
+            div(v-for="{ title, location, icon } in children")
+              Link.py-2(:to="location")
+                .fa-solid(
+                  :class="icon",
+                  :style="{ width: '3rem', textAlign: 'center' }"
+                )
+                span {{ title }}
 
-      div(:style="{ position: 'absolute', left: '1rem', bottom: '1rem' }")
-        router-link(:to="{ name: 'feedback' }") Leave feedback
+      .flex.items-center.justify-between.w-full.pl-4.pr-6(
+        :style="{ position: 'absolute', bottom: '1rem' }"
+      )
+        ThemeSwitch
+        div
+          Link(:to="{ name: 'feedback' }") Leave feedback
 </template>
 
 <script lang="ts">
+import { useLocalization } from "@plugins/localization";
+import { storeToRefs } from "pinia";
 import {
   computed,
   defineComponent,
@@ -66,6 +70,7 @@ export default defineComponent({
   name: "MobileHeader",
   setup() {
     const route = useRoute();
+    const { tl } = storeToRefs(useLocalization());
     const sidebar: Ref<HTMLElement | undefined> = ref(undefined);
     const searchBarFocused = ref(false);
     const sidebarLeft = ref("-100%");
@@ -197,7 +202,7 @@ export default defineComponent({
       sidebar,
       searchBarFocused,
       menuIsOpen,
-      links: headerLinks,
+      links: computed(() => headerLinks(tl.value)),
       sidebarStyle,
       overlayStyle,
       openMenu,
@@ -236,21 +241,18 @@ export default defineComponent({
     max-width: 300px;
     top: 0;
     // left: -80%;
-    background: var(--sp-background);
-    background: var(--sp-white);
 
     a {
       display: block;
       width: 100%;
       border-radius: 6px;
-      color: var(--sp-text-muted);
 
       &:hover {
         background-color: rgba(100, 100, 100, 0.2);
       }
 
-      &.router-link-exact-active {
-        color: var(--sp-primary);
+      &.link-exact-active {
+        color: var(--p);
         background-color: rgba(60, 60, 60, 0.1);
       }
     }

@@ -9,6 +9,12 @@ import UpdateChalmersSurveyAggregate from "@app/jobs/update_chalmers_survey_aggr
 import UpdateProgrammeSurveyAggregate from "@app/jobs/update_programme_survey_aggregates";
 import UpdateSurveyPerPeriod from "@app/jobs/update_survey_per_period";
 import UpdateDepartmentSurveyAggregate from "@app/jobs/update_survey_per_department";
+import {
+  UpdateActiveCoursesWithExamCount,
+  UpdateActiveCoursesWithThesisCount,
+  UpdateExamCount,
+  UpdateThesisCount,
+} from "@app/jobs/UpdateCounts";
 import { cpus } from "os";
 import { start_workers } from "./worker/worker";
 import { export_exams } from "./export_exams";
@@ -25,8 +31,12 @@ program
   .option("-w, --workers", "how many workers to start")
   .option("-e, --export", "export exam data to stdout")
   .option("-i, --import", "export exam data from stdin")
-  .option("-a, --analysis <type> [args...]", "generate analysis based on type")
-  .option("--max <n>", "print max n statistics")
+  // .option("-a, --analysis <type> [args...]", "generate analysis based on type")
+  // .option("--max <n>", "print max n statistics")
+  .option(
+    "--create-admin <email=password>",
+    "create an admin user, format <email=password>",
+  )
   .parse();
 
 // const analysis_command = async () => {
@@ -93,6 +103,50 @@ const main = async () => {
 
   const logger = new Logger();
   const ctx = new Context(config, logger);
+
+  if (options.createAdmin) {
+    const [username, password] = options.createAdmin.split("=");
+    try {
+      const user = await ctx.auth.createUser(username, username, password);
+      if (isSome(user)) {
+        await ctx.auth.addRole(user.val, Role.Admin);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    process.exit(0);
+  }
+
+  // const courses = await ctx.prisma.common.course.findMany({
+  //   include: {
+  //     exams: true,
+  //   },
+  //   where: {
+  //     department_id: 16,
+  //     instances: {
+  //       some: {
+  //         academic_year: "2021/2022",
+  //       },
+  //     },
+  //     exams: {
+  //       some: {
+  //         academic_year: "2021/2022",
+  //       },
+  //       every: {
+  //         thesis_id: null,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // for (const c of courses) {
+  //   for (const e of c.exams
+  //     .sortBy((l, r) => r.date.localeCompare(l.date))
+  //     .take(3)) {
+  //     console.log(`${c.course_code}, ${e.date}`);
+  //   }
+  // }
+  // return;
 
   // const res = await passthrough_for_programme(
   //   ctx.prisma,
@@ -177,24 +231,16 @@ const main = async () => {
     root: "/api/v2/",
   });
 
-  try {
-    const user = await ctx.auth.createUser(
-      "pDave",
-      "david@davebay.net",
-      "123qweasd",
-    );
-    if (isSome(user)) {
-      await ctx.auth.addRole(user.val, Role.Admin);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
   UpdatePassratesByPeriod(ctx).start();
   UpdateChalmersSurveyAggregate(ctx).start();
   UpdateProgrammeSurveyAggregate(ctx).start();
   UpdateDepartmentSurveyAggregate(ctx).start();
   UpdateSurveyPerPeriod(ctx).start();
+
+  UpdateActiveCoursesWithExamCount(ctx).start();
+  UpdateActiveCoursesWithThesisCount(ctx).start();
+  UpdateExamCount(ctx).start();
+  UpdateThesisCount(ctx).start();
 
   start_workers(
     options.config,

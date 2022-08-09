@@ -1,9 +1,9 @@
 <template lang="pug">
 .search-wrapper
-  .search-box
-    .d-flex.align-items-center.px-2
+  .search-box.bg-base-200
+    .flex.items-center.px-2
       .fa.fa-search.text.px-2
-      .input
+      .search-input
         input(
           placeholder="Course code, programme, etc..",
           ref="searchInput",
@@ -13,39 +13,39 @@
           @blur="blur"
         )
       .desktop-only
-        .d-flex.align-items-center
+        .flex.items-center
           Key Ctrl
           div +
           Key K
-    .results.text(v-if="items")
-      .pb-4(v-if="loading")
-        hr
-        Spinner
-      div(v-else-if="noResults")
-        hr
-        .px-4 No results found
-      div(v-if="items.programmes.length > 0")
-        hr
-        .category.px-4.fw-bold Programmes
-        .search-item.px-4.py-1(
-          v-for="{ code, name_en } in items.programmes",
-          @click="gotoProgramme(code)",
-          :class="{ selected: code == selectedItem }"
-        )
-          .text-primary {{ code }}
-          .text-truncate.text-size-sm {{ name_en }}
-      div(v-if="items.courses.length > 0")
-        hr
-        .category.px-4.fw-bold Courses
-        .search-item.px-4.py-2(
-          v-for="{ course_code, name_en, owner_code } in items.courses",
-          @click="gotoCourse(course_code)",
-          :class="{ selected: course_code == selectedItem }"
-        )
-          .row
-            .col-3.col-sm-2.text-primary.fw-bold {{ course_code }}
-            .col-9.col-sm-8.text-truncate {{ name_en }}
-            .col-2.fw-bold.desktop-only {{ owner_code }}
+    .absolute.w-full.top-0
+      ProgressBar(:pending="loading")
+    .results(v-if="items")
+      div(v-if="noResults")
+        hr.border-base-200
+        .px-4.pt-4 No results found
+      div(v-else)
+        .pt-2(v-if="items.programmes.length > 0")
+          hr.border-base-200
+          .px-4.pt-2.font-bold Programmes
+          .search-item.px-4.py-1(
+            v-for="{ code, name_en } in items.programmes",
+            @click="gotoProgramme(code)",
+            :class="{ selected: code == selectedItem }"
+          )
+            .text-primary {{ code }}
+            .truncate.text-sm {{ name_en }}
+        .pt-2(v-if="items.courses.length > 0")
+          hr.border-base-200
+          .px-4.pt-2.font-bold Courses
+          .search-item.p-4.py-2.flex(
+            v-for="{ course_code, name_en, owner_code } in items.courses",
+            @click="gotoCourse(course_code)",
+            class="lg:grid-cols-3",
+            :class="{ selected: course_code == selectedItem }"
+          )
+            .text-primary.font-bold(class="w-[120px]") {{ course_code }}
+            .flex-grow.truncate(class="lg:block w-[380px] lg:w-[300px]") {{ name_en }}
+            .fw-bold.hidden.text-end(class="lg:block w-[80px]") {{ owner_code }}
 </template>
 
 <script lang="ts">
@@ -212,15 +212,16 @@ export default defineComponent({
   z-index: var(--z-dropdown);
 }
 
+[data-theme="light"] .search-box {
+  filter: drop-shadow(1px 2px 4px hsl(220deg 10% 70% / 0.3));
+}
 .search-box {
   position: absolute;
   width: 100%;
   border-radius: 8px;
-  background-color: #f8f8f8;
-  filter: drop-shadow(1px 2px 4px hsl(220deg 10% 70% / 0.3));
   padding: 1rem 0;
 
-  .input {
+  .search-input {
     width: 100%;
     input {
       background-color: transparent;

@@ -1,55 +1,3 @@
-<template lang="pug">
-.row.d-flex.justify-content-center
-  .col-10.col-lg-8
-    .row.justify-content-between.py-md-0.py-3(v-if="exams.isEmpty()")
-      .fs-2.text-center No exams found
-    .row(v-else)
-      .fs-5.py-2
-        b.text-blue Tip:&nbsp;
-        span Press on a missing exam to upload
-      .row.justify-content-center.tenta-table
-        .col-12
-          .row.header
-            .col-4 Date
-            .col-4.col-sm-3 Exam
-            .col-4.col-sm-3 Solutions
-
-          .row.align-items-center(
-            v-for="(exam, index) in exams",
-            :key="exam.date",
-            :class="{ selected: selected.has(index) }"
-          )
-            .col-4
-              input.form-check-input.me-2(
-                v-if="isAdmin",
-                type="checkbox",
-                :value="selected.has(index)",
-                @click="select($event, exam, index)"
-              )
-              span {{ exam.date }}
-            .col-4.col-sm-3
-              a.text-primary(v-if="exam.thesis", @click="trackUpload(exam)") Download
-              span.text-decoration-underline.text-red.clickable(
-                v-else,
-                @click="openUploadDialog(exam)"
-              ) Missing
-            .col-4.col-sm-3
-              a.text-primary(v-if="exam.solution", :href="exam.solution.url") Download
-              span(v-else-if="exam.thesis && exam.thesis.includes_solution") Included in thesis
-              span.text-decoration-underline.text-red.clickable(
-                v-else,
-                @click="openUploadDialog(exam)"
-              ) Missing
-            //- .col-2.text-end.desktop-only(v-if="(exam.thesis || exam.solution) && isAdmin")
-            //-   .btn.bg-red.text-white Delete
-      .row.justify-content-center
-        .col-12.fs-4.p-4.text-center
-          div We would appreciate any exams and solutions you may by able to provide. 😊
-  ActionBar(:show="selected.size > 0")
-    .btn.ripple.flat.text-white(@click="setIncludesSolution") Includes solution
-    .fa.fa-trash.text-white.clickable(@click="promptDelete")
-</template>
-
 <script lang="ts">
 import { storeToRefs } from "pinia";
 import { defineComponent, Ref, ref } from "vue";
@@ -57,6 +5,7 @@ import { useAPI } from "../../plugins/api";
 import { Exam } from "../../plugins/api/types";
 import { useDialog } from "../../plugins/dialog";
 import { usePlausible } from "../../plugins/plausible";
+import { useLocalization } from "../../plugins/localization";
 
 export default defineComponent({
   name: "CourseMaterialsView",
@@ -69,6 +18,7 @@ export default defineComponent({
   async setup(props) {
     const dialog = useDialog();
     const api = useAPI();
+    const { tl } = storeToRefs(useLocalization());
     const { isAdmin } = storeToRefs(api);
     const selected: Ref<Set<number>> = ref(new Set());
     const lastSelected: Ref<number | undefined> = ref(undefined);
@@ -88,6 +38,9 @@ export default defineComponent({
 
     const openUploadDialog = async (exam: Exam) => {
       await dialog.open("UploadExamDialog", { exam });
+      exams.value = (await api.fetchExams(props.code)).map((e) =>
+        Object.assign(e, { selected: false }),
+      );
     };
 
     const select = (event: MouseEvent, exam: Exam, index: number) => {
@@ -112,7 +65,6 @@ export default defineComponent({
         if (!exams.value[index].thesis) return false;
         return exams.value[index].thesis?.includes_solution;
       });
-      console.log(state);
 
       for (const index of selected.value.values()) {
         const thesis = exams.value[index].thesis;
@@ -155,18 +107,69 @@ export default defineComponent({
       openUploadDialog,
       setIncludesSolution,
       promptDelete,
+      tl,
     };
   },
 });
 </script>
+<template lang="pug">
+.flex.flex-col.justify-center
+  .flex.justify-center(v-if="exams.isEmpty()")
+    .fs-2.text-center No exams found
+  .row(v-else)
+    .text-lg.my-2.p-4.bg-primary.text-white.rounded {{ tl.pages.course.hint_upload }}
+
+    .overflow-x-scroll
+      table.tp-table
+        thead
+          tr
+            th {{ tl.ui.date }}
+            th {{ tl.terms.exam }}
+            th {{ tl.terms.solution }}
+        tbody
+          tr(
+            v-for="(exam, index) in exams",
+            :key="exam.date",
+            :class="{ selected: selected.has(index) }"
+          )
+            td(v-if="isAdmin")
+              input.form-check-input.mr-2(
+                type="checkbox",
+                :value="selected.has(index)",
+                @click="select($event, exam, index)"
+              )
+            td 
+              span {{ exam.date }}
+            td
+              a.text-primary(v-if="exam.thesis", @click="trackUpload(exam)") {{ tl.ui.download }}
+              span.underline.text-accent.cursor-pointer(
+                v-else,
+                @click="openUploadDialog(exam)"
+              ) {{ tl.ui.missing }}
+            td
+              a.text-primary(v-if="exam.solution", :href="exam.solution.url") {{ tl.ui.download }}
+              span(v-else-if="exam.thesis && exam.thesis.includes_solution") {{ tl.ui.incuded_in_thesis }}
+              span.underline.text-accent.cursor-pointer(
+                v-else,
+                @click="openUploadDialog(exam)"
+              ) {{ tl.ui.missing }}
+
+          //- .col-2.text-end.desktop-only(v-if="(exam.thesis || exam.solution) && isAdmin")
+          //-   .btn.bg-red.text-white Delete
+
+  ActionBar(:show="selected.size > 0")
+    .btn.ripple.flat.text-white(@click="setIncludesSolution") Includes solution
+    .cursor-pointer.w-10.h-10.relative.rounded(class="hover:bg-gray-300/25")
+      .fa.fa-trash.text-white.center(@click="promptDelete")
+</template>
 
 <style lang="scss" scoped>
 .selected {
-  background-color: var(--sp-chart-three);
+  background-color: var(--tp-chart-three);
   border: none;
 }
 
-.tenta-table {
+.tp-table {
   user-select: none;
 }
 </style>

@@ -1,104 +1,83 @@
 <template lang="pug">
-.mb-3.relative.sp-combobox
-  label.form-label(for="code") {{ label }}
-  .input-wrapper.d-flex.align-items-center.input-group
-    input#code.flex-fill.form-control(
-      v-model="search",
-      @keydown.stop.prevent="",
-      @focus="focused = true",
-      @blur="onBlur"
+.w-full.relative
+  .w-full.retro-input(
+    class="focus:outline-none disabled:opacity-75 disabled:select-none",
+    :style="{ cursor: disabled ? 'not-allowed' : 'pointer' }",
+    type="text",
+    :placeholder="focus ? placeholder : ''",
+    :value="modelValue",
+    :disabled="disabled",
+    @click="focus = true"
+  ) {{ modelValue ?? "&nbsp;" }}
+    .underline.transition.duration-300.w-full.bg-primary.absolute.bottom-0.left-0(
+      class="h-[2px]",
+      :style="{ transform: `scaleX(${focus ? 1 : 0})` }"
     )
-    .btn.btn-outline-secondary.bg-accent.text-white(
-      type="button",
-      v-if="clearable",
-      @click="clear"
-    ) Clear
-  .form-text
-    slot(name="comment")
-  .suggestions(v-if="focused")
-    ul.list-group.suggestions
-      li.list-group-item.link(v-for="item in values", @click="onSelect(item)") {{ item }}
-        //slot(v-bind:item="item")
+  .absolute.transition-all.pl-3.pointer-events-none(
+    :style="labelStyle",
+    :class="{ 'text-secondary': activated }"
+  ) {{ label }}
+  .absolute.pt-2.z-popup.w-full(v-if="focus", ref="selector")
+    .relative.rounded.bg-white.absolute.shadow.py-2.w-full
+      .p-2.cursor-pointer(
+        v-for="value in options",
+        class="hover:bg-gray-400/30",
+        @click="select(value)"
+      ) {{ value }}
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-
+import { onClickOutside } from "@vueuse/core";
+import { computed, defineComponent, onMounted, PropType, Ref, ref } from "vue";
 export default defineComponent({
-  name: "Select",
+  name: "RetroSelect",
   props: {
     modelValue: {
-      required: false,
-    },
-    label: {
       required: true,
     },
-    values: {
-      default: () => [],
+    options: {
+      required: true,
+      type: Object as PropType<Array<string>>,
     },
-    displayKey: {
-      default: undefined,
+    label: {
+      required: false,
+      type: String,
     },
-    clearable: {
-      default: true,
+    placeholder: {
+      required: false,
+      type: String,
+    },
+    disabled: {
+      default: false,
+      type: Boolean,
     },
   },
   setup(props, { emit }) {
-    const focused = ref(false);
-    const search = ref(props.modelValue ?? "");
-    const selected = ref(undefined);
+    const focus = ref(false);
+    const selector: Ref<HTMLElement | undefined> = ref(undefined);
+    const activated = computed(
+      () =>
+        focus.value ||
+        props.modelValue !== undefined ||
+        props.modelValue !== "",
+    );
+    const labelStyle = computed(() => ({
+      transform: `translateY(${activated.value ? -2.8 : -2.1}rem)`,
+      fontSize: `${activated.value ? 0.7 : 1.125}rem`,
+    }));
 
-    const onSelect = (item: any) => {
-      emit("update:modelValue", item);
-      search.value = props.displayKey ? item[props.displayKey] : item;
+    const select = (value: any) => {
+      emit("update:modelValue", value);
+      emit("input", value);
+      focus.value = false;
     };
 
-    const clear = (item: any) => {
-      emit("update:modelValue", undefined);
-      search.value = undefined;
-    };
-
-    const onBlur = () => {
-      setTimeout(() => {
-        focused.value = false;
-      }, 300);
-    };
-
-    return {
-      search,
-      focused,
-      selected,
-      emit,
-      onSelect,
-      onBlur,
-      clear,
-    };
+    onMounted(() => {
+      onClickOutside(selector, () => {
+        focus.value = false;
+      });
+    });
+    return { select, focus, activated, labelStyle, selector };
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.sp-combobox {
-  .suggestions {
-    position: relative;
-
-    ul {
-      z-index: var(--z-dropdown);
-      top: 0;
-      position: absolute;
-      width: 100%;
-
-      background: var(--bg-card);
-
-      li:hover {
-        background: var(--bg-card-raised);
-      }
-    }
-  }
-  .badges {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-  }
-}
-</style>

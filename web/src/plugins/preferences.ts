@@ -4,6 +4,7 @@ interface State {
   hideReexams: boolean;
   stackBars: boolean;
   displayValuesAsPercent: boolean;
+  themeDummy: boolean;
 }
 
 export function LocalStorePlugin({ store }: PiniaPluginContext) {
@@ -20,6 +21,7 @@ export const usePreferences = defineStore("Preferences", {
       hideReexams: true,
       stackBars: true,
       displayValuesAsPercent: true,
+      themeDummy: true,
     };
 
     const data = localStorage.getItem("preferences");

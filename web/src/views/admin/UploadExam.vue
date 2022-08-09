@@ -1,5 +1,5 @@
 <template lang="pug">
-.row.justify-content-center
+.row.justify-center
   .col-10.col-lg-8
     .row.justify-content-around
       .col-6

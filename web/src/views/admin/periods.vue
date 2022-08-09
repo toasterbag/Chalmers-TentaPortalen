@@ -24,7 +24,7 @@ div(v-if="this.ready")
     .col-md-2
       label.form-label End
       input.form-control(v-model="input.end", placeholder="yyyy-MM-dd")
-  .d-flex.justify-content-end
+  .flex.justify-content-end
     .btn.bg-primary(@click="submit") Add
   .tenta-table.p-md-5.py-3
     .row.header
@@ -104,7 +104,7 @@ export default {
         "Exam sign-up",
       ];
       this.input.suggestions = suggestions.filter((s) =>
-        s.includes(this.input.name)
+        s.includes(this.input.name),
       );
     },
     guessPeriod() {

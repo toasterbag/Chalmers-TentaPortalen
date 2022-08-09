@@ -3,8 +3,9 @@ router-view(v-slot="{ Component }")
   transition(name="fade", mode="out-in")
     suspense
       component(
+        v-if="Component",
         :is="Component",
-        :key="route.path + route.params"
+        :key="route.path + JSON.stringify(route.params)"
       )
       template(#fallback)
         Spinner
@@ -18,7 +19,7 @@ export default defineComponent({
   name: "View",
   setup() {
     const route = useRoute();
-    return { route }
-  }
+    return { route };
+  },
 });
 </script>

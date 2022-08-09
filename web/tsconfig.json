@@ -13,7 +13,9 @@
       "dom"
     ],
     "types": [
-      "vite/client"
+      "node",
+      "vite/client",
+      "web-bluetooth"
     ],
     "paths": {
       "@plugins/*": [

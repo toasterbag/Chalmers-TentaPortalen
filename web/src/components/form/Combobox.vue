@@ -1,24 +1,26 @@
 <template lang="pug">
-.mb-3.relative.sp-combobox
-  label.form-label(for="code") {{ label }}
-  .input-group
-    input#code.flex-fill.form-control(
+.mb-3.relative
+  .font-bold {{ label }}
+  .h-10.flex.overflow-hidden.rounded
+    input.flex-grow.h-full.p-2.bg-base-200(
       v-model="search",
       @input="updateSuggestions",
       @focus="focused = true",
-      @blur="onBlur"
+      @blur="onBlur",
+      class="focus:outline-none"
     )
-    .btn.btn-outline-secondary.bg-accent.text-white(
-      type="button",
-      @click="clear"
+    .bg-accent.text-white.uppercase.px-2.h-full.flex.justify-center.items-center.font-bold.cursor-pointer(
+      @click="clear",
+      class="hover:bg-accent-focus"
     ) Clear
   .form-text
     slot(name="caption")
-  .suggestions(v-if="focused")
-    ul.list-group
-      li.list-group-item.link(
+  .absolute.w-full.z-popup(v-if="focused")
+    .bg-base-200.mt-2.shadow
+      .p-2.cursor-pointer(
         v-for="(item, index) in suggestions",
         @click="onSelect(item)",
+        class="hover:bg-gray-400/25",
         :class="{ selected: selected == index }"
       )
         slot(
@@ -31,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue"
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   name: "Combobox",
@@ -54,28 +56,28 @@ export default defineComponent({
     const search = ref(props.modelValue ?? "");
     const selected = ref(null);
 
-    let updateTimer = setTimeout(() => { }, 0);
+    let updateTimer = setTimeout(() => {}, 0);
     const updateSuggestions = () => {
       clearTimeout(updateTimer);
       updateTimer = setTimeout(() => emit("autocomplete", search.value), 200);
-    }
+    };
 
     const clear = () => {
       search.value = "";
       emit("autocomplete", search.value);
-      emit("update:modelValue", "")
-    }
+      emit("update:modelValue", "");
+    };
 
     const onSelect = (item: any) => {
-      emit("update:modelValue", item)
+      emit("update:modelValue", item);
       search.value = props.displayKey ? item[props.displayKey] : item;
-    }
+    };
 
     const onBlur = () => {
       setTimeout(() => {
         focused.value = false;
-      }, 300)
-    }
+      }, 300);
+    };
 
     return {
       search,
@@ -85,8 +87,8 @@ export default defineComponent({
       updateSuggestions,
       onSelect,
       onBlur,
-      clear
-    }
+      clear,
+    };
   },
 });
 </script>

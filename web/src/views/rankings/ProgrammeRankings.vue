@@ -1,88 +1,11 @@
-<template lang="pug">
-.row.justify-content-center
-  .col-10.col-lg-8
-    .row.my-4
-      .col-md-6
-        .form-check(v-for="category in categories")
-          input.form-check-input(
-            :id="`checkbox-${category.label}`",
-            type="checkbox",
-            v-model="category.show"
-          )
-          label.form-check-label(:for="`checkbox-${category.label}`")
-            | {{ category.label }}
-        .form-check
-          input#checkbox-misc.form-check-input(
-            type="checkbox",
-            v-model="showMiscCategories"
-          )
-          label.form-check-label(for="checkbox-misc")
-            | Other
-      .col-12.col-md-6
-        Select(
-          v-model="query.academicYear",
-          :values="availableYears",
-          label="Academic year",
-          :clearable="false"
-        )
-        //- sp-select(
-        //-   v-model="category",
-        //-   :values="categories",
-        //-   labelKey="key",
-        //-   label="Category",
-        //-   @input="filter"
-        //- )
-        //-   template(v-slot:default="{ item }")
-        //-     span {{ item.label }}
-    .row.justify-content-center.tenta-table
-      .d-flex.justify-content-between.pb-2
-        div Tip: You can click on the column titles to change sort order!
-        div {{ entries.length }} results
-      .col-12
-        .row.header.align-items-center.user-select-none
-          .col-1
-            span Code
-          .col-3.text-end.clickable(
-            @click="setSortingKey('total_impression_mean')"
-          )
-            span.pe-2(v-if="sortingKey == 'total_impression_mean'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Overall impression
-          //- .col-3.text-end.clickable(@click="setSortingKey('failrate')") 
-          //-   span.pe-2(v-if="sortingKey == 'failrate'")
-          //-     SortingOrderIcon(:descending="orderDescending")
-          //-   span Failrate
-          //- .col-2.text-end.clickable(@click="setSortingKey('courses')") 
-          //-   span.pe-2(v-if="sortingKey == 'courses'")
-          //-     SortingOrderIcon(:descending="orderDescending")
-          //-   span Courses owned
-          .col-3.text-end.clickable(@click="setSortingKey('answer_frequency')")
-            span.pe-2(v-if="sortingKey == 'answer_frequency'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Answer frequency
-
-        .row(v-for="programme in entries", :key="programme.code")
-          //- .col-1.text-primary
-          //-   router-link(
-          //-     :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
-          //-   ) {{ programme.code }}
-          .col-1.fw-bold {{ programme.code }}
-          .col-3.text-end {{ programme.total_impression_mean.roundTo(2) }}
-          //- .col-3.d-flex.justify-content-end
-          //-   .text-muted.pe-2 ({{ programme.failed }} / {{ programme.total_grades }})
-          //-   div {{ programme.failrate }}%
-          //- .col-2.text-end {{ programme.courses }}
-          .col-3.d-flex.justify-content-end
-            .text-muted.pe-2 ({{ programme.responses }} / {{ programme.respondents }})
-            div {{ programme.answer_frequency }}%
-</template>
-
 <script lang="ts">
 import Http from "../../plugins/http";
 import { getYear, getMonth } from "date-fns";
 import { computed, defineComponent, reactive, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAPI } from "../../plugins/api";
+import { storeToRefs } from "pinia";
+import { useLocalization } from "../../plugins/localization";
 
 const date_to_academic_year = (date: Date) =>
   getMonth(date) > 7
@@ -95,15 +18,19 @@ export default defineComponent({
     const api = useAPI();
     const route = useRoute();
 
+    const l = useLocalization();
+    const { tl, locale } = storeToRefs(l);
+    document.title = l.title(tl.value.pages.programme_impressions.title);
+
     const category = ref("All");
     const categories = ref([
       {
-        label: "Master of Engineering (Civilingenjör)",
+        label: tl.value.terms.master_of_engineering,
         prefix: "TK",
         show: true,
       },
-      { label: "Engineering (Högskoleingenjör)", prefix: "TI", show: true },
-      { label: "Masters programme", prefix: "MP", show: true },
+      { label: tl.value.terms.engineering_bachelor, prefix: "TI", show: true },
+      { label: tl.value.terms.mastersprogramme, prefix: "MP", show: true },
     ]);
 
     const availableYears = new Array(8)
@@ -185,53 +112,79 @@ export default defineComponent({
       sortingKey,
       setSortingKey,
       entries,
+      tl,
+      locale,
     };
   },
 });
 </script>
 
-<style lang="scss" scoped>
-@import "../../variables.scss";
-
-// .tenta-table {
-//   .row:nth-child(n + 1) {
-//     &:hover {
-//       .text-muted {
-//         display: inline;
-//       }
-//     }
-//     .text-muted {
-//       display: none;
-//     }
-//     .col-2 {
-//       // border-right: 1px solid rgba(0, 0, 0, 0.1);
-//     }
-//   }
-// }
-
-@include below(sm) {
-  .tenta-table {
-    position: relative;
-    overflow-x: auto;
-    & > * {
-      position: relative;
-      left: 150px;
-      min-width: 600px;
-    }
-
-    .row:nth-child(n + 1) {
-      &:hover {
-        .text-muted {
-          display: inline;
-        }
-      }
-      .text-muted {
-        display: none;
-      }
-      .col-2 {
-        // border-right: 1px solid rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
-}
-</style>
+<template lang="pug">
+.flex.flex-col.justify-center.gap-4
+  .grid.grid-cols-1.gap-4
+    .col-span-1
+      Select(
+        v-model="query.academicYear",
+        :values="availableYears",
+        :label="tl.terms.academic_year",
+        :clearable="false"
+      )
+    .col-span-1.grid.grid-cols-1.gap-x-32.gap-y-4(class="md:grid-cols-2")
+      .flex.justify-between.items-center(v-for="category in categories")
+        .font-bold {{ category.label }}
+        RetroSwitch(v-model="category.show")
+      .flex.justify-between
+        .font-bold {{ tl.ui.other }}
+        RetroSwitch(v-model="showMiscCategories")
+      //- sp-select(
+      //-   v-model="category",
+      //-   :values="categories",
+      //-   labelKey="key",
+      //-   label="Category",
+      //-   @input="filter"
+      //- )
+      //-   template(v-slot:default="{ item }")
+      //-     span {{ item.label }}
+  .flex.justify-between.pb-2
+    div
+      span.font-bold {{ tl.ui.hint }}:&nbsp;
+      span {{ tl.ui.sort_order_hint }}
+    div {{ entries.length }} {{ tl.ui.results }}
+  table.tp-table
+    thead.user-select-none
+      th
+        span {{ tl.ui.course_code }}
+      th.text-end.cursor-pointer(
+        @click="setSortingKey('total_impression_mean')"
+      )
+        span.pr-2(v-if="sortingKey == 'total_impression_mean'")
+          SortingOrderIcon(:descending="orderDescending")
+        span {{ tl.ui.overall_impression }}
+      //- .col-3.text-end.cursor-pointer(@click="setSortingKey('failrate')") 
+      //-   span.pr-2(v-if="sortingKey == 'failrate'")
+      //-     SortingOrderIcon(:descending="orderDescending")
+      //-   span Failrate
+      //- .col-2.text-end.cursor-pointer(@click="setSortingKey('courses')") 
+      //-   span.pr-2(v-if="sortingKey == 'courses'")
+      //-     SortingOrderIcon(:descending="orderDescending")
+      //-   span Courses owned
+      th.text-end.cursor-pointer(@click="setSortingKey('answer_frequency')")
+        span.pr-2(v-if="sortingKey == 'answer_frequency'")
+          SortingOrderIcon(:descending="orderDescending")
+        span {{ tl.ui.answer_frequency }}
+    tbody
+      tr(v-for="programme in entries", :key="programme.code")
+        //- .col-1.text-primary
+        //-   Link(
+        //-     :to="{ name: 'programme/exam-statistics', params: { code: programme.code } }"
+        //-   ) {{ programme.code }}
+        td.fw-bold {{ programme.code }}
+        td.text-end {{ programme.total_impression_mean.roundTo(2) }}
+        //- .col-3.flex.justify-content-end
+        //-   .text-muted.pr-2 ({{ programme.failed }} / {{ programme.total_grades }})
+        //-   div {{ programme.failrate }}%
+        //- .col-2.text-end {{ programme.courses }}
+        td.text-end
+          //- .text-muted.pr-2 ({{ programme.responses }} / {{ programme.respondents }})
+          div {{ programme.answer_frequency }}%
+</template>

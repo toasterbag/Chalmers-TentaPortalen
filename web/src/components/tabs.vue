@@ -1,7 +1,7 @@
 <template lang="pug">
 .tabs
   .tab-row.align-items-center
-    router-link.tab(
+    Link.tab(
       v-for="{ title, route, badge = undefined } in entries",
       :to="{ name: route }",
       :key="route"
@@ -41,9 +41,9 @@ export default {
     }
   }
 
-  .router-link-exact-active {
-    color: var(--sp-primary);
-    border-bottom: 2px solid var(--sp-primary);
+  .link-exact-active {
+    color: var(--p);
+    border-bottom: 2px solid var(--p);
   }
 }
 

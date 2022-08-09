@@ -5,7 +5,7 @@ canvas(ref="canvas")
 <script lang="ts">
 import { Chart } from "chart.js";
 import { storeToRefs } from "pinia";
-import { defineComponent, PropType, Ref, ref, watchEffect } from "vue";
+import { defineComponent, PropType, Ref, ref, watchEffect, watch } from "vue";
 import { Exam } from "../../plugins/api/types";
 import { usePreferences } from "../../plugins/preferences";
 import { useTheme } from "../../plugins/theme";
@@ -20,7 +20,9 @@ export default defineComponent({
 
   setup(props) {
     const theme = useTheme();
-    const { stackBars, displayValuesAsPercent, unit } = storeToRefs(usePreferences());
+    const { stackBars, displayValuesAsPercent, unit, themeDummy } = storeToRefs(
+      usePreferences(),
+    );
     const canvas: Ref<HTMLCanvasElement | null> = ref(null);
     let chart: Chart | undefined = undefined;
 
@@ -28,7 +30,6 @@ export default defineComponent({
       if (canvas.value !== null) {
         const context = canvas.value.getContext("2d");
         if (context !== null) {
-
           const plugins: any = {
             comments: props.comments,
             tooltip: {
@@ -41,7 +42,12 @@ export default defineComponent({
                 },
               },
               intersect: false,
-              mode: 'index'
+              mode: "index",
+            },
+            legend: {
+              labels: {
+                color: theme.get("tp-chart-content"),
+              },
             },
           };
           chart?.destroy();
@@ -52,39 +58,39 @@ export default defineComponent({
               datasets:
                 props.gradingSystem == "PassFail"
                   ? [
-                    {
-                      label: "U",
-                      backgroundColor: theme.get("sp-chart-failed"), //"rgba(240,49,24,0.8)",
-                      data: props.exams.map((e) => e.failed),
-                    },
-                    {
-                      label: "G",
-                      backgroundColor: theme.get("sp-chart-four"), //"rgba(169,214,63,0.8)",
-                      data: props.exams.map((e) => e.three),
-                    },
-                  ]
+                      {
+                        label: "U",
+                        backgroundColor: theme.get("tp-chart-failed"), //"rgba(240,49,24,0.8)",
+                        data: props.exams.map((e) => e.failed),
+                      },
+                      {
+                        label: "G",
+                        backgroundColor: theme.get("tp-chart-four"), //"rgba(169,214,63,0.8)",
+                        data: props.exams.map((e) => e.three),
+                      },
+                    ]
                   : [
-                    {
-                      label: "U",
-                      backgroundColor: theme.get("sp-chart-failed"), //"rgba(240,49,24,0.8)",
-                      data: props.exams.map((e) => e.failed),
-                    },
-                    {
-                      label: "3",
-                      backgroundColor: theme.get("sp-chart-three"), //"rgba(169,214,63,0.8)",
-                      data: props.exams.map((e) => e.three),
-                    },
-                    {
-                      label: "4",
-                      backgroundColor: theme.get("sp-chart-four"), // "rgba(138,176,41,0.8)",
-                      data: props.exams.map((e) => e.four),
-                    },
-                    {
-                      label: "5",
-                      backgroundColor: theme.get("sp-chart-five"), // "rgba(92,126,14,0.8)",
-                      data: props.exams.map((e) => e.five),
-                    },
-                  ],
+                      {
+                        label: "U",
+                        backgroundColor: theme.get("tp-chart-failed"), //"rgba(240,49,24,0.8)",
+                        data: props.exams.map((e) => e.failed),
+                      },
+                      {
+                        label: "3",
+                        backgroundColor: theme.get("tp-chart-three"), //"rgba(169,214,63,0.8)",
+                        data: props.exams.map((e) => e.three),
+                      },
+                      {
+                        label: "4",
+                        backgroundColor: theme.get("tp-chart-four"), // "rgba(138,176,41,0.8)",
+                        data: props.exams.map((e) => e.four),
+                      },
+                      {
+                        label: "5",
+                        backgroundColor: theme.get("tp-chart-five"), // "rgba(92,126,14,0.8)",
+                        data: props.exams.map((e) => e.five),
+                      },
+                    ],
             },
             options: {
               responsive: true,
@@ -93,9 +99,27 @@ export default defineComponent({
               plugins,
               scales: {
                 x: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
                   stacked: stackBars.value,
                 },
                 y: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
                   stacked: stackBars.value,
                   min: 0,
                   max: displayValuesAsPercent.value ? 100 : undefined,
@@ -105,13 +129,13 @@ export default defineComponent({
           });
         }
       }
-    }
+    };
     watchEffect(() => render());
-
+    watch(themeDummy, () => render());
 
     return {
       canvas,
-    }
+    };
   },
   data: () => ({
     // is_mobile: document.body.offsetWidth < document.body.offsetHeight,
@@ -122,7 +146,6 @@ export default defineComponent({
       //   this.$refs.canvas.parentNode.style.width = "100%";
       //   this.$refs.canvas.parentNode.style.height = "100vh";
       // }
-
       // if (this.$refs.canvas == null) {
       //   setTimeout(() => this.render(), 200);
       //   return;

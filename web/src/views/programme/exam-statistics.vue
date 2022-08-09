@@ -1,6 +1,6 @@
 <template lang="pug">
 div(v-if="this.ready")
-  .row.justify-content-center
+  .row.justify-center
     .col-12
       exam-bar-graph(
         :exams="statistics",
@@ -8,7 +8,7 @@ div(v-if="this.ready")
         :percent-mode="true",
         unit="%"
       )
-  .row.justify-content-center.tenta-table.p-md-5
+  .row.justify-center.tenta-table.p-md-5
     .col-12
       .row.header
         .col-4 Date
@@ -54,11 +54,11 @@ export default {
         data.percent = {};
 
         const percentages = [data.failed, data.three, data.four, data.five].map(
-          (e) => e.div(data.total).mul(100)
+          (e) => e.div(data.total).mul(100),
         );
         const [failed, three, four, five] = Math.roundToTarget(
           percentages,
-          100
+          100,
         );
 
         data.failed = failed;

@@ -2,60 +2,63 @@
 @use "sass:color";
 @use "sass:math";
 
-@function generate-alphas($palette) {
-  $alpha-colors: ();
+// @function generate-alphas($palette) {
+//   $alpha-colors: ();
 
-  @each $alpha in $alpha-steps {
+//   @each $alpha in $alpha-steps {
+//     @each $color, $value in $palette {
+//       $fraction: calc(-1 * (1 - ($alpha / 100)));
+//       $alpha-colors: map.set(
+//         $alpha-colors,
+//         "#{$color}-#{$alpha}",
+//         color.adjust($value, $alpha: $fraction)
+//       );
+//     }
+//   }
 
-    @each $color,
-    $value in $palette {
-      $fraction: calc(-1 * (1 - ($alpha / 100)));
-      $alpha-colors: map.set($alpha-colors, "#{$color}-#{$alpha}", color.adjust($value, $alpha: $fraction));
-    }
-  }
+//   @return $alpha-colors;
+// }
 
-  @return $alpha-colors;
-}
+// $prefix: "sp";
 
-$prefix: "sp";
+// $alpha-steps: (90, 70, 50, 30, 10);
 
-$alpha-steps: (90, 70, 50, 30, 10);
+// $theme: (
+//   fonts: (
+//     "sans": "Nunito",
+//     "header": "Montserrat",
+//   ),
+//   palette: (
+//     "primary": hsla(160, 22%, 46%, 1),
+//     "accent": hsla(357, 46%, 52%, 1),
+//     "background": hsla(30, 6%, 94%, 1),
+//     "warning": hsl(32, 98%, 61%),
+//     "error": hsla(357, 46%, 52%, 1),
+//     "green": hsla(92, 33%, 56%, 1),
+//     "blue": hsla(160, 22%, 46%, 1),
+//     "yellow": hsl(32, 98%, 61%),
+//     "red": hsla(357, 46%, 52%, 1),
+//     "purple": hsla(255, 25%, 59%, 1),
+//     "white": hsla(30, 1%, 98%, 1),
+//     "disabled": rgb(155, 155, 155),
+//     "text": hsla(210, 6%, 33%, 1),
+//     "text-muted": hsla(216, 15%, 48%, 1),
+//     "overlay": rgba(0, 0, 0, 0.1),
+//     "chart-failed": hsla(357, 46%, 52%, 1),
+//     "chart-three": hsla(50, 83%, 74%, 1),
+//     "chart-four": hsla(92, 33%, 56%, 1),
+//     "chart-five": hsla(160, 22%, 46%, 1),
+//   ),
+// );
 
-$theme: (fonts: ("sans": "Nunito",
-    "header": "Montserrat",
-  ),
-  palette: ("primary": hsla(160, 22%, 46%, 1.0),
-    "accent": hsla(357, 46%, 52%, 1.0),
-    "background": hsla(30, 6%, 94%, 1.0),
-    "warning": hsl(32, 98%, 61%),
-    "error": hsla(357, 46%, 52%, 1.0),
-
-    "green": hsla(92, 33%, 56%, 1.0),
-    "blue": hsla(160, 22%, 46%, 1.0),
-    "yellow": hsl(32, 98%, 61%),
-    "red": hsla(357, 46%, 52%, 1.0),
-    "purple": hsla(255, 25%, 59%, 1.0),
-    "white": hsla(30, 1%, 98%, 1.0),
-    "disabled": rgb(155, 155, 155),
-    "text": hsla(210, 6%, 33%, 1.0),
-    "text-muted": hsla(216, 15%, 48%, 1.0),
-    "overlay": rgba(0, 0, 0, 0.1),
-
-    "chart-failed": hsla(357, 46%, 52%, 1.0),
-    "chart-three": hsla(50, 83%, 74%, 1.0),
-    "chart-four": hsla(92, 33%, 56%, 1.0),
-    "chart-five": hsla(160, 22%, 46%, 1.0),
-  ),
-);
-
-$palette: map.get($theme, "palette");
-$palette: map.merge($palette, generate-alphas($palette));
+// $palette: map.get($theme, "palette");
+// $palette: map.merge($palette, generate-alphas($palette));
 
 $breakpoints: (
   xs: 576px,
   sm: 768px,
   md: 992px,
-  lg: 1200px
+  lg: 1200px,
 );
 
 @mixin above($breakpoint) {

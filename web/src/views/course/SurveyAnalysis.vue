@@ -1,64 +1,10 @@
-<template lang="pug">
-.row.d-flex.justify-content-center
-  .col-12.col-lg-8
-    .justify-content-center.border-bottom
-      .py-3.p-2
-        .d-flex.align-items-center(id="1")
-          .fs-3.pe-2 Answer Frequency
-          Key 1
-          .badge.bg-primary.fs-6.mx-2 New
-        .text-muted How many students responded to the survey? (percentage)
-        LineChart(
-          :labels="labels",
-          :data="answerFrequency",
-          :scales="{ yAxis: { min: 0, max: 100 } }",
-          :dots="true"
-        )
-
-    .justify-content-center.border-bottom(v-for="(chart, index) in charts")
-      .py-3.p-2
-        .d-flex.align-items-center(:id="String(index + 2)") 
-          .fs-3.pe-2 {{ chart.title }}
-          Key {{ index + 2 }}
-        .text-muted {{ chart.subtitle }}
-        LineChart(
-          :labels="labels",
-          :data="chart.data",
-          :scales="{ yAxis: { min: 1, max: 5 } }",
-          :dots="true",
-          :comments="comments"
-        )
-  //- .row.justify-content-center.border-bottom(v-for="chart in charts")
-  //-   .col-12.p-3
-  //-     .fs-3 {{ chart.title }}
-  //-     .text-muted {{ chart.subtitle }}
-  //-     survey-line-chart(
-  //-       :labels="labels",
-  //-       :means="chart.means",
-  //-       :medians="chart.medians",
-  //-       :display-mean="display_mean_values",
-  //-       :display-exams="show_exams",
-  //-       :comments="comments",
-  //-       :exams="primary_exams"
-  //-     )
-  //- teleport(to="sidebar-right")
-  //-   .d-flex.justify-content-end.sticky-top.pt-4
-  //-     .sidebar
-  //-       .form-check.pe-4
-  //-         input#show-exams.form-check-input(
-  //-           type="checkbox",
-  //-           v-model="show_exams"
-  //-         )
-  //-         label.form-check-label.user-select-none(for="show-exams")
-  //-           | Show exams
-</template>
-
 <script lang="ts">
 import { computed, defineComponent, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import Http from "../../plugins/http";
 import { useTheme } from "../../plugins/theme";
-
+import { useLocalization } from "../../plugins/localization";
+import { storeToRefs } from "pinia";
 
 export default defineComponent({
   name: "CourseSurveyAnalyis",
@@ -66,6 +12,7 @@ export default defineComponent({
   async setup() {
     const route = useRoute();
     const theme = useTheme();
+    const { tl } = storeToRefs(useLocalization());
 
     // const onKeydown = (e: KeyboardEvent) => {
     //   if (!isNaN(Number(e.key))) {
@@ -95,8 +42,8 @@ export default defineComponent({
       }));
 
     const course = await Http.get(`course/${route.params.code}`);
-    const precursorCode = Number(course.course_code.slice(-2)) - 1
-    console.log(course.course_code.slice(0, -2) + String(precursorCode))
+    const precursorCode = Number(course.course_code.slice(-2)) - 1;
+    console.log(course.course_code.slice(0, -2) + String(precursorCode));
     // const precursor = await Http.get(`course/${route.params.code}`);
 
     const programme_by_year = await Http.get(
@@ -106,87 +53,83 @@ export default defineComponent({
 
     const chalmers_average = Object.values(await Http.get(`survey/chalmers`));
 
-    const labels = computed(() => surveys.map((s) => s.academic_year.replace(/20(\d{2})\/20(\d{2})/g, "$1/$2")));
+    const labels = computed(() =>
+      surveys.map((s) =>
+        s.academic_year.replace(/20(\d{2})\/20(\d{2})/g, "$1/$2"),
+      ),
+    );
 
-    const answerFrequency = computed(() =>
-      [{
-        label: "This course",
+    const answerFrequency = computed(() => [
+      {
+        label: tl.value.ui.this_course,
         data: surveys.map((s) => s["answer_frequency"]),
-        color: theme.get("sp-red"),
+        color: theme.get("tp-red"),
       },
       {
-        label: `${course.owner_code} average`,
+        label: `${course.owner_code} ${tl.value.ui.mean}`,
         data: programme_average.map((e: any) => e.answer_frequency),
-        color: theme.get("sp-purple"),
+        color: theme.get("tp-purple"),
       },
       {
-        label: "Chalmers average",
+        label: `Chalmers ${tl.value.ui.mean}`,
         data: chalmers_average.map((e: any) => e.answer_frequency),
         color: "#006C5C",
       },
-      ]
-    );
+    ]);
 
     const charts = computed(() =>
       [
         {
-          title: "Overall impression",
-          subtitle: "What is your overall impression of the course?",
+          title: tl.value.survey.overall_impression.title,
+          subtitle: tl.value.survey.overall_impression.caption,
           median_key: "total_impression_median",
           mean_key: "total_impression_mean",
         },
         {
-          title: "Prerequisites",
-          subtitle:
-            "I had enough prior knowledge to be able to follow the course",
+          title: tl.value.survey.prerequisites.title,
+          subtitle: tl.value.survey.prerequisites.caption,
           median_key: "prerequisite_median",
           mean_key: "prerequisite_mean",
         },
         {
-          title: "Learning outcomes",
-          subtitle:
-            "The learning outcomes (see course plan) clearly describe what I was expected to learn in the course",
+          title: tl.value.survey.learning_outcomes.title,
+          subtitle: tl.value.survey.learning_outcomes.caption,
           median_key: "goals_median",
           mean_key: "goals_mean",
         },
         {
-          title: "Structure",
-          subtitle:
-            "The course structure (as divided into lectures, exercises, lab sessions, simulations etc.) is appropriate in order to reach the intended learning outcome of the course",
+          title: tl.value.survey.structure.title,
+          subtitle: tl.value.survey.structure.caption,
           median_key: "structure_median",
           mean_key: "structure_mean",
         },
         {
-          title: "Teaching",
-          subtitle: "The teaching worked well",
+          title: tl.value.survey.teaching.title,
+          subtitle: tl.value.survey.teaching.caption,
           median_key: "teaching_median",
           mean_key: "teaching_mean",
         },
         {
-          title: "Course litterature",
-          subtitle:
-            "The course literature (including other course material) supported the learning well",
+          title: tl.value.survey.litterature.title,
+          subtitle: tl.value.survey.litterature.caption,
           median_key: "litterature_median",
           mean_key: "litterature_mean",
         },
         {
-          title: "Assessment",
-          subtitle:
-            "The assessment (including all compulsory elements, exams, assignments etc.) tested whether I had reached the intended learning outcomes of the course",
+          title: tl.value.survey.assessment.title,
+          subtitle: tl.value.survey.assessment.caption,
           median_key: "assessment_median",
           mean_key: "assessment_mean",
         },
         {
-          title: "Course administration",
-          subtitle:
-            "The course administration (information during the course, course memo, course homepage etc.) worked well",
+          title: tl.value.survey.administration.title,
+          subtitle: tl.value.survey.administration.caption,
           median_key: "administration_median",
           mean_key: "administration_mean",
         },
         {
-          title: "Workload",
-          subtitle:
-            "The course workload as related to the number of credits was...",
+          title: tl.value.survey.workload.title,
+          subtitle: tl.value.survey.workload.caption,
           median_key: "workload_median",
           mean_key: "workload_mean",
         },
@@ -195,17 +138,17 @@ export default defineComponent({
         subtitle,
         data: [
           {
-            label: "Median",
+            label: tl.value.ui.median,
             data: surveys.map((s) => s[median_key]),
-            color: theme.get("sp-green"),
+            color: theme.get("tp-green"),
           },
           {
-            label: "Mean",
+            label: tl.value.ui.mean,
             data: surveys.map((s) => s[mean_key]),
-            color: theme.get("sp-red"),
+            color: theme.get("tp-red"),
           },
           {
-            label: `${course.owner_code} mean`,
+            label: `${course.owner_code} ${tl.value.ui.mean}`,
             data: programme_average.map((e: any) => e[mean_key]),
             color: "hsla(255, 25%, 59%, 1.0)",
           },
@@ -215,24 +158,49 @@ export default defineComponent({
           //   color: "#006C5C",
           // },
         ],
-      })));
+      })),
+    );
 
     // useEvent().addListener("keydown", (e) => {
     //   console.log(`useEvent: ${e.key}`);
     // })
 
-
-
-
     return {
-      charts, labels, comments, course, answerFrequency
-    }
-  }
+      charts,
+      labels,
+      comments,
+      course,
+      answerFrequency,
+      tl,
+    };
+  },
 });
 </script>
 
-<style lang="scss" scoped>
-.sidebar {
-  top: 10vh;
-}
-</style>
+<template lang="pug">
+.flex.flex-col.gap-8
+  .p-4.bg-base-200.rounded
+    .flex.items-center(id="1")
+      h3.pr-2 {{ tl.survey.answer_frequency.title }}
+      Key 1
+    .text-muted {{ tl.survey.answer_frequency.caption }}
+    LineChart(
+      :labels="labels",
+      :data="answerFrequency",
+      :scales="{ yAxis: { min: 0, max: 100 } }",
+      :dots="true"
+    )
+
+  .p-4.bg-base-200.rounded(v-for="(chart, index) in charts")
+    .flex.items-center(:id="String(index + 2)") 
+      h3.pr-2 {{ chart.title }}
+      Key {{ index + 2 }}
+    .text-muted {{ chart.subtitle }}
+    LineChart(
+      :labels="labels",
+      :data="chart.data",
+      :scales="{ yAxis: { min: 1, max: 5 } }",
+      :dots="true",
+      :comments="comments"
+    )
+</template>

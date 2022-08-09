@@ -1,5 +1,5 @@
 <template lang="pug">
-.row.justify-content-center
+.row.justify-center
   .col-10.col-lg-8
     .row.justify-content-around
       .col-6
@@ -53,12 +53,12 @@ export default defineComponent({
 
     const onProgress = (progress: number) => {
       examSheetUploadProgress.value = progress;
-    }
+    };
 
     const onFinished = () => {
       examSheetUploadProgress.value = 100;
       examSheetUploadFinished.value = true;
-    }
+    };
 
     const uploadExamSheet = async () => {
       const file = examSheetUpload.value?.files?.item(0);
@@ -70,7 +70,7 @@ export default defineComponent({
       if (isErr(res)) {
         examSheetUploadError.value = res.val;
       }
-    }
+    };
 
     return {
       examSheetUpload,
@@ -78,8 +78,8 @@ export default defineComponent({
       examSheetUploadProgress,
       examSheetUploadFinished,
       examSheetUploadError,
-      uploadExamSheet
-    }
+      uploadExamSheet,
+    };
   },
 });
 </script>

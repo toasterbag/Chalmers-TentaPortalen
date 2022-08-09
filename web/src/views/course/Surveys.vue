@@ -1,29 +1,8 @@
-<template lang="pug">
-.row.d-flex.justify-content-center
-  .col-10.col-lg-8
-    .row.justify-content-between.py-3(v-if="surveys.isEmpty()")
-      .fs-2.text-center Found no surveys for this course
-    .row(v-else)
-      .row
-        .pb-3 Minutes can be found on the survey page, if they have been published
-      .row.justify-content-left.tenta-table
-        .col-12
-          .row.header
-            .col-8 Academic Year
-            .col-4 Survey
-
-          .row.align-items-center(
-            v-for="{ academic_year, url } in surveys",
-            :key="academic_year"
-          )
-            .col-8 {{ academic_year }}
-            .col-4
-              a.text-primary(target="_blank", :href="url") Link
-</template>
-
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useAPI } from "../../plugins/api";
+import { useLocalization } from "../../plugins/localization";
+import { storeToRefs } from "pinia";
 
 export default defineComponent({
   name: "CourseSurveys",
@@ -31,15 +10,35 @@ export default defineComponent({
     code: {
       required: true,
       type: String,
-    }
+    },
   },
   async setup(props) {
     const api = useAPI();
-    let surveys = (await api.fetchCourseSurveys(props.code)).reverse()
+    const { tl } = storeToRefs(useLocalization());
+    let surveys = (await api.fetchCourseSurveys(props.code)).reverse();
 
-    return { surveys }
-  }
+    return { surveys, tl };
+  },
 });
 </script>
 
-<style lang="scss" scoped></style>
+<template lang="pug">
+.row.flex.justify-center
+  .col-10.col-lg-8
+    .row.justify-between.py-3(v-if="surveys.isEmpty()")
+      .fs-2.text-center {{ tl.pages.course.no_surveys_found }}
+    .row(v-else)
+      .row
+        .pb-3 {{ tl.pages.course.hint_minutes }}
+
+      .overflow-x-scroll
+        table.tp-table.py-3
+          thead
+            tr
+              th {{ tl.terms.academic_year }}
+              th {{ tl.terms.survey }}
+          tbody
+            tr(v-for="{ academic_year, url } in surveys", :key="academic_year")
+              td {{ academic_year }}
+              td: a.text-primary(target="_blank", :href="url") Link
+</template>

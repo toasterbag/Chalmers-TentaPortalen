@@ -125,7 +125,6 @@ const scrape_all_programmes = async (
   start_year = getYear(new Date()),
 ): Promise<Array<ProgrammeData> | ImportError> => {
   const current_year = getYear(new Date()) + 1;
-
   const programmes: Array<ProgrammeData> = [];
   for (const year of range(start_year, current_year)) {
     const academic_year = AcademicYear.from_date(new Date(year, 1));

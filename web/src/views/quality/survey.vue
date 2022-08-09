@@ -1,8 +1,8 @@
 <template lang="pug">
-.row.justify-content-center.border-bottom
+.row.justify-center.border-bottom
   .col-12.col-md-8.pb-3
-    .d-flex.align-items-center(id="1")
-      .fs-3.pe-2 Answer Frequency
+    .flex.align-items-center(id="1")
+      .fs-3.pr-2 Answer Frequency
       Key 1
     .text-muted How many students responded to the survey? (percentage)
     LineChart(
@@ -13,10 +13,10 @@
       :showLabels="true"
     )
 
-.row.justify-content-center.border-bottom(v-for="(chart, index) in charts")
+.row.justify-center.border-bottom(v-for="(chart, index) in charts")
   .col-12.col-md-8.pb-3
-    .d-flex.align-items-center(:id="String((index + 2) % 10)") 
-      .fs-3.pe-2 {{ chart.title }}
+    .flex.align-items-center(:id="String((index + 2) % 10)") 
+      .fs-3.pr-2 {{ chart.title }}
       Key {{ (index + 2) % 10 }}
     .text-muted {{ chart.subtitle }}
     LineChart(
@@ -38,7 +38,16 @@ export default defineComponent({
   name: "CourseSurveyAnalyis",
 
   async setup() {
-    const EDITI = ["TKDAT", "TKITE", "TKIEK", "TKELT", "TKMED", "TIDAL", "TIELL", "TIEPL"]
+    const EDITI = [
+      "TKDAT",
+      "TKITE",
+      "TKIEK",
+      "TKELT",
+      "TKMED",
+      "TIDAL",
+      "TIELL",
+      "TIEPL",
+    ];
 
     const divisionColors = new Map([
       ["TKDAT", "#fb8500"],
@@ -61,9 +70,8 @@ export default defineComponent({
 
       ["TIEPL", "#f15bb5"],
       ["TIDAL", "#f72585"],
-      ["TIELL", "#003566"]
-
-    ])
+      ["TIELL", "#003566"],
+    ]);
 
     const color = (code: string) => {
       const specific = divisionColors.get(code);
@@ -73,18 +81,18 @@ export default defineComponent({
 
       // if (code.startsWith("TK")) return "#c1121f11";
       // if (code.startsWith("TI")) return "#f15bb511";
-      return "rgba(0,0,0,0.1)"
-    }
+      return "rgba(0,0,0,0.1)";
+    };
 
     const chalmersByYear = await Http.get(`survey/chalmers`);
 
     const chalmersAverage = Object.values(chalmersByYear);
 
-    const labels = Object.keys(chalmersByYear).skip(1)
+    const labels = Object.keys(chalmersByYear).skip(1);
 
-
-
-    const departments: { [key in string]: any } = await Http.get(`survey/per-department`);
+    const departments: { [key in string]: any } = await Http.get(
+      `survey/per-department`,
+    );
 
     for (const [, years] of Object.entries(departments)) {
       for (const year of labels) {
@@ -93,7 +101,6 @@ export default defineComponent({
         }
       }
     }
-
 
     const programmes: { [key in string]: any } = await Http.get(
       `survey/per-programme`,
@@ -106,25 +113,25 @@ export default defineComponent({
       }
     }
 
-    const answerFrequency = computed(() =>
-      [...Object.entries(programmes)
+    const answerFrequency = computed(() => [
+      ...Object.entries(programmes)
         // .filter(([code]) => code.startsWith("TK"))
         .filter(([code]) => EDITI.includes(code))
         .map(([code, byYear]: [string, any]) => ({
           label: code,
-          data: Object
-            .entries(byYear)
+          data: Object.entries(byYear)
             .sortBy(([a], [b]) => a.localeCompare(b))
             .filter(([year]) => year !== "2014/2015")
             .map(([year, data]) => data)
             .map((s: any) => (s ?? {})["answer_frequency"]),
-          color: color(code)
-        })), {
+          color: color(code),
+        })),
+      {
         label: "Chalmers",
         data: chalmersAverage.map((s: any) => s["answer_frequency"]),
         color: "#006C5C",
-      },]
-    );
+      },
+    ]);
 
     const charts = computed(() =>
       [
@@ -192,23 +199,25 @@ export default defineComponent({
       ].map(({ title, subtitle, mean_key }) => ({
         title,
         subtitle,
-        data: [...Object.entries(programmes)
-          // .filter(([code]) => code.startsWith("TK"))
-          .filter(([code]) => EDITI.includes(code))
-          .map(([code, byYear]: [string, any]) => ({
-            label: code,
-            data: Object
-              .entries(byYear)
-              .sortBy(([a], [b]) => a.localeCompare(b))
-              .filter(([year]) => year !== "2014/2015")
-              .map(([year, data]) => data)
-              .map((s: any) => (s ?? {})[mean_key]),
-            color: color(code)
-          })), {
-          label: "Chalmers",
-          data: chalmersAverage.map((s: any) => s[mean_key]),
-          color: "#006C5C",
-        },]
+        data: [
+          ...Object.entries(programmes)
+            // .filter(([code]) => code.startsWith("TK"))
+            .filter(([code]) => EDITI.includes(code))
+            .map(([code, byYear]: [string, any]) => ({
+              label: code,
+              data: Object.entries(byYear)
+                .sortBy(([a], [b]) => a.localeCompare(b))
+                .filter(([year]) => year !== "2014/2015")
+                .map(([year, data]) => data)
+                .map((s: any) => (s ?? {})[mean_key]),
+              color: color(code),
+            })),
+          {
+            label: "Chalmers",
+            data: chalmersAverage.map((s: any) => s[mean_key]),
+            color: "#006C5C",
+          },
+        ],
         // [
         //   {
         //     label: "Median",
@@ -231,18 +240,18 @@ export default defineComponent({
         //   //   color: "#006C5C",
         //   // },
         // ],
-      })));
-
+      })),
+    );
 
     const onKeydown = (e: KeyboardEvent) => {
       if (!isNaN(Number(e.key))) {
         location.hash = `#${e.key}`;
       }
-    }
+    };
 
     document.addEventListener("keydown", onKeydown);
     onUnmounted(() => {
-      console.log("remove listener")
+      console.log("remove listener");
       document.removeEventListener("keydown", onKeydown);
     });
 
@@ -250,10 +259,12 @@ export default defineComponent({
 
     return {
       charts,
-      labels: labels.map(s => s.replace(/20([0-9]{2})\/20([0-9]{2})/g, "$1/$2")),
-      answerFrequency
-    }
-  }
+      labels: labels.map((s) =>
+        s.replace(/20([0-9]{2})\/20([0-9]{2})/g, "$1/$2"),
+      ),
+      answerFrequency,
+    };
+  },
 });
 </script>
 

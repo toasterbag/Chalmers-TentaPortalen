@@ -1,6 +1,6 @@
 {
   "name": "course-portal",
-  "version": "3.0.0",
+  "version": "22.8",
   "main": "dist/index.js",
   "license": "AGPLv3",
   "scripts": {

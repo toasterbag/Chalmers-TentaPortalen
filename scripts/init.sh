@@ -14,8 +14,10 @@ docker-compose exec postgres psql -c 'CREATE DATABASE "course-portal-common"'
 docker-compose exec postgres psql -c 'CREATE DATABASE "course-portal-restricted"'
 
 # Ininitalize Database
-DB_URL="https://tenta.davebay.net/public/dumps/db-latest.sql.gz"
+DB_URL="https://tenta.chs.se/public/dumps/db-latest.sql.gz"
 curl $DB_URL | gzip -d > "./db.sql" 
+
+
 docker-compose cp "./db.sql" postgres:/db.sql
 docker-compose exec postgres psql -d course-portal-common -f /db.sql
 

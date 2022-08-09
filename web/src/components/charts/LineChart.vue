@@ -6,53 +6,64 @@
 <script lang="ts">
 import { Chart, ChartOptions } from "chart.js";
 import { storeToRefs } from "pinia";
-import { computed, defineComponent, PropType, Ref, ref, watchEffect } from "vue";
+import {
+  computed,
+  defineComponent,
+  PropType,
+  Ref,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import { usePreferences } from "../../plugins/preferences";
 import { useTheme } from "../../plugins/theme";
 const theme = useTheme();
 
 type Data = {
   label: string;
-  data: Array<number>,
-  color: string,
-  borderWidth?: number,
-}
+  data: Array<number>;
+  color: string;
+  borderWidth?: number;
+};
 
 export default defineComponent({
   name: "LineChart",
   props: {
     labels: {
       required: true,
-      type: Object as PropType<Array<string>>
+      type: Object as PropType<Array<string>>,
     },
     data: {
       required: true,
-      type: Object as PropType<Array<Data>>
+      type: Object as PropType<Array<Data>>,
     },
     comments: {
-      default: () => []
+      default: () => [],
     },
     colorize: {
-      default: true
+      default: true,
     },
     dots: {
       default: false,
     },
     scales: {
-      default: undefined,
+      type: Object as PropType<any>,
+      required: false,
     },
     showLabels: {
       default: true,
-    }
+    },
   },
   setup(props) {
     const theme = useTheme();
     const canvas: Ref<HTMLCanvasElement | null> = ref(null);
     let chart: Chart | undefined = undefined;
+    const { themeDummy } = storeToRefs(usePreferences());
 
-    const isDesktop = getComputedStyle(document.documentElement).getPropertyValue(
-      "--is-desktop",
-    ) === "true";
+    const isDesktop =
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--is-desktop",
+      ) === "true";
 
     const colorList = [
       "#EF476F",
@@ -60,11 +71,10 @@ export default defineComponent({
       "#FFD166",
       "#118AB2",
       "#073B4C",
-      theme.get("sp-purple"),
-      theme.get("sp-red"),
-      theme.get("sp-yellow"),
+      theme.get("tp-purple"),
+      theme.get("tp-red"),
+      theme.get("tp-yellow"),
     ];
-
 
     const render = () => {
       if (canvas.value !== null) {
@@ -77,47 +87,83 @@ export default defineComponent({
 
             tooltip: {
               intersect: false,
-              mode: 'index',
-              enabled: props.showLabels
+              mode: "index",
+              enabled: props.showLabels,
             },
             legend: {
               display: props.showLabels,
-            }
+              labels: {
+                color: theme.get("tp-chart-content"),
+              },
+            },
           };
 
           chart = new Chart(context, {
             type: "line",
             data: {
               labels: props.labels,
-              datasets: props.data.map(({ label, data, color, borderWidth }, i) => {
-                const line_color = props.colorize ? colorList[i] : "#c9184a55";
-                const dot_color = props.dots ? line_color : "transparent";
-                return {
-                  label,
-                  pointBackgroundColor: color ?? dot_color,
-                  pointBorderColor: color ?? dot_color,
+              datasets: props.data.map(
+                ({ label, data, color, borderWidth }, i) => {
+                  const line_color = props.colorize
+                    ? colorList[i]
+                    : "#c9184a55";
+                  const dot_color = props.dots ? line_color : "transparent";
+                  return {
+                    label,
+                    pointBackgroundColor: color ?? dot_color,
+                    pointBorderColor: color ?? dot_color,
 
-                  backgroundColor: color ?? line_color,
-                  borderColor: color ?? line_color,
-                  borderWidth: borderWidth ?? 3,
-                  data,
-                };
-              }),
+                    backgroundColor: color ?? line_color,
+                    borderColor: color ?? line_color,
+                    borderWidth: borderWidth ?? 3,
+                    data,
+                  };
+                },
+              ),
             },
             options: {
               plugins,
 
-              scales: props.scales,
-              maintainAspectRatio: isDesktop,
-            }
-          })
+              animation: {
+                duration: 0,
+              },
 
+              scales: {
+                x: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
+                  ...(props.scales?.xAxis ?? {}),
+                },
+                y: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
+                  ...(props.scales?.yAxis ?? {}),
+                },
+              },
+              maintainAspectRatio: isDesktop,
+            },
+          });
         }
       }
-    }
+    };
     watchEffect(() => render());
+    watch(themeDummy, () => render());
 
-    return { canvas }
+    return { canvas };
   },
 });
 </script>

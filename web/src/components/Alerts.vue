@@ -1,21 +1,21 @@
 <template lang="pug">
 .sp-alerts
   //- .sp-alert.p-3.bg-error.text-white.mobile-only
-  //-   .d-flex.justify-content-center.align-items-center
-  //-     .fa.fa-mobile.pe-2
+  //-   .flex.justify-center.align-items-center
+  //-     .fa.fa-mobile.pr-2
   //-     span This site is not yet mobile friendly, the desktop version is recommended.
-  .sp-alert.p-3.bg-error.text-white(v-if="!isProduction")
-    .d-flex.justify-content-center.align-items-center
-      .fa.fa-exclamation-circle.pe-2
-      a(href="https://tenta.davebay.net", target="_blank") This is the beta version, do not expect it to work as intended. Click here to return to the stable version.
-  .sp-alert.p-3.d-flex.justify-content-center.align-items-center(
+  //- .sp-alert.p-3.bg-error.text-white(v-if="!isProduction")
+  //-   .flex.justify-center.align-items-center
+  //-     .fa.fa-exclamation-circle.pr-2
+  //-     a(href="https://tenta.davebay.net", target="_blank") This is the beta version, do not expect it to work as intended. Click here to return to the stable version.
+  .sp-alert.p-3.flex.justify-center.align-items-center(
     v-for="(alert, index) in visible_alerts",
     :class="[alert.style.background, alert.style.color, alert]"
   )
-    .fa.pe-2(:class="[alert.style.icon]")
+    .fa.pr-2(:class="[alert.style.icon]")
     a(v-if="alert.link", :href="alert.link", target="_blank") {{ alert.message }}
     .text(v-else) {{ alert.message }}
-    .fa.fa-times.dismiss.pe-2(
+    .fa.fa-times.dismiss.pr-2(
       v-if="alert.dismissable",
       @click="dismiss(index)"
     )
@@ -45,30 +45,39 @@ export default defineComponent({
         start: new Date(2018, 1),
         end: new Date(2022, 4, 11),
         style: "info",
-        message: "Exams and survey data from study period 3 will be available on April 12th!",
+        message:
+          "Exams and survey data from study period 3 will be available on April 12th!",
         dismissable: true,
-        link: undefined
+        link: undefined,
       },
     ],
     isProduction: import.meta.env.MODE === "production",
-    styles: new Map(
+    styles: new Map([
       [
-        ["info", {
+        "info",
+        {
           icon: "fa-info-circle",
           color: "text-white",
           background: "bg-primary",
-        }],
-        ["warning", {
+        },
+      ],
+      [
+        "warning",
+        {
           icon: "fa-exclamation-triangle",
           color: "text",
           background: "bg-warning",
-        }],
-        ["error", {
+        },
+      ],
+      [
+        "error",
+        {
           icon: "fa-exclamation-circle",
           color: "text-white",
           background: "bg-error",
-        },]
-      ]),
+        },
+      ],
+    ]),
   }),
   computed: {
     seen_alerts: {

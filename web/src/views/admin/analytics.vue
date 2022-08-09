@@ -1,7 +1,7 @@
 <template lang="pug">
 Spinner(v-if="loading")
 div(v-else)
-  .row.justify-content-between
+  .row.justify-between
     .col-6
       LineChart(:labels="exams_uploaded.labels", :data="exams_uploaded.data")
     .col-6
@@ -46,5 +46,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

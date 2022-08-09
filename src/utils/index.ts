@@ -20,10 +20,10 @@ const isAround = (start: number, end: number) => (date: string | Date) => {
 };
 
 export const aroundExamPeriod = (date: string | Date) => {
-  if (isAround(10, 11)(date)) return 1;
-  if (isAround(1, 1)(date)) return 2;
-  if (isAround(3, 4)(date)) return 3;
-  if (isAround(5, 6)(date)) return 4;
+  if (isAround(9, 10)(date)) return 1;
+  if (isAround(0, 0)(date)) return 2;
+  if (isAround(2, 3)(date)) return 3;
+  if (isAround(4, 5)(date)) return 4;
   return undefined;
 };
 

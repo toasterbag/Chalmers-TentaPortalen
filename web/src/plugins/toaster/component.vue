@@ -3,7 +3,7 @@
   .message.text-white(
     v-for="([id, toast], index) in queue",
     :key="id",
-    :style="{ top: `${index * 64 + 12}px`, backgroundColor: toast.color ?? 'var(--sp-primary)' }",
+    :style="{ top: `${index * 64 + 12}px`, backgroundColor: toast.color ?? 'var(--p)' }",
     :class="{ exit: toast.exiting }"
   )
     .fa.pr-2(:class="[toast.icon]")

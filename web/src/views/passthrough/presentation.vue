@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   teleport(to="#sidebar-right")
-    .d-flex.justify-content-end.sticky-top.pt-4
+    .flex.justify-content-end.sticky-top.pt-4
       .sidebar
         //- div 
         //-   b Examinationsform
@@ -38,7 +38,7 @@ div
     .mt-4(v-for="{title, labels, data} of charts")
       h1 {{ title }}
       .text-warning ⚠️ Does not take into account courses spanning multiple periods. Do not over interpret these general statistics.
-      .row.justify-content-between
+      .row.justify-between
         passthrough-chart(
           :labels="labels",
           :programmes="data",
@@ -48,7 +48,7 @@ div
         thead
           tr
             td Programme
-            td.text-end(v-for="label in labels.skip(1)") {{ label.replace(/^20(\d\d)\/20(\d\d)/g, '$1/$2') }}
+            td.text-end(v-for="label in labels.skip(1)") {{ label.replace(/^20(\d\d)\/20(\d\d)/g, "$1/$2") }}
         tbody
           tr(
             v-for="{ label: programmme, data, delta } in data",

@@ -1,7 +1,7 @@
-# Course portal
-A service to explore course statistics and exams at Chalmers University of Technology (not affiliated).
+# Chalmers Tentaportalen
+A service to explore course statistics and exams (tenta) at Chalmers University of Technology (not affiliated).
 
-Official instance at: [https://tenta.davebay.net](https://tenta.davebay.net)
+Official instance at: [https://tenta.chs.se](https://tenta.chs.se)
 
 ## Development
 ### Setup
@@ -26,10 +26,10 @@ The web frontend has to be run on the host for now. `cd` into `./web` and run `y
 Developing through docker is the only officially supported way. It is expected that all code is tested on the docker setup. This is to ensure that all setups work the same. You are however welcome to suggest changes or develop in a way that suits you.
 
 ## Reporting issues
-If you find any issues with the service please report them here on github or through [this link](https://tenta.davebay.net/feedback). If you provide sample pages and behaviour to recreate the problem will be fixed much faster! You are welcome to report issues in either English or Swedish, whatever you are most comfortable with.
+If you find any issues with the service please report them here on github or through [this link](https://tenta.chs.se/feedback). If you provide sample pages and behaviour to recreate the problem will be fixed much faster! You are welcome to report issues in either English or Swedish, whatever you are most comfortable with.
 
 ## Deploying
-The current official instance is located at [https://tenta.davebay.net](https://tenta.davebay.net). I welcome others to host their own but consider if perhaps there would be greater benefit if there were cooperation rather than a split as for example the different instances would not be able to share exam databases without effort.
+The current official instance is located at [https://tenta.chs.se](https://tenta.chs.se). I welcome others to host their own but consider if perhaps there would be greater benefit if there were cooperation rather than a split as for example the different instances would not be able to share exam databases without effort.
 
 I am committed to supporting this project until at least 2024!
 

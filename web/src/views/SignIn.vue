@@ -1,17 +1,16 @@
 <template lang="pug">
-.row.justify-content-center
-  .col-8.col-md-3
+.flex.justify-center
+  .flex.flex-col.justify-center.w-96
     h2.mb-4 Sign in
-    form
-      .mb-3
-        label.form-label(for="password") Email
-        input#password.form-control(type="text", v-model="email")
-      .mb-3
-        label.form-label(for="password") Password
-        input#password.form-control(type="password", v-model="password")
-        .form-text.text-red(v-if="error") {{ error }}
-
-    button.btn(@click="trySignIn") Sign in
+    .mb-3
+      .font-bold Email
+      RetroInput(type="text", v-model="email")
+    .mb-3
+      .font-bold Password
+      RetroInput(:password="true", v-model="password")
+      .form-text.text-red(v-if="error") {{ error }}
+    .flex.justify-end
+      .btn(@click="trySignIn") Sign in
 </template>
 
 <script lang="ts">

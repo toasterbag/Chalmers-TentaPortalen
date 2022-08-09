@@ -1,5 +1,5 @@
 <template lang="pug">
-.row.justify-content-center
+.row.justify-center
   .col-12.col-md-8
     .pb-4
       .fs-4 Glossary

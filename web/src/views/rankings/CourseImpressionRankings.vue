@@ -1,107 +1,3 @@
-<template lang="pug">
-.row.d-flex.justify-content-center
-  .col-10.col-lg-8
-    .row.my-4
-      .row
-        .col-12.col-md-6
-          Combobox(
-            v-model="q.owner",
-            :suggestions="ownerSuggestions",
-            label="Owner",
-            @autocomplete="autocompleteOwner"
-          )
-        .col-12.col-md-6
-          Select(
-            v-model="q.academicYear",
-            :values="availableYears",
-            label="Academic year",
-            :clearable="false"
-          )
-      .row
-        .col-6.col-lg-3
-          Combobox(
-            v-model="q.programmePlan",
-            :suggestions="programmePlanSuggestions",
-            label="Programme plan",
-            @autocomplete="autocompleteProgrammePlan"
-          )
-        .col-6.col-lg-3(v-if="q.programmePlan.length")
-          Select(
-            v-model="q.electivity",
-            :values="electiviyCategories",
-            label="Electivity",
-            :clearable="false"
-          )
-
-        //- .col-4(v-if="programmePlan !== ''")
-        //-   sp-select(
-        //-     v-model="grade",
-        //-     :values="grade",
-        //-     label="Electivity",
-        //-     @input="updateQuery"
-        //-   )
-      .row
-        .col-6.col-lg-3.pb-2
-          label.form-label Minimum responses
-          input.form-control(v-model="q.minResponses", type="number", min="1")
-        .col-6.col-lg-3.pb-2
-          label.form-label Maximum responses
-          input.form-control(v-model="q.maxResponses", type="number", min="1")
-        .col-6.col-lg-3
-          Select(
-            v-model="q.startPeriod",
-            :values="periods",
-            label="Start period"
-          )
-        .col-6.col-lg-3
-          Select(v-model="q.endPeriod", :values="periods", label="End Period")
-
-    .row.justify-content-center.tenta-table
-      .d-flex.justify-content-between.pb-2
-        div Tip: You can click on the column titles to change sort order
-        div {{ courses.length }} results
-      .col-12
-        .row.header.align-items-center.user-select-none
-          .col-3 Code
-          .col-2.text-end.clickable(
-            @click="setSortingKey('total_impression_mean')"
-          )
-            span.pe-2(v-if="sortingKey == 'total_impression_mean'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Overall impression
-          .col-2.text-end.clickable(@click="setSortingKey('respondents')")
-            span.pe-2(v-if="sortingKey == 'respondents'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Respondents
-          .col-2.text-end.clickable(@click="setSortingKey('responses')")
-            span.pe-2(v-if="sortingKey == 'responses'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Responses
-          .col-3.text-end.clickable(@click="setSortingKey('answer_frequency')")
-            span.pe-2(v-if="sortingKey == 'answer_frequency'")
-              SortingOrderIcon(:descending="orderDescending")
-            span Answer frequency
-
-        .d-flex.justify-content-center(v-if="loading")
-          Spinner
-        div(v-else)
-          .row.text-center(v-if="courses.isEmpty()")
-            div No results
-          .row(
-            v-else,
-            v-for="course in courses",
-            :key="course.course_code + course.start_period + course.end_period"
-          )
-            .col-3.fw-bold.text-primary
-              router-link(
-                :to="{ name: 'Course/ExamStatistics', params: { code: course.course_code } }"
-              ) {{ course.course_code }}
-            .col-2.text-end {{ course.total_impression_mean.roundTo(2) }}
-            .col-2.text-end {{ course.respondents }}
-            .col-2.text-end {{ course.responses }}
-            .col-3.text-end {{ course.answer_frequency.roundTo(2) }}%
-</template>
-
 <script lang="ts">
 import Http from "../../plugins/http";
 import { getYear, getMonth } from "date-fns";
@@ -109,6 +5,8 @@ import { defineComponent, reactive, Ref, ref, watch } from "vue";
 import { LocationQueryValue, useRoute } from "vue-router";
 import { useAPI } from "../../plugins/api";
 import { Survey } from "../../plugins/api/types";
+import { storeToRefs } from "pinia";
+import { useLocalization } from "../../plugins/localization";
 
 const date_to_academic_year = (date: Date) =>
   getMonth(date) > 7
@@ -120,6 +18,10 @@ export default defineComponent({
   async setup() {
     const api = useAPI();
     const route = useRoute();
+
+    const l = useLocalization();
+    const { tl, locale } = storeToRefs(l);
+    document.title = l.title(tl.value.pages.course_impressions.title);
 
     const availableYears = new Array(8)
       .fill(1)
@@ -162,7 +64,9 @@ export default defineComponent({
 
     let loading = ref(false);
     let timer = setTimeout(() => {}, 0);
-    let courses: Ref<Array<Survey>> = ref([]);
+    let courses: Ref<
+      Array<Survey & { course: { name_en: string; name_sv: string } }>
+    > = ref([]);
 
     const setSortingKey = (key: string) => {
       if (key != sortingKey.value) {
@@ -233,23 +137,129 @@ export default defineComponent({
       courses,
       periods: [1, 2, 3, 4],
       q,
+      tl,
+      locale,
     };
   },
 });
 </script>
 
-<style lang="scss" scoped>
-@import "../../variables.scss";
+<template lang="pug">
+.flex.flex-col.gap-4
+  .my-4
+    .grid.grid-cols-2.gap-4
+      .col-span-1
+        Combobox(
+          v-model="q.owner",
+          :suggestions="ownerSuggestions",
+          :label="tl.terms.owner",
+          @autocomplete="autocompleteOwner"
+        )
+      .col-span-1
+        Select(
+          v-model="q.academicYear",
+          :values="availableYears",
+          :label="tl.terms.academic_year",
+          :clearable="false"
+        )
+      .col-span-1
+        Combobox(
+          v-model="q.programmePlan",
+          :suggestions="programmePlanSuggestions",
+          :label="tl.terms.programme_plan",
+          @autocomplete="autocompleteProgrammePlan"
+        )
+      .col-span-1(v-if="q.programmePlan.length")
+        Select(
+          v-model="q.electivity",
+          :values="electiviyCategories",
+          :label="tl.terms.electivity",
+          :clearable="false"
+        )
 
-@include below(sm) {
-  .tenta-table {
-    position: relative;
-    overflow-x: auto;
-    & > * {
-      position: relative;
-      left: 200px;
-      min-width: 700px;
-    }
-  }
-}
-</style>
+      //- .col-4(v-if="programmePlan !== ''")
+      //-   sp-select(
+      //-     v-model="grade",
+      //-     :values="grade",
+      //-     label="Electivity",
+      //-     @input="updateQuery"
+      //-   )
+    .grid.grid-cols-2.gap-4
+      .col-span-1
+        .font-bold {{ tl.ui.minimum_responses }}
+        input.h-10.p-2.rounded.w-full.bg-base-200(
+          v-model="q.minResponses",
+          type="number",
+          min="1"
+        )
+      .col-span-1
+        .font-bold {{ tl.ui.maximum_responses }}
+        input.h-10.p-2.rounded.w-full.bg-base-200(
+          v-model="q.maxResponses",
+          type="number",
+          min="1"
+        )
+      .col-span-1
+        Select(
+          v-model="q.startPeriod",
+          :values="periods",
+          :label="tl.ui.start_period"
+        )
+      .col-span-1
+        Select(
+          v-model="q.endPeriod",
+          :values="periods",
+          :label="tl.ui.end_period"
+        )
+
+  .flex.justify-between.pb-2
+    div 
+      span.font-bold {{ tl.ui.hint }}:&nbsp;
+      span {{ tl.ui.sort_order_hint }}
+    div {{ courses.length }} {{ tl.ui.results }}
+  .flex.justify-center(v-if="loading")
+    Spinner
+  div(v-else)
+    .row.text-center(v-if="courses.isEmpty()")
+      div {{ tl.ui.no_results }}
+    .overflow-x-scroll
+      table.tp-table.py-3
+        thead
+          tr
+            th {{ tl.ui.course_code }}
+            th.hidden(class="md:block") {{ tl.ui.name }}
+            th.text-end.cursor-pointer(
+              @click="setSortingKey('total_impression_mean')"
+            )
+              span.pr-2(v-if="sortingKey == 'total_impression_mean'")
+                SortingOrderIcon(:descending="orderDescending")
+              span {{ tl.ui.overall_impression }}
+            th.text-end.cursor-pointer(@click="setSortingKey('respondents')")
+              span.pr-2(v-if="sortingKey == 'respondents'")
+                SortingOrderIcon(:descending="orderDescending")
+              span {{ tl.ui.respondents }}
+            th.text-end.cursor-pointer(@click="setSortingKey('responses')")
+              span.pr-2(v-if="sortingKey == 'responses'")
+                SortingOrderIcon(:descending="orderDescending")
+              span {{ tl.ui.responses }}
+            th.text-end.cursor-pointer(
+              @click="setSortingKey('answer_frequency')"
+            )
+              span.pr-2(v-if="sortingKey == 'answer_frequency'")
+                SortingOrderIcon(:descending="orderDescending")
+              span {{ tl.ui.answer_frequency }}
+        tbody
+          tr(
+            v-for="course in courses",
+            :key="course.course_code + course.start_period + course.end_period"
+          )
+            td
+              Link.fw-bold.text-primary(
+                :to="{ name: 'Course/ExamStatistics', params: { code: course.course_code } }"
+              ) {{ course.course_code }}
+            td.hidden(class="md:block") {{ locale === "en" ? course.course.name_en : course.course.name_sv }}
+            td.text-end {{ course.total_impression_mean.roundTo(2) }}
+            td.text-end {{ course.respondents }}
+            td.text-end {{ course.responses }}
+            td.text-end {{ course.answer_frequency.roundTo(2) }}%
+</template>

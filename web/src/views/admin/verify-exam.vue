@@ -1,7 +1,7 @@
 <template lang="pug">
 .row.justify-content-around(v-if="current")
   .row
-    .col-md-9.col-lg-7.d-flex.align-items-center.justify-content-center.border
+    .col-md-9.col-lg-7.flex.align-items-center.justify-center.border
       //- embed.pdf(
       //-   :src="`http://docs.google.com/gview?url=${url}&embedded=true`",
       //-   frameborder="0",
@@ -13,7 +13,7 @@
       .text-center(v-else)
         div No preview available
         a(:href="display.url", target="_blank") 
-          .fa.fa-download.pe-2
+          .fa.fa-download.pr-2
           span Download
         a.d-block.text(:href="display.url", target="_blank") {{ display.url }}
 
@@ -51,7 +51,7 @@
       div
         .btn.bg-primary.me-2(@click="approve") Approve
         .btn.bg-accent(@click="reject") Reject
-.d-flex.justify-content-around(v-else)
+.flex.justify-content-around(v-else)
   .fs-2.fw-light There are no exams waiting to be verified!
 </template>
 

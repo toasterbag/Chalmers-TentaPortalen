@@ -1,10 +1,10 @@
 <template lang="pug">
-.d-flex.justify-content-around(v-if="feedback.isEmpty()")
+.flex.justify-content-around(v-if="feedback.isEmpty()")
   .fs-2.fw-light There is no feedback
 
 .row.justify-content-around(v-else)
   .row(v-for="entry in feedback")
-    .col-md-9.col-lg-7.d-flex.align-items-center.justify-content-center.border {{ entry }}
+    .col-md-9.col-lg-7.flex.align-items-center.justify-center.border {{ entry }}
 </template>
 
 <script>

@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$switch-bg-color: var(--sp-primary) !default;
+$switch-bg-color: var(--p) !default;
 $switch-unchecked-bg: #f1f1f1 !default;
 $switch-unchecked-lever-bg: rgba(0, 0, 0, 0.38) !default;
 $switch-radius: 15px !default;

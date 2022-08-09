@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.view-margin {
+  @apply px-4;
+  @apply md:px-4;
+  @apply lg:px-[8rem];
+  @apply xl:px-[12rem];
+}
+
+a {
+  @apply text-primary;
+  @apply hover:underline;
+}
+
+h1 {
+  @apply text-4xl;
+  @apply font-bold;
+  @apply font-header;
+}
+
+h2 {
+  @apply text-3xl;
+  @apply font-semibold;
+  @apply font-header;
+}
+
+h3 {
+  @apply text-2xl;
+  @apply font-semibold;
+  @apply font-header;
+}
+
+h4 {
+  @apply text-xl;
+  @apply font-semibold;
+  @apply font-header;
+}
+
+.btn {
+  @apply bg-primary;
+  @apply rounded;
+  @apply p-3;
+  border: unset;
+}
+
+.tab-primary.router-link-exact-active {
+  @apply border-b-2;
+  @apply border-primary;
+}
+
+.tab-purple.router-link-exact-active {
+  @apply border-b-2;
+  /* @apply border-purple; */
+}
+
+.font-header {
+  font-family: "Montserrat", "sans-serif";
+}
+
+.font-display {
+  font-family: "Montserrat", "sans-serif";
+}
+
+.font-sans {
+  font-family: "Nunito", "sans-serif";
+}
+
+.tp-table {
+  @apply table-auto;
+  @apply w-full;
+  @apply max-w-[500px];
+  @apply md:max-w-full;
+  @apply md:overflow-x-auto;
+}
+
+.tp-table thead {
+  @apply font-bold;
+  @apply border-b-2;
+  @apply border-base-200;
+}
+
+.tp-table tbody tr {
+  @apply odd:bg-base-300/25;
+  @apply hover:bg-primary/25;
+  @apply border-b;
+  @apply border-base-200;
+}
+
+.tp-table tr td,
+.tp-table tr th {
+  @apply py-2;
+  @apply px-2;
+}
+
+th,
+td {
+  @apply text-start;
+}
+
+/* Header */
+.h-header {
+  @apply h-[6rem];
+}
+
+.retro-input {
+  @apply border-b;
+  @apply text-lg;
+  @apply bg-base-200;
+  @apply h-12;
+
+  @apply px-3;
+  @apply rounded-t;
+  @apply relative;
+  @apply flex;
+  @apply w-full;
+}
+
+.z-modal {
+  z-index: 50;
+}
+
+.z-popup {
+  z-index: 100;
+}
+
+.shadow-center {
+  --shadow-color: 30deg 3% 67%;
+  --shadow-elevation-medium: 0px 0.3px 0.4px hsl(var(--shadow-color) / 0.03),
+    0px 1.1px 1.6px -0.1px hsl(var(--shadow-color) / 0.16),
+    0px 2.2px 3.2px -0.2px hsl(var(--shadow-color) / 0.29),
+    0px 4.6px 6.7px -0.2px hsl(var(--shadow-color) / 0.42);
+  box-shadow: var(--shadow-elevation-medium);
+}
+
+input {
+  @apply focus:outline-none;
+}
+
+.skeleton {
+  @apply animate-pulse;
+  @apply bg-base-200;
+  @apply rounded;
+}
+
+.skeleton-base {
+  @apply bg-base-300;
+  @apply rounded;
+
+  height: 1.125rem;
+  margin-top: 0.25rem;
+}
+
+.skeleton-lg {
+  @apply bg-base-300;
+  @apply rounded;
+  height: 1.25rem;
+  margin: 0.25rem;
+}

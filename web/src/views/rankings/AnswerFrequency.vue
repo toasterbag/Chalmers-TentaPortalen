@@ -1,54 +1,25 @@
-<template lang="pug">
-.row.justify-content-center.border-bottom
-  .col-12.col-md-8.pb-3
-    .row
-      .col-12.col-md-6
-        Select(
-          v-model="academicYear",
-          :values="availableYears",
-          label="Academic year",
-          :clearable="false"
-        )
-      .col-12.col-md-6
-        Select(
-          v-model="studyPeriod",
-          :values="[1, 2, 3, 4]",
-          label="Study period"
-        )
-    .d-flex.align-items-center(id="1")
-      .fs-3.pe-2 Answer Frequency by division
-      Key 1
-    .text-muted How many students responded to the survey? (percentage)
-    BarChart(
-      :labels="labels",
-      :data="data",
-      :colorize="false",
-      :showLabels="true"
-    )
-</template>
-
 <script lang="ts">
 import { useAPI } from "@plugins/api";
+import { BarData } from "@plugins/charts/types";
 import { getMonth, getYear } from "date-fns";
 import { defineComponent, ref, Ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { useLocalization } from "../../plugins/localization";
 
 const date_to_academic_year = (date: Date) =>
   getMonth(date) > 7
     ? `${getYear(date)}/${getYear(date) + 1}`
     : `${getYear(date) - 1}/${getYear(date)}`;
 
-type Data = {
-  label: string;
-  data: number;
-  color?: string;
-  borderWidth?: number;
-};
-
 export default defineComponent({
   name: "SurveyAnswerFrequency",
 
   async setup() {
     const api = useAPI();
+
+    const l = useLocalization();
+    const { tl } = storeToRefs(l);
+    document.title = l.title(tl.value.pages.answer_frequency_by_division.title);
 
     const availableYears = new Array(8)
       .fill(1)
@@ -60,28 +31,60 @@ export default defineComponent({
     const academicYear: Ref<string> = ref(availableYears.first());
     const studyPeriod: Ref<number | undefined> = ref(undefined);
 
-    const divisionColors = new Map([
-      ["TKDAT", "#fb8500"],
-      ["TKIEK", "#7209b7"],
-      ["TKELT", "#ffb703"],
-      ["TKITE", "#219ebc"],
-      ["TKBIO", "#1d3557"],
-      ["TKKEF", "pink"],
-      ["TKKMT", "#40916c"],
-      ["TKDES", "#c9184a"],
-      ["TKTFY", "#444"],
-      ["TKTEM", "#444"],
-      ["TKSAM", "cyan"],
-      ["TKAUT", "#777"],
-      ["TKMAS", "#a47148"],
-      ["TKARK", "#e5383b"],
-      ["TKMED", "#ffb703"],
-      ["TKGBS", "blue"],
-      ["TKATK", "#e5383b"],
+    const patternCanvas = document.createElement("canvas");
+    patternCanvas.width = 32;
+    patternCanvas.height = 32;
+    const patternContext = patternCanvas.getContext("2d");
+    if (patternContext === null) {
+      throw new Error("Could not get canvas context");
+    }
 
-      ["TIEPL", "#f15bb5"],
-      ["TIDAL", "#f72585"],
-      ["TIELL", "#003566"],
+    const drawZigzag = (fillColor: string, strokeColor: string) => {
+      const size = 32;
+      const halfSize = size;
+      const gap = 0;
+
+      const offsetY = 0;
+      const offsetX = 0;
+
+      patternContext.fillStyle = fillColor;
+      patternContext.strokeStyle = strokeColor;
+      patternContext.lineWidth = 6;
+      patternContext.lineJoin = "round";
+      patternContext.lineCap = "round";
+
+      patternContext.fillRect(0, 0, size, size);
+
+      patternContext.moveTo(offsetX + gap, offsetY + gap);
+      patternContext.lineTo(halfSize - gap + offsetX, halfSize - gap + offsetY);
+      patternContext.moveTo(offsetX + gap, halfSize - gap + offsetY);
+      patternContext.lineTo(halfSize - gap + offsetX, offsetY + gap);
+
+      patternContext.stroke();
+
+      return patternContext.createPattern(patternCanvas, "repeat");
+    };
+
+    const divisionColors = new Map([
+      ["D", "#fb8500"],
+      ["I", "#7209b7"],
+      ["E", "#ffb703"],
+      ["IT", "#219ebc"],
+      ["KfKb", drawZigzag("green", "#444") ?? "#1d3557"],
+      ["K", "green"],
+      ["F", "#40916c"],
+      ["TD", "#c9184a"],
+      ["F", "#444"],
+      ["V", "cyan"],
+      ["Z", "#777"],
+      ["M", "#a47148"],
+      ["A", "#e5383b"],
+      ["GS", drawZigzag("#18515E", "yellow") ?? "#F00"],
+      ["AT", "#e5383b"],
+      ["H", "#f72585"],
+      ["H", "#f72585"],
+      ["Æ", "rgb(157, 197, 65)"],
+      ["Sjö", "#000080"],
     ]);
 
     const color = (code: string) => {
@@ -96,17 +99,19 @@ export default defineComponent({
     };
 
     const labels: Ref<Array<string>> = ref([]);
-    const data: Ref<Array<Data>> = ref([]);
+    const data: Ref<Array<BarData>> = ref([]);
 
     const refreshData = async () => {
-      const answerFrequencyByDivision = await api.fetchAnswerFrequencyByDivision(
-        academicYear.value,
-        studyPeriod.value,
-      );
+      const answerFrequencyByDivision =
+        await api.fetchAnswerFrequencyByDivision(
+          academicYear.value,
+          studyPeriod.value,
+        );
 
       labels.value = answerFrequencyByDivision.map((e) => e.division);
       data.value = answerFrequencyByDivision.map((e) => ({
         label: e.division,
+        color: color(e.division),
         data: e.answerFrequency?.mul(10000).round().div(100),
       }));
     };
@@ -121,13 +126,35 @@ export default defineComponent({
       availableYears,
       academicYear,
       studyPeriod,
+      tl,
     };
   },
 });
 </script>
 
-<style lang="scss" scoped>
-.sidebar {
-  top: 10vh;
-}
-</style>
+<template lang="pug">
+.flex.flex-col.justify-center
+  .grid.grid-cols-2.gap-4
+    .col-span-1
+      Select(
+        v-model="academicYear",
+        :values="availableYears",
+        :label="tl.terms.academic_year",
+        :clearable="false"
+      )
+    .col-span-1
+      Select(
+        v-model="studyPeriod",
+        :values="[1, 2, 3, 4]",
+        :label="tl.terms.study_period"
+      )
+  .p-4.rounded.bg-base-200
+    h3.mb-4 {{ tl.pages.answer_frequency_by_division.heading }}
+    //- .text-muted How many students responded to the survey? (percentage)
+    BarChart(
+      :labels="labels",
+      :data="data",
+      :colorize="false",
+      :showLegend="false"
+    )
+</template>

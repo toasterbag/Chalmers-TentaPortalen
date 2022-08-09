@@ -1,60 +1,10 @@
-<template lang="pug">
-div
-  .row.d-flex.justify-content-center
-    .col-10.col-lg-8
-      .row.justify-content-between.desktop-only
-        .py-3
-          .fs-4
-            span {{ course.name_en }}
-            .fst-italic {{ course.name_sv }}
-          .pb-2
-            .pe-2
-              a(
-                target="_blank",
-                :href="`https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${course.instances[0].study_portal_id}&parsergrp=3`"
-              )
-                i.fa.fa-home.pe-1
-                | View on the student portal
-          div
-            span.pe-4 Course code:&nbsp;
-              span.fw-bold {{ course.course_code }}
-            span.pe-4 Owner:&nbsp;
-              span.fw-bold {{ course.owner_code }}
-            span.flex.pe-2(v-if="course.studentBoard") Student board:&nbsp;
-              span.fw-bold {{ course.studentBoard.email }}
-
-      .row.justify-content-between.mobile-only
-        .py-3
-          .fs-6
-            span {{ course.name_en }}
-            .fst-italic {{ course.name_sv }}
-          .py-2
-            .d-flex.justify-items-between
-              .pe-2 Course code:&nbsp;
-                span.fw-bold {{ course.course_code }}
-              .pe-2 Owner:&nbsp;
-                span.fw-bold {{ course.owner_code }}
-            div(v-if="course.studentBoard") Study board:&nbsp;
-              span.fw-bold {{ course.studentBoard }}
-            .py-2
-              a(
-                target="_blank",
-                :href="`https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${course.instances[0].study_portal_id}&parsergrp=3`"
-              )
-                i.fa.fa-home.pe-1
-                | View on the student portal
-
-      .pt-2.pb-4
-        tabs(:entries="links")
-
-  View
-</template>
-
 <script lang="ts">
-import { defineComponent } from "vue";
-import { useRoute } from "vue-router";
+import { defineComponent, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useAPI } from "../../plugins/api";
 import RouterView from "../../components/View.vue";
+import { storeToRefs } from "pinia";
+import { useLocalization } from "../../plugins/localization";
 
 export default defineComponent({
   name: "CourseIndex",
@@ -67,29 +17,66 @@ export default defineComponent({
   async setup(props) {
     const api = useAPI();
     const route = useRoute();
+    const { tl } = storeToRefs(useLocalization());
+    document.title = `TentaPortalen | ${route.params.code}`;
+
     const links = [
       {
-        title: "Exam statistics",
+        title: tl.value.pages.course.nav.exam_statistics,
         route: "Course/ExamStatistics",
       },
       {
-        title: "Exams & solutions",
+        title: tl.value.pages.course.nav.old_theses,
         route: "Course/Materials",
       },
       {
-        title: "Survey Analysis",
+        title: tl.value.pages.course.nav.survey_analysis,
         route: "Course/SurveyAnalysis",
       },
       {
-        title: "Surveys & minutes",
+        title: tl.value.pages.course.nav.old_surveys,
         route: "Course/Surveys",
       },
     ];
     const course = await api.fetchCourse(props.code);
-    return { route, course, links };
+    return { route, course, links, tl };
   },
   components: { RouterView },
 });
 </script>
 
-<style lang="scss" scoped></style>
+<template lang="pug">
+.view-margin
+  .flex.justify-between
+    .py-3
+      .text-lg.font-semibold.font-header
+        span {{ course.name_en }}
+        .italic {{ course.name_sv }}
+      .py-2
+        .flex.justify-between.flex-col(class="md:gap-4 md:flex-row")
+          .pr-2 {{ tl.ui.course_code }}:&nbsp;
+            span.font-bold {{ course.course_code }}
+          .pr-2 {{ tl.terms.owner }}:&nbsp;
+            span.font-bold {{ course.owner_code }}
+          .pr-2(v-if="course.studentBoard") {{ tl.terms.academic_council }}:&nbsp;
+            span.font-bold {{ course.studentBoard.email }}
+        .py-2
+          a(
+            target="_blank",
+            :href="`https://student.portal.chalmers.se/sv/chalmersstudier/minkursinformation/Sidor/SokKurs.aspx?course_id=${course.instances[0].study_portal_id}&parsergrp=3`"
+          )
+            i.fa.fa-home.pr-1
+            | {{ tl.pages.course.view_on_student_portal }}
+
+  .pt-2.mb-4
+    .overflow-x-scroll
+      .flex.items-center.gap-4(class="w-[500px] md:w-full")
+        Link.tab-primary.pb-2(
+          v-for="{ title, route } in links",
+          :to="{ name: route }",
+          :key="route"
+        )
+          span.font-bold.text-primary.px-4.text-lg {{ title }}
+
+  View
+</template>

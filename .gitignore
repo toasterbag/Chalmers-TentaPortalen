@@ -4,3 +4,4 @@ uploads
 dist
 config.json
 yarn-error.log
+*.sql

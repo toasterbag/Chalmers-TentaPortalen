@@ -70,6 +70,14 @@ const handler: Handler = async (
           ...wheres,
         ],
       },
+      include: {
+        course: {
+          select: {
+            name_en: true,
+            name_sv: true,
+          },
+        },
+      },
       orderBy: {
         date: "asc",
       },

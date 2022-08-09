@@ -4,16 +4,12 @@
 </template>
 
 <script lang="ts">
+import { BarData } from "@plugins/charts/types";
+import { usePreferences } from "@plugins/preferences";
 import { Chart } from "chart.js";
-import { defineComponent, PropType, Ref, ref, watchEffect } from "vue";
+import { storeToRefs } from "pinia";
+import { defineComponent, PropType, Ref, ref, watchEffect, watch } from "vue";
 import { useTheme } from "../../plugins/theme";
-
-type Data = {
-  label: string;
-  data: number;
-  color: string;
-  borderWidth?: number;
-};
 
 export default defineComponent({
   name: "BarChart",
@@ -24,7 +20,7 @@ export default defineComponent({
     },
     data: {
       required: true,
-      type: Object as PropType<Array<Data>>,
+      type: Object as PropType<Array<BarData>>,
     },
     colorize: {
       default: true,
@@ -32,11 +28,16 @@ export default defineComponent({
     showLabels: {
       default: true,
     },
+    showLegend: {
+      default: true,
+    },
   },
   setup(props) {
     const theme = useTheme();
     const canvas: Ref<HTMLCanvasElement | null> = ref(null);
     let chart: Chart | undefined = undefined;
+
+    const { themeDummy } = storeToRefs(usePreferences());
 
     const isDesktop =
       getComputedStyle(document.documentElement).getPropertyValue(
@@ -49,9 +50,9 @@ export default defineComponent({
       "#FFD166",
       "#118AB2",
       "#073B4C",
-      theme.get("sp-purple"),
-      theme.get("sp-red"),
-      theme.get("sp-yellow"),
+      theme.get("tp-purple"),
+      theme.get("tp-red"),
+      theme.get("tp-yellow"),
     ];
 
     const render = () => {
@@ -67,7 +68,7 @@ export default defineComponent({
               enabled: props.showLabels,
             },
             legend: {
-              display: props.showLabels,
+              display: props.showLegend,
             },
           };
 
@@ -89,12 +90,37 @@ export default defineComponent({
               plugins,
 
               maintainAspectRatio: isDesktop,
+              scales: {
+                x: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
+                },
+                y: {
+                  grid: {
+                    color: theme.get("tp-chart-border"),
+                    borderColor: theme.get("tp-chart-border"),
+                    tickColor: theme.get("tp-chart-border"),
+                  },
+                  ticks: {
+                    color: theme.get("tp-chart-content"),
+                    textStrokeColor: theme.get("tp-chart-content"),
+                  },
+                },
+              },
             },
           });
         }
       }
     };
     watchEffect(() => render());
+    watch(themeDummy, () => render());
 
     return { canvas };
   },

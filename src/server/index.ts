@@ -110,7 +110,6 @@ const loadEndpoints = async (): Promise<
 
 const parseUploads = (schema: EndpointSchema, req: Request): Response | any => {
   if (schema.files === undefined) return undefined;
-  console.log(req.files);
   // We cast req.files to any as our middleware assures us that it is created using multer.fields
   const uploads = req.files as any;
   for (const [key] of Object.entries(schema.files)) {
@@ -168,8 +167,7 @@ export class Server {
 
     this.app.use(cors());
     this.app.use(express.json());
-
-    this.app.use(cors());
+    this.app.use("/public", express.static(ctx.config.paths.data));
   }
 
   async authenticate(
@@ -266,7 +264,7 @@ export class Server {
           res.status(500).json({});
           log.error("Internal server error", {
             status: res.statusCode,
-            error: JSON.parse(e as any),
+            error: e as any,
             duration: performance.now() - timestamp,
           });
         }

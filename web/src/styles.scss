@@ -5,67 +5,114 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@100;300;400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600;700&display=swap");
 @import "@fortawesome/fontawesome-free/css/all.css";
-@import "bootstrap";
+@import "./tailwind.css";
 
-@each $name, $value in $palette {
-  .text-#{$name} {
-    color: var(--#{$prefix}-#{$name}) !important;
-  }
+// @each $name, $value in $palette {
+//   .text-#{$name} {
+//     color: var(--#{$prefix}-#{$name}) !important;
+//   }
 
-  .bg-#{$name} {
-    background-color: var(--#{$prefix}-#{$name}) !important;
-  }
+//   .bg-#{$name} {
+//     background-color: var(--#{$prefix}-#{$name}) !important;
+//   }
 
-  .border-#{$name} {
-    border-color: var(--#{$prefix}-#{$name}) !important;
-  }
+//   .border-#{$name} {
+//     border-color: var(--#{$prefix}-#{$name}) !important;
+//   }
+// }
+
+// @each $name, $value in map.get($theme, "fonts") {
+//   .font-#{$name} {
+//     font-family: #{$value};
+//   }
+// }
+
+:root {
+  --tp-font-display: "Montserrat";
+  --tp-font-sans: "Nunito";
+
+  --tp-primary-focus: hsl(160deg, 22%, 36%);
+  --tp-accent-focus: hsl(357deg, 46%, 42%);
+
+  --tp-red: hsl(357, 46%, 52%);
+  --tp-blue: hsl(160, 22%, 46%);
+  --tp-green: hsl(92, 33%, 56%);
+  --tp-yellow: hsl(50, 83%, 74%);
+  --tp-purple: hsl(255, 25%, 59%);
+
+  --tp-chart-failed: hsl(357, 46%, 52%);
+  --tp-chart-three: hsl(50, 83%, 74%);
+  --tp-chart-four: hsl(92, 33%, 56%);
+  --tp-chart-five: hsl(160, 22%, 46%);
+
+  --tp-switch-thumb: hsl(30deg 6% 94%);
+
+  --tp-base-content: var(--tp-base-content-hsl);
 }
 
-@each $name, $value in map.get($theme, "fonts") {
-  .font-#{$name} {
-    font-family: #{$value};
-  }
+html[data-theme="light"] {
+  --tp-base-100-hsl: 30deg 6% 94%;
+  --tp-base-100: hsl(var(--tp-base-100-hsl));
+  --tp-base-200: hsl(30deg, 6%, 90%);
+  --tp-base-300: hsl(30deg, 6%, 86%);
+
+  --tp-chart-content: hsl(210deg, 6%, 33%);
+  --tp-chart-border: var(--tp-base-300);
+
+  --tp-base-content-hsl: 210deg, 6%, 33%;
 }
 
-html {
-  min-height: var(--screen-height);
+html[data-theme="dark"] {
+  --tp-base-100-hsl: 220 18% 20%;
+  --tp-base-200-hsl: 220 17% 17%;
+  --tp-base-300-hsl: 219 18% 15%;
+  --tp-base-100: hsl(var(--tp-base-100-hsl));
+  --tp-base-200: hsl(var(--tp-base-200-hsl));
+  --tp-base-300: hsl(var(--tp-base-300-hsl));
 
-  @include above(md) {
-    --is-desktop: true;
-  }
+  --tp-chart-content: hsl(220 13% 69%);
+  --tp-chart-border: hsl(30 6% 86% / 0.1);
 
-  --is-desktop: false;
-
-  overscroll-behavior-x: none;
-  touch-action: pan-y pinch-zoom;
+  --tp-base-content-hsl: 220 13% 69%;
 }
 
+html,
 body {
-  font-family: var(--sp-font-sans);
-  color: var(--sp-text);
+  position: relative;
+  width: 100vw;
+  min-height: var(--screen-height);
   overscroll-behavior-x: none;
   touch-action: pan-y pinch-zoom;
+  overflow-x: hidden;
+
+  background-color: var(--b1);
+  font-family: var(--tp-font-sans);
+  color: var(--bc);
 }
 
-.fa {
-  color: var(--sp-text);
+.view {
+  padding-bottom: 3rem;
+  // min-height: 75vh;
+  transition: height 0.1s ease-out;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 :root {
-  @each $name, $value in $palette {
-    --#{$prefix}-#{$name}: #{$value};
-  }
+  // @each $name, $value in $palette {
+  //   --#{$prefix}-#{$name}: #{$value};
+  // }
 
-  @each $name, $value in map.get($theme, "fonts") {
-    --#{$prefix}-font-#{$name}: #{$value};
-  }
+  // @each $name, $value in map.get($theme, "fonts") {
+  //   --#{$prefix}-font-#{$name}: #{$value};
+  // }
 
   --sp-search-box-z: 1000;
-  --footer-height: 200px;
-  --input-disabled-solid-color: #949494;
-  --bg-card: #f0efee;
-  --bg-card-raised: #f8f8f8;
-  --sp-paper: #e7e7e7;
 
   --z-toaster: 1200;
   --z-sidebar: 1100;
@@ -90,17 +137,9 @@ body {
     0.4px 42.7px 48px -2.5px hsl(var(--shadow-color) / 0.1);
 }
 
-.p-rel {
-  position: relative;
-}
-
-.p-sticky {
-  position: sticky;
-}
-
 .btn {
-  background-color: var(--sp-primary);
-  color: var(--sp-white);
+  // background-color: var(--sp-primary);
+  // color: var(--sp-white);
   text-transform: uppercase;
   cursor: pointer;
   display: inline-block;
@@ -110,7 +149,7 @@ body {
   }
 
   &:hover {
-    color: var(--sp-background);
+    background-color: var(--tp-primary-focus);
   }
 
   &.disabled {
@@ -153,14 +192,6 @@ body {
   }
 }
 
-.v-fill {
-  height: 100%;
-}
-
-.h-fill {
-  width: 100%;
-}
-
 @include below("xs") {
   .desktop-only {
     display: none;
@@ -185,40 +216,4 @@ body {
       display: none;
     }
   }
-}
-
-.center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.fixed {
-  position: fixed;
-}
-
-.bottom-0 {
-  bottom: 0;
-}
-
-.left-0 {
-  left: 0;
-}
-
-.right-0 {
-  right: 0;
-}
-
-.top-0 {
-  top: 0;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--sp-font-header);
 }

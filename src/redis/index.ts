@@ -13,6 +13,11 @@ const DEPARTMENT_SURVEY_AGGREGATE = "DEPARTMENT_SURVEY_AGGREGATE";
 const SURVEY_BY_PERIOD = "SURVEY_BY_PERIOD";
 const SURVEY_ANSWERS_BY_DIVISION = "SURVEY_ANSWERS_BY_DIVISION";
 
+const EXAM_COUNT = "EXAM_COUNT";
+const THESIS_COUNT = "THESIS_COUNT";
+const ACTIVE_COURSES_WITH_EXAM_COUNT = "ACTIVE_COURSES_WITH_EXAM_COUNT";
+const ACTIVE_COURSES_WITH_THESIS_COUNT = "ACTIVE_COURSES_WITH_THESIS_COUNT";
+
 type SurveyAggregate = {
   answer_frequency: number;
   prerequisite_mean: number;
@@ -74,6 +79,13 @@ export class RedisCache {
 
   public readonly department_survey_aggregate: RedisMap;
 
+  readonly entries: {
+    EXAM_COUNT: RedisString;
+    THESIS_COUNT: RedisString;
+    ACTIVE_COURSES_WITH_EXAM_COUNT: RedisString;
+    ACTIVE_COURSES_WITH_THESIS_COUNT: RedisString;
+  };
+
   constructor(redis: Redis) {
     this.valid_programme_codes = new RedisSet(redis, VALID_PROGRAMME_CODES);
 
@@ -105,5 +117,18 @@ export class RedisCache {
       redis,
       SURVEY_ANSWERS_BY_DIVISION,
     );
+
+    this.entries = {
+      EXAM_COUNT: new RedisString(redis, EXAM_COUNT),
+      THESIS_COUNT: new RedisString(redis, THESIS_COUNT),
+      ACTIVE_COURSES_WITH_EXAM_COUNT: new RedisString(
+        redis,
+        ACTIVE_COURSES_WITH_EXAM_COUNT,
+      ),
+      ACTIVE_COURSES_WITH_THESIS_COUNT: new RedisString(
+        redis,
+        ACTIVE_COURSES_WITH_THESIS_COUNT,
+      ),
+    };
   }
 }

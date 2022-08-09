@@ -2,7 +2,7 @@
 .dialog-portal
   #modal(:class="{ show: isOpen }")
     .backdrop(@click="hide")
-    .vv-dialog.p-3(@keydown.esc="hide")
+    .vv-dialog.rounded.bg-base-100.p-3(@keydown.esc="hide")
       component(
         :is="component",
         v-bind="props",
@@ -28,7 +28,7 @@ export default defineComponent({
       props,
       hide: dialog.hide,
       submit: dialog.submit,
-    }
+    };
   },
 });
 </script>

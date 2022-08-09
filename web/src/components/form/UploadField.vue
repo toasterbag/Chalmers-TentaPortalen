@@ -1,11 +1,11 @@
 <template lang="pug">
-.sp-upload-field
-  .upload-button.d-flex.justify-content-center.align-items-center.text-center
+.sp-upload-field.bg-base-200.rounded
+  .upload-button.flex.justify-center.items-center.text-center
     .text {{ text }}
     input(ref="uploadInput", type="file", @input="onInput")
 
-  .file.d-flex.align-items-center.p-2(v-if="modelValue")
-    i.fa.file-icon.text-primary.pe-2(:class="modelValue.icon")
+  .file.flex.items-center.p-2(v-if="modelValue")
+    i.fa.file-icon.text-primary.pr-2(:class="modelValue.icon")
     span {{ modelValue.name }}
     //- i.fa.fa-times.fa-lg.text-accent.ms-auto(@click="remove(file)")
 
@@ -13,14 +13,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, Ref } from "vue"
+import { defineComponent, PropType, ref, Ref } from "vue";
 
 export default defineComponent({
   name: "UploadField",
   props: {
     modelValue: {
       required: false,
-      type: Object as PropType<(File & { icon: string })>
+      type: Object as PropType<File & { icon: string }>,
     },
     text: {
       required: false,
@@ -35,7 +35,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const uploadInput: Ref<HTMLInputElement | undefined> = ref(undefined)
+    const uploadInput: Ref<HTMLInputElement | undefined> = ref(undefined);
 
     const getFileIcon = (type: string) => {
       const [category, kind] = type.split("/");
@@ -65,20 +65,19 @@ export default defineComponent({
       return "fa-file";
     };
 
-
     const onInput = () => {
       const file = Array.from(uploadInput.value?.files ?? [])
-        .map(f => Object.assign(f, { icon: getFileIcon(f.type) }))
+        .map((f) => Object.assign(f, { icon: getFileIcon(f.type) }))
         .first();
-      console.log(file)
+      console.log(file);
 
       emit("update:modelValue", file);
-    }
+    };
 
     return {
       onInput,
       uploadInput,
-    }
+    };
   },
 });
 </script>

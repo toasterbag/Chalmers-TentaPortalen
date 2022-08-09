@@ -14,10 +14,8 @@ module.exports = {
     "@vue/prettier",
   ],
   rules: {
-    "@typescript-eslint/quotes": [
-      "error",
-      "double"
-    ],
+    "vue/no-duplicate-attributes": "off",
+    "@typescript-eslint/quotes": ["error", "double"],
     "no-control-regex": "off",
     "import/no-cycle": "off",
     "default-case": "off",
@@ -25,26 +23,17 @@ module.exports = {
     "no-console": [
       "error",
       {
-        allow: [
-          "warn",
-          "error",
-          "info"
-        ]
-      }
+        allow: ["warn", "error", "info"],
+      },
     ],
     "class-methods-use-this": "off",
     "import/prefer-default-export": "off",
-    "no-restricted-syntax": [
-      "off",
-      "BinaryExpression[operator='of']"
-    ],
+    "no-restricted-syntax": ["off", "BinaryExpression[operator='of']"],
     // Not a problem for node environments
     "no-multi-str": "off",
     "no-nested-ternary": "off",
     "no-continue": "off",
-    "no-extend-native": "off"
+    "no-extend-native": "off",
   },
-  ignorePatterns: [
-    ".eslintrc.js"
-  ],
+  ignorePatterns: [".eslintrc.js"],
 };

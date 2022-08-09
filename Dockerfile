@@ -10,15 +10,16 @@ RUN mkdir /app && chown node:node /app
 WORKDIR /app
 USER node
 COPY --chown=node:node package.json yarn.lock ./
-COPY --chown=node:node ./prisma ./prisma
+COPY --chown=node:node ./prisma-common ./prisma-common
+COPY --chown=node:node ./prisma-restricted ./prisma-restricted
 RUN yarn install --production
-RUN yarn generate
 
 FROM dev-deps AS compile
 WORKDIR /app
 USER node
 COPY --chown=node:node . ./
-RUN yarn generate
+RUN npx prisma generate --schema=/app/prisma-common/schema.prisma
+RUN npx prisma generate --schema=/app/prisma-restricted/schema.prisma
 RUN yarn build
 
 FROM node:17-alpine AS final

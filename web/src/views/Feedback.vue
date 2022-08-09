@@ -1,22 +1,16 @@
 <template lang="pug">
-.row.justify-content-center
-  .row.p-4.justify-content-center
-    .col-12.col-md-8.fs-4
-      div We would appreciate any feedback you may have, be it bugs or feature request. You can write to us in both Swedish and English! 😉
-  .row.p-4.justify-content-center
-    .col-12.col-md-6
-      .mb-3.relative
-        label.form-label(for="email") Email (leave empty to be anonymous)
-        input#code.form-control(v-model="email")
-        .text-error {{ errors.get('email') }}
-      .mb-3.form-floating
-        label(for="message")
-        textarea#message.form-control(
-          placeholder="Leave a message here",
-          v-model="message"
-        )
-        .text-error {{ errors.get('message') }}
-      .btn.bg-primary(@click="submit") Submit
+.flex.justify-center
+  div(class="lg:max-w-[700px]")
+    .flex.justify-center.mb-4
+      .text-xl We would appreciate any feedback you may have, be it bugs or feature request. You can write to us in both Swedish and English! 😉
+    .flex.flex-col.gap-2
+      RetroInput(v-model="email", label="Email (leave empty to be anonymous)")
+      .text-error {{ errors.get("email") }}
+      label(for="message")
+      RetroInput(v-model="message", label="Message")
+      .text-error {{ errors.get("message") }}
+      .flex.justify-end
+        .btn.bg-primary(@click="submit") Submit
 </template>
 
 <script lang="ts">
@@ -51,7 +45,7 @@ export default defineComponent({
           errors.value.set(error.path[0] ?? "message", error.message);
         }
       } else {
-        // router.push({ name: "Home" });
+        router.push({ name: "Home" });
         toast.push({ content: "Thanks for your feedback!" });
       }
     };

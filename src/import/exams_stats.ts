@@ -8,6 +8,8 @@ import { range } from "@app/std";
 
 type Grade = "TG" | "G" | "U" | "3" | "4" | "5";
 
+const validGrades = new Set(["3", "G", "4", "5", "U"]);
+
 const gradeToColumnName = (grade: Grade) => {
   switch (grade) {
     case "3":
@@ -95,6 +97,11 @@ const parseDataSheet = (sheet: WorkSheet) => {
     }
 
     const byDate = byCourse[data.date];
+
+    if (!validGrades.has(data.grade)) {
+      console.warn("Found invalid grade for:", data);
+      continue;
+    }
 
     if (!(data.module_id in byDate)) {
       byDate[data.module_id] = {

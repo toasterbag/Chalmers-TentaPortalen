@@ -5,17 +5,22 @@ import { Err, Ok, Result } from "../../std/result";
 import Http, { CONFIG } from "../http";
 import { usePlausible } from "../plausible";
 import {
+  Profile,
+  Module,
+  Exam,
+  Survey,
   Course,
   CourseInstance,
   Department,
   Programme,
-} from "@backend/prisma/clients/common";
-import { Profile, Module, Exam, Survey } from "./types";
+} from "./types";
+
 interface State {
   apiUrl: string;
   publicUrl: string;
   profile: Profile | undefined;
   programmes: Array<Programme>;
+  departments: Array<Department>;
 }
 
 // const rank = <T>(term: string, data: Array<T>, extractor: (x: T) => string) =>
@@ -111,6 +116,7 @@ export const useAPI = defineStore("API", {
     apiUrl: "",
     publicUrl: "",
     programmes: [],
+    departments: [],
     profile: loadProfile(),
   }),
   getters: {
@@ -185,9 +191,33 @@ export const useAPI = defineStore("API", {
       await Http.delete(`/exams/solution/${id}`);
     },
 
+    async countExams() {
+      return Http.get("/analysis/count/exams");
+    },
+    async countTheses() {
+      return Http.get("/analysis/count/theses");
+    },
+
+    async countCoursesWithExams() {
+      return Http.get("/analysis/count/active-courses-with-exam");
+    },
+    async countCoursesWithThesis() {
+      return Http.get("/analysis/count/active-courses-with-thesis");
+    },
+
+    async getCoursesWithoutThesis(args: {
+      programme?: string;
+      year?: string;
+      departmentId?: number;
+    }): Promise<Array<Course>> {
+      return Http.get("/analysis/courses-without-thesis", {
+        query: args,
+      });
+    },
     async fetchAllProgrammes() {
       this.programmes = await Http.get("/programmes");
     },
+
     async searchProgramme(term: string): Promise<Array<Programme>> {
       if (this.programmes.isEmpty()) {
         await this.fetchAllProgrammes();
@@ -195,6 +225,19 @@ export const useAPI = defineStore("API", {
       // return rank(term, this.programmes, (v) => v.code);
       const termInUppercase = term.toUpperCase();
       return this.programmes.filter((e) => e.code.startsWith(termInUppercase));
+    },
+
+    async fetchAllDepartments() {
+      this.departments = await Http.get("/departments");
+    },
+    async searchDepartment(term: string): Promise<Array<Department>> {
+      if (this.departments.isEmpty()) {
+        await this.fetchAllDepartments();
+      }
+      const termInLowerCase = term.toLowerCase();
+      return this.departments.filter((e) =>
+        e.name_en.toLowerCase().includes(termInLowerCase),
+      );
     },
 
     async fetchProgrammeImpressionRankings(
@@ -208,7 +251,9 @@ export const useAPI = defineStore("API", {
 
     async fetchCourseImpressionRankings(
       query: FetchCourseImpressionRankingsArguments,
-    ): Promise<Array<Survey>> {
+    ): Promise<
+      Array<Survey & { course: { name_en: string; name_sv: string } }>
+    > {
       return Http.get("/courses/rankings/survey", {
         query: {
           ...query,
@@ -219,7 +264,7 @@ export const useAPI = defineStore("API", {
 
     async fetchCoursePerformanceRankings(
       query: FetchCoursePerformanceRankingsArguments,
-    ): Promise<Array<Exam>> {
+    ): Promise<Array<Exam & { course: { name_en: string; name_sv: string } }>> {
       return Http.get("/courses/rankings/performance", {
         query: {
           ...query,
